@@ -1,11 +1,17 @@
 import { Request, Response } from "express";
+import { checkSearchParams } from "../../middleware/checks";
+import { getPlacesByName } from "./searchController";
 
 export default [
   {
-    handler: async (req: Request, res: Response) => {
-      res.send("Hello world!");
-    },
+    handler: [
+      checkSearchParams,
+      async ({ query }: Request, res: Response) => {
+        const result = await getPlacesByName(query.q);
+        res.status(200).send(result);
+      },
+    ],
     method: "get",
-    path: "/",
+    path: "/api/v1/search",
   },
 ];
