@@ -1,0 +1,39 @@
+{
+  "name": "typescript-postgres-auth-example",
+  "version": "1.0.0",
+  "description": "RBAC / ABAC authorization example app",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "./node_modules/.bin/tsc",
+    "lint": "./node_modules/.bin/tslint -c tslint.json 'src/**/*.ts'",
+    "start": "node dist/server.js",
+    "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "test": "./node_modules/.bin/jest",
+    "coverage": "./node_modules/.bin/jest --coverage"
+  },
+  "dependencies": {
+    "compression": "^1.7.3",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "@types/compression": "0.0.36",
+    "@types/cors": "^2.8.4",
+    "@types/dotenv": "^6.1.0",
+    "@types/express": "^4.16.0",
+    "@types/jest": "^23.3.12",
+    "@types/node": "^10.12.18",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "tsc-watch": "^1.0.31",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.4"
+  },
+  "author": "Mike Sparr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikesparr/typescript-postgres-auth-example/issues"
+  },
+  "homepage": "https://github.com/mikesparr/typescript-postgres-auth-example#readme"
+}

@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "esModuleInterop": true,
+        "declaration": true,
+        "sourceMap": true,
+        "outDir": "dist/",
+        "target": "es5",
+        "lib": ["es5", "es6", "dom", "esnext.asynciterable"]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.test.ts"
+    ]
+}
