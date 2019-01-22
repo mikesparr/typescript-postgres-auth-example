@@ -6,7 +6,7 @@ import rdbms from "./config/rdbms"; // config file for typeorm
 import logger from "./config/logger"; // console logger using winston
 import routes from "./services";
 
-import {User} from "./services/user/user.entity";
+import {User} from "./services/user/user.entity"; // TODO: remove me after test
 
 process.on("uncaughtException", (e) => {
   logger.error(e);
