@@ -33,6 +33,47 @@
           }
         ]
       }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Get All Users"],
+        "summary": "Returns all users",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "content": {
+          "application/json": {}
+        }
+      },
+      "get": {
+        "tags": ["Get One User"],
+        "summary": "Looks up user by Id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "content": {
+          "application/json": {}
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Specifies the user ID",
+            "required": true,
+            "type": "string"
+          }
+        ]
+      }
     }
   }
 }

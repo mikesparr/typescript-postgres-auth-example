@@ -13,11 +13,15 @@
   },
   "dependencies": {
     "compression": "^1.7.3",
+    "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
+    "pg": "^7.8.0",
     "request-promise": "^4.2.2",
-    "swagger-ui-express": "^4.0.2"
+    "swagger-ui-express": "^4.0.2",
+    "typeorm": "^0.2.12"
   },
   "devDependencies": {
     "@types/compression": "0.0.36",

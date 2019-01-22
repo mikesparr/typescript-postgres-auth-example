@@ -19,14 +19,31 @@ type Handler = (
 
 /* tslint:disable-next-line */
 type Route = {
+  action?: string;
   path: string;
   method: string;
-  handler: Handler | Handler[];
+  handler?: Handler | Handler[];
+  controller?: any;
 };
 
 export const applyRoutes = (routes: Route[], router: Router) => {
   for (const route of routes) {
-    const { method, path, handler } = route;
-    (router as any)[method](path, handler);
+    const { action, controller, handler, method, path } = route;
+
+    if (action && controller) {
+      // handle response from Controller class method
+      (router as any)[route.method](route.path, (req: Request, res: Response, next: NextFunction) => {
+          const result = (new (route.controller as any)())[route.action](req, res, next);
+          if (result instanceof Promise) {
+              result.then((dbResult) => dbResult !== null && dbResult !== undefined ? res.send(dbResult) : undefined);
+
+          } else if (result !== null && result !== undefined) {
+              res.json(result);
+          }
+      });
+    } else {
+      // handle like any other middleware function
+      (router as any)[method](path, handler);
+    }
   }
 };
