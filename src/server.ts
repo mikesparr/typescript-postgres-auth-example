@@ -22,7 +22,7 @@ process.on("unhandledRejection", (e) => {
   try {
     connection = await createConnection(rdbms);
   } catch (error) {
-    console.log('Error while connecting to the database', error);
+    logger.error("Error while connecting to the database", error);
     return error;
   }
 
@@ -30,6 +30,7 @@ process.on("unhandledRejection", (e) => {
   app.listen();
 
   // TODO: remove me after test - insert new users for test
+  logger.info("Adding 2 test users to database");
   await connection.manager.save(connection.manager.create(User, {
     firstName: "Timber",
     lastName: "Saw",
