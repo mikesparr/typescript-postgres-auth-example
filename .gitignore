@@ -80,3 +80,6 @@ typings/
 
 # TypeScript distribution
 dist/**/*
+
+# Docker env file
+docker.env
