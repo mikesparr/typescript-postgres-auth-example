@@ -17,8 +17,8 @@ class UserController implements Controller {
   }
 
   private initializeRoutes(): void {
-    this.router.get(this.path, this.all);
-    this.router.get(`${this.path}/:id`, this.one);
+    this.router.get(this.path, authenticationMiddleware, this.all);
+    this.router.get(`${this.path}/:id`, authenticationMiddleware, this.one);
     this.router
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateUserDto), this.save)
