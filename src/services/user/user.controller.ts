@@ -7,7 +7,7 @@ import UserNotFoundException from '../../exceptions/UserNotFoundException';
 import validationMiddleware from '../../middleware/validation.middleware';
 
 class UserController implements Controller {
-  public path: string = "/posts";
+  public path: string = "/users";
   public router: Router = Router();
   private userRepository = getRepository(User);
 
@@ -25,12 +25,12 @@ class UserController implements Controller {
       .delete(`${this.path}/:id`, this.remove)
   }
 
-  private async all(request: Request, response: Response, next: NextFunction) {
+  private all = async (request: Request, response: Response, next: NextFunction) => {
     const users = await this.userRepository.find();
     response.send(users);
   }
 
-  private async one(request: Request, response: Response, next: NextFunction) {
+  private one = async (request: Request, response: Response, next: NextFunction) => {
     const { id } = request.params;
     const user = await this.userRepository.findOne(id);
     if (user) {
@@ -40,13 +40,13 @@ class UserController implements Controller {
     }
   }
 
-  private async save(request: Request, response: Response, next: NextFunction) {
+  private save = async (request: Request, response: Response, next: NextFunction) => {
     const userData: CreateUserDto = request.body;
     await this.userRepository.save(userData);
     response.send(userData);
   }
 
-  private async remove(request: Request, response: Response, next: NextFunction) {
+  private remove = async (request: Request, response: Response, next: NextFunction) => {
     const { id } = request.params;
     const userToRemove = await this.userRepository.findOne(id);
     if (userToRemove) {

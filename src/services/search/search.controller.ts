@@ -10,7 +10,7 @@ class SearchController implements Controller {
     this.router.get(this.path, this.getPlacesByName);
   }
 
-  private async getPlacesByName(req: Request, res: Response, next: NextFunction) {
+  private getPlacesByName = async (req: Request, res: Response, next: NextFunction) => {
     const { q } = req.query;
 
     let places: {[key: string]: any};

@@ -3,7 +3,7 @@ import winston from "winston";
 const { createLogger, format, transports } = winston;
 const { combine, timestamp, colorize, printf } = format;
 
-function prodFormat() {
+const prodFormat = () => {
   const replaceError = ({ label, level, message, stack }: any) => ({
     label,
     level,
@@ -17,7 +17,7 @@ function prodFormat() {
   return combine(format.json({ replacer }));
 }
 
-function devFormat() {
+const devFormat = () => {
   const formatMessage = (info: any) => `${info.level} ${info.message}`;
   const formatError = (info: any) =>
     `${info.level} ${info.message}\n\n${info.stack}\n`;
