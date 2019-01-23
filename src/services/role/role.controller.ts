@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import { Role } from "./role.entity";
 import Controller from '../../interfaces/controller.interface';
 import CreateRoleDto from "./role.dto";
@@ -10,7 +10,7 @@ import validationMiddleware from '../../middleware/validation.middleware';
 class RoleController implements Controller {
   public path: string = "/roles";
   public router: Router = Router();
-  private roleRepository = getRepository(Role);
+  private roleRepository: Repository<Role> = getRepository(Role);
 
   constructor() {
     this.initializeRoutes();

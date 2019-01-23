@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import { User } from "./user.entity";
 import Controller from '../../interfaces/controller.interface';
 import CreateUserDto from "./user.dto";
@@ -10,7 +10,7 @@ import validationMiddleware from '../../middleware/validation.middleware';
 class UserController implements Controller {
   public path: string = "/users";
   public router: Router = Router();
-  private userRepository = getRepository(User);
+  private userRepository: Repository<User> = getRepository(User);
 
   constructor() {
     this.initializeRoutes();

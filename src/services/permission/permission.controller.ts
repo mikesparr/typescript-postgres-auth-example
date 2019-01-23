@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import { Permission } from "./permission.entity";
 import Controller from '../../interfaces/controller.interface';
 import CreatePermissionDto from "./permission.dto";
@@ -10,7 +10,7 @@ import validationMiddleware from '../../middleware/validation.middleware';
 class PermissionController implements Controller {
   public path: string = "/permissions";
   public router: Router = Router();
-  private permissionRepository = getRepository(Permission);
+  private permissionRepository: Repository<Permission> = getRepository(Permission);
 
   constructor() {
     this.initializeRoutes();
