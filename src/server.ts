@@ -4,7 +4,10 @@ import { createConnection } from "typeorm";
 import App from "./app";
 import rdbms from "./config/rdbms"; // config file for typeorm
 import logger from "./config/logger"; // console logger using winston
-import routes from "./services";
+import controllers from "./services";
+import validateEnv from "./utils/env.validator";
+
+validateEnv();
 
 import {User} from "./services/user/user.entity"; // TODO: remove me after test
 
@@ -26,7 +29,7 @@ process.on("unhandledRejection", (e) => {
     return error;
   }
 
-  const app = new App(routes);
+  const app = new App(controllers.map((controller) => new controller()));
   app.listen();
 
   // TODO: remove me after test - insert new users for test

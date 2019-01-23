@@ -1,12 +1,29 @@
+import { NextFunction, Request, Response, Router } from "express";
 import { getPlaces } from "./provider/OpenCageDataProvider";
+import Controller from '../../interfaces/controller.interface';
 
-export const getPlacesByName = async (q: string) => {
-  if (q.length < 3) {
-    return {
-      features: [],
-      type: "FeatureCollection",
-    };
+class SearchController implements Controller {
+  public path: string = "/search";
+  public router: Router = Router();
+  
+  constructor() {
+    this.router.get(this.path, this.getPlacesByName);
   }
 
-  return await getPlaces(q);
-};
+  private async getPlacesByName(req: Request, res: Response, next: NextFunction) {
+    const { q } = req.query;
+
+    let places: {[key: string]: any};
+    if (q.length < 3) {
+      places = {
+        features: [],
+        type: "FeatureCollection",
+      };
+    }
+  
+    places = await getPlaces(q);
+    res.send(places);
+  }
+}
+
+export default SearchController;

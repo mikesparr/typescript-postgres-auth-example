@@ -1,7 +1,7 @@
-import searchRoutes from "./search/search.routes";
-import userRoutes from "./user/user.routes";
+import SearchController from "./search/search.controller";
+import UserController from "./user/user.controller";
 
 export default [
-  ...searchRoutes,
-  ...userRoutes,
+  SearchController,
+  UserController,
 ];

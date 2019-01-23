@@ -3,7 +3,7 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import express from "express";
 import logger from "./config/logger";
-import Route from "./interfaces/route.interface";
+import Controller from "./interfaces/controller.interface";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./config/swagger.json";
 import errorMiddleware from "./middleware/error.middleware";
@@ -11,11 +11,11 @@ import errorMiddleware from "./middleware/error.middleware";
 class App {
   public app: express.Application;
 
-  constructor(routes: Route[]) {
+  constructor(controllers: Controller[]) {
     this.app = express();
 
     this.initializeMiddlewares();
-    this.initializeRoutes(routes);
+    this.initializeControllers(controllers);
     this.initializeErrorHandling();
     this.initializeApiDocs();
   }
@@ -40,26 +40,12 @@ class App {
     this.app.use(errorMiddleware);
   }
 
-  private initializeRoutes = (routes: Route[]) => {
-    for (const route of routes) {
-      const { action, controller, handler, method, path } = route;
-  
-      if (action && controller) {
-        // handle response from Controller class method
-        (this.app as any)[route.method](route.path, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-            const result = (new (route.controller as any)())[route.action](req, res, next);
-            if (result instanceof Promise) {
-                result.then((dbResult) => dbResult !== null && dbResult !== undefined ? res.send(dbResult) : undefined);
-            } else if (result !== null && result !== undefined) {
-                res.json(result);
-            }
-        });
-      } else {
-        // handle like any other middleware function
-        (this.app as any)[method](path, handler);
-      }
-    }
-  };
+  private initializeControllers(controllers: Controller[]) {
+    controllers.forEach((controller) => {
+      this.app.use('/', controller.router);
+    });
+  }
+
 }
 
 export default App;
