@@ -4,6 +4,7 @@ import { User } from "./user.entity";
 import Controller from '../../interfaces/controller.interface';
 import CreateUserDto from "./user.dto";
 import UserNotFoundException from '../../exceptions/UserNotFoundException';
+import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
 
 class UserController implements Controller {
@@ -19,8 +20,8 @@ class UserController implements Controller {
     this.router.get(this.path, this.all);
     this.router.get(`${this.path}/:id`, this.one);
     this.router
-      //.all(`${this.path}/*`, authMiddleware)
-      .post(this.path, validationMiddleware(CreateUserDto), this.save)
+      .all(`${this.path}/*`, authenticationMiddleware)
+      .post(this.path, authenticationMiddleware, validationMiddleware(CreateUserDto), this.save)
       .put(`${this.path}/:id`, validationMiddleware(CreateUserDto, true), this.save)
       .delete(`${this.path}/:id`, this.remove)
   }
