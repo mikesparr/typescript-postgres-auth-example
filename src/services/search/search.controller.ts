@@ -10,8 +10,8 @@ class SearchController implements Controller {
     this.router.get(this.path, this.getPlacesByName);
   }
 
-  private getPlacesByName = async (req: Request, res: Response, next: NextFunction) => {
-    const { q } = req.query;
+  private getPlacesByName = async (request: Request, response: Response, next: NextFunction) => {
+    const { q } = request.query;
 
     let places: {[key: string]: any};
     if (q.length < 3) {
@@ -22,7 +22,7 @@ class SearchController implements Controller {
     }
   
     places = await getPlaces(q);
-    res.send(places);
+    response.send(places);
   }
 }
 
