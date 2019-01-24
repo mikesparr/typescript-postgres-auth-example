@@ -22,7 +22,7 @@ const authenticationMiddleware = async (request: RequestWithUser, response: Resp
     try {
       // first check if in deny list
       if (! await isTokenInDenyList(token)) {
-        const verificationResponse: User = readToken(token); // TODO: consider allowing expired and issue header
+        const verificationResponse: User = readToken(token);
         const id = verificationResponse.id;
         const user = await userRepository.findOne(id);
         if (user) {
