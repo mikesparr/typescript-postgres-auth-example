@@ -38,7 +38,7 @@ class AuthenticationController implements Controller {
       const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
         user.password = undefined;
-        const tokenData = createToken(user);
+        const tokenData = await createToken(user);
         // TODO: consider response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
         response.send({user, token: tokenData});
       } else {
