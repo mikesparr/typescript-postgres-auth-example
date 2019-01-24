@@ -28,6 +28,7 @@ class AuthenticationController implements Controller {
 
   private login = async (request: Request, response: Response, next: NextFunction) => {
     // TODO: lookup user by email, then compare password, add token to cache, then issue token
+    const loginData: UserLoginDto = request.body;
     const testToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.\
 eyJpZCI6MTAxLCJmaXJzdE5hbWUiOiJNaWtlIiwibGFzdE5hbWUiOiJTcGFyciIsImFnZSI6NDF9.\
 J9wlNGJuJTZwum0WlZ8Cb9ZV9mfhy8UhozMlzte_Dx0`;
