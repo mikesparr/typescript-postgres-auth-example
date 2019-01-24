@@ -38,7 +38,7 @@ class AuthenticationController implements Controller {
       if (isPasswordMatching) {
         user.password = undefined;
         const tokenData = this.createToken(user);
-        response.send({user, token: tokenData});
+        response.send({user, token: tokenData}); // TODO: decide how to send token back
       } else {
         next(new WrongCredentialsException());
       }
