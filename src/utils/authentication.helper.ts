@@ -40,13 +40,13 @@ const createToken = async (user: User): Promise<string> => {
  * @param request 
  */
 const parseToken = (request: RequestWithUser): string => {
-  let foundToken = null;
+  let foundToken: string = null;
 
   if (request && request.headers && request.headers.authorization) {
     const parts = request.headers['authorization'].split(' ');
     if (parts.length === 2) {
-      const scheme = parts[0];
-      const credentials = parts[1];
+      const scheme: string = parts[0];
+      const credentials: string = parts[1];
   
       if (/^Bearer$/i.test(scheme)) {
         foundToken = credentials;
