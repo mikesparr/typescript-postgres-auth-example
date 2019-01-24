@@ -1,3 +1,7 @@
+/**
+ * Validate parameters application needs/expects declared in ENV or .env
+ * call this function when bootstrapping app, but after config/index import
+ */
 import { cleanEnv, port, str } from "envalid";
 
 function validateEnv() {

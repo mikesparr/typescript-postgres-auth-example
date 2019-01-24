@@ -1,5 +1,8 @@
 import { IsString, IsNumber } from 'class-validator';
 
+/**
+ * Data transfer object (DTO) with expected fields for creating permissions
+ */
 class CreatePermissionDto {
 
   @IsString()

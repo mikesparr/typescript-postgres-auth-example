@@ -7,6 +7,12 @@ import WrongAuthenticationTokenException from "../exceptions/WrongAuthentication
 import RequestWithUser from "../interfaces/request.interface";
 import { User } from "../services/user/user.entity";
 
+/**
+ * Validates authentication token for route or throws Error
+ * @param request 
+ * @param response 
+ * @param next 
+ */
 const authenticationMiddleware = async (request: RequestWithUser, response: Response, next: NextFunction) => {
   const token = parseToken(request);
 

@@ -2,6 +2,9 @@ import { Column, Entity, PrimaryColumn, OneToMany, ManyToMany } from "typeorm";
 import { Permission } from "../permission/permission.entity";
 import { User } from "../user/user.entity";
 
+/**
+ * Data object with annotations to configure database in ORM
+ */
 @Entity()
 export class Role {
 

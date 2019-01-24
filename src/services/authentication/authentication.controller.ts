@@ -13,10 +13,14 @@ import UserLoginDto from "./login.dto";
 import CreateUserDto from "../user/user.dto";
 import RequestWithUser from "../../interfaces/request.interface";
 
+/**
+ * Handles global route and authentication routes
+ */
 class AuthenticationController implements Controller {
   public path: string = "";
   public router: Router = Router();
   private userRepository: Repository<User> = getRepository(User);
+  private roleRepository: Repository<Role> = getRepository(Role);
 
   constructor() {
     this.initializeRoutes();
@@ -31,6 +35,9 @@ class AuthenticationController implements Controller {
     // TODO: confirm email
   }
 
+  /**
+   * Returns valid token if successful login credentials
+   */
   private login = async (request: Request, response: Response, next: NextFunction) => {
     const loginData: UserLoginDto = request.body;
     const user = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
@@ -49,12 +56,18 @@ class AuthenticationController implements Controller {
     }
   }
 
+  /**
+   * Removes token from cache and prevents future requests for that device
+   */
   private logout = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const success = await removeTokenFromCache(parseToken(request));
+    const success = await removeTokenFromCache(parseToken(request)); // TODO: add to deny list
     response.send({success, data: null});
   }
 
-  // TODO: send email verification link before user active
+  /**
+   * Registers new guest user (pending verification) and stores in database
+   * TODO: send email verification link
+   */
   private register = async (request: Request, response: Response, next: NextFunction) => {
     const userData: CreateUserDto = request.body;
     if (
@@ -63,10 +76,11 @@ class AuthenticationController implements Controller {
       next(new UserExistsException(userData.email));
     } else {
       const hashedPassword = await hashPassword(userData.password);
+      const guestRole = this.roleRepository.create({id: "guest"});
       const user = this.userRepository.create({
         ...userData,
         password: hashedPassword,
-        roles: [{id: "guest"}]
+        roles: [guestRole]
       });
       await this.userRepository.save(user);
       user.password = undefined;

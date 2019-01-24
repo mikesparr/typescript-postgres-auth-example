@@ -1,5 +1,8 @@
 import { IsEmail, IsString, IsNumber } from 'class-validator';
 
+/**
+ * Data transfer object (DTO) with expected fields for creating users
+ */
 class CreateUserDto {
   @IsString()
   public firstName: string;

@@ -7,6 +7,9 @@ import UserNotFoundException from '../../exceptions/UserNotFoundException';
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
 
+/**
+ * Handles CRUD operations on User data in database
+ */
 class UserController implements Controller {
   public path: string = "/users";
   public router: Router = Router();

@@ -1,6 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
 import { Role } from "../role/role.entity";
 
+/**
+ * Data object with annotations to configure database in ORM
+ */
 @Entity()
 export class User {
 

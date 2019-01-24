@@ -1,3 +1,6 @@
+/**
+ * Use within 'connection' block in server to create test data
+ */
 import logger from "./logger";
 import { hashPassword } from "../utils/authentication.helper";
 import {User} from "../services/user/user.entity";
@@ -71,15 +74,15 @@ const createTestData = async (connection: any) => {
     lastName: "User",
     age: 0,
     email: "guest@test.com",
-    password: hashPassword("changeme"),
+    password: await hashPassword("changeme"),
     roles: [guestRole]
   }));
   await connection.manager.save(connection.manager.create(User, {
     firstName: "Basic",
     lastName: "User",
-    age: 18,
+    age: 20,
     email: "user@test.com",
-    password: hashPassword("changeme"),
+    password: await hashPassword("changeme"),
     roles: [userRole]
   }));
   await connection.manager.save(connection.manager.create(User, {
@@ -87,7 +90,7 @@ const createTestData = async (connection: any) => {
     lastName: "User",
     age: 30,
     email: "admin@test.com",
-    password: hashPassword("changeme"),
+    password: await hashPassword("changeme"),
     roles: [userRole, adminRole],
   }));
 };

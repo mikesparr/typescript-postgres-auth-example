@@ -9,6 +9,9 @@ import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./config/swagger.json";
 import errorMiddleware from "./middleware/error.middleware";
 
+/**
+ * Express application wrapper class to centralize initialization
+ */
 class App {
   public app: express.Application;
 
@@ -22,12 +25,18 @@ class App {
     this.initializeApiDocs();
   }
 
+  /**
+   * Starts the application listener (web server)
+   */
   public listen() {
     this.app.listen(process.env.PORT, () => {
       logger.info(`App listening on the port ${process.env.PORT}`);
     });
   }
 
+  /**
+   * Adds security middleware to app
+   */
   private initializeSecurity() {
     this.app.use(helmet.noCache());
     this.app.use(helmet.frameguard());
@@ -38,20 +47,33 @@ class App {
     this.app.use(helmet.xssFilter());
   }
 
+  /**
+   * Adds desired middleware to app
+   */
   private initializeMiddlewares() {
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
     this.app.use(compression());
   }
 
+  /**
+   * Adds Swagger (OAPI) generated documentation route
+   */
   private initializeApiDocs() {
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   }
 
+  /**
+   * Adds error middleware to app
+   */
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
   }
 
+  /**
+   * Iterates through controllers in services/index and adds their routes/handlers to app
+   * @param controllers 
+   */
   private initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
       this.app.use('/', controller.router);

@@ -7,6 +7,9 @@ import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
 
+/**
+ * Handles CRUD operations on Permission data in database
+ */
 class PermissionController implements Controller {
   public path: string = "/permissions";
   public router: Router = Router();

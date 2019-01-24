@@ -1,3 +1,8 @@
+/**
+ * Main application file that is started from command line
+ * Optional: uncomment the createTestData line (once) to create test data
+ * Optional: start with 'npm run dev' to add watch and tsc compile on file change
+ */
 import "./config"; // initiate dot env configs, etc.
 
 import { createConnection } from "typeorm";

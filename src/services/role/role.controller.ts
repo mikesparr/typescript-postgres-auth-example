@@ -7,6 +7,9 @@ import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
 
+/**
+ * Handles CRUD operations on Role data in database
+ */
 class RoleController implements Controller {
   public path: string = "/roles";
   public router: Router = Router();

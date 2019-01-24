@@ -1,5 +1,8 @@
 import { ConnectionOptions } from "typeorm";
 
+/**
+ * Uses env params to configure TypeORM database library
+ */
 const config: ConnectionOptions = {
   database: process.env.POSTGRES_DB,
   entities: [

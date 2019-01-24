@@ -1,3 +1,6 @@
+/**
+ * Wraps Controllers for easy import from other modules
+ */
 import AuthenticationController from "./authentication/authentication.controller";
 import PermissionController from "./permission/permission.controller";
 import RoleController from "./role/role.controller";

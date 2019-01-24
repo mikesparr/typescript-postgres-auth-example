@@ -1,3 +1,6 @@
+/**
+ * Standard logger (to console for 12factor)
+ */
 import winston from "winston";
 
 const { createLogger, format, transports } = winston;
