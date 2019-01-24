@@ -13,8 +13,14 @@ export class User {
   @Column()
   public lastName: string;
 
-  @Column()
+  @Column({ nullable: true })
   public age: number;
+
+  @Column()
+  public email: string;
+
+  @Column({ nullable: true })
+  public password: string;
 
   @ManyToMany(type => Role, role => role.users)
   @JoinTable()

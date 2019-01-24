@@ -64,12 +64,14 @@ const createTestData = async (connection: any) => {
     firstName: "Basic",
     lastName: "User",
     age: 18,
+    email: "user@test.com",
     roles: [userRole]
   }));
   await connection.manager.save(connection.manager.create(User, {
     firstName: "Admin",
     lastName: "User",
     age: 30,
+    email: "admin@test.com",
     roles: [adminRole],
   }));
 };
