@@ -7,9 +7,9 @@ import logger from "./config/logger"; // console logger using winston
 import controllers from "./services";
 import validateEnv from "./utils/env.validator";
 
-validateEnv();
+import createTestData from "./config/data.test";
 
-import {User} from "./services/user/user.entity"; // TODO: remove me after test
+validateEnv();
 
 process.on("uncaughtException", (e) => {
   logger.error(e);
@@ -33,16 +33,6 @@ process.on("unhandledRejection", (e) => {
   app.listen();
 
   // TODO: remove me after test - insert new users for test
-  logger.info("Adding 2 test users to database");
-  await connection.manager.save(connection.manager.create(User, {
-    firstName: "Timber",
-    lastName: "Saw",
-    age: 27
-  }));
-  await connection.manager.save(connection.manager.create(User, {
-    firstName: "Phantom",
-    lastName: "Assassin",
-    age: 24
-  }));
+  // await createTestData(connection);
   // end remove me
 })();
