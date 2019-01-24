@@ -76,9 +76,6 @@ class AuthenticationController implements Controller {
     // TODO: consider embedding auth model (or cache it)
     const dataStoredInToken: {[key: string]: any} = {
       id: user.id,
-      roles: user.roles,
-      displayName: `${user.firstName} ${user.lastName}`,
-      email: user.email,
     };
 
     return jwt.sign(dataStoredInToken, secret, { expiresIn: "1h" });
