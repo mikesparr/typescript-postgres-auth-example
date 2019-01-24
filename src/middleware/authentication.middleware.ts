@@ -1,49 +1,32 @@
 import { NextFunction, Response } from "express";
-import jwt from "jsonwebtoken";
+import { parseToken, readToken, isTokenInDenyList } from "../utils/authentication.helper";
 import { getRepository } from "typeorm";
+import AuthenticationTokenExpiredException from "../exceptions/AuthenticationTokenExpiredException";
 import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
 import WrongAuthenticationTokenException from "../exceptions/WrongAuthenticationTokenException";
 import RequestWithUser from "../interfaces/request.interface";
 import { User } from "../services/user/user.entity";
 
-const parseToken = (request: RequestWithUser): string => {
-  let foundToken = null;
-
-  if (request && request.headers && request.headers.authorization) {
-    const parts = request.headers['authorization'].split(' ');
-    if (parts.length === 2) {
-      const scheme = parts[0];
-      const credentials = parts[1];
-  
-      if (/^Bearer$/i.test(scheme)) {
-        foundToken = credentials;
-      }
-    }
-  }
-
-  return foundToken;
-}
-
 const authenticationMiddleware = async (request: RequestWithUser, response: Response, next: NextFunction) => {
   const token = parseToken(request);
 
   if (token) {
-    const secret = process.env.JWT_SECRET;
     const userRepository = getRepository(User);
 
-    // TODO: add cert signing for more security
-    // TODO: consider adding JWT blacklist check in cache (Redis) to avoid hijacking
-    // TODO: send token and reissue x-token-refresh header if active in Redis but past TTL
-
     try {
-      const verificationResponse = jwt.verify(token, secret) as User;
-      const id = verificationResponse.id; // TODO: consider using sub key as standard for 'subject'
-      const user = await userRepository.findOne(id); // TODO: consider grabbing from cache (Redis)
-      if (user) {
-        request.user = user;
-        next();
+      // first check if in deny list
+      if (! await isTokenInDenyList(token)) {
+        const verificationResponse: User = readToken(token); // TODO: consider allowing expired and issue header
+        const id = verificationResponse.id;
+        const user = await userRepository.findOne(id);
+        if (user) {
+          request.user = user;
+          next();
+        } else {
+          next(new WrongAuthenticationTokenException());
+        }
       } else {
-        next(new WrongAuthenticationTokenException());
+        next(new AuthenticationTokenExpiredException());
       }
     } catch (error) {
       next(new WrongAuthenticationTokenException());

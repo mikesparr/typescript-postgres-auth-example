@@ -1,15 +1,17 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response, Router } from "express";
 import { getRepository, Repository } from "typeorm";
-import { User } from "../user/user.entity";
 import Controller from '../../interfaces/controller.interface';
-import UserLoginDto from "./login.dto";
-import CreateUserDto from "../user/user.dto";
 import WrongCredentialsException from '../../exceptions/WrongCredentialsException';
 import UserExistsException from '../../exceptions/UserExistsException';
+import { hashPassword, verifyPassword, createToken, parseToken, removeTokenFromCache } from "../../utils/authentication.helper";
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
+
+import { User } from "../user/user.entity";
+import { Role } from "../role/role.entity";
+import UserLoginDto from "./login.dto";
+import CreateUserDto from "../user/user.dto";
+import RequestWithUser from "../../interfaces/request.interface";
 
 class AuthenticationController implements Controller {
   public path: string = "";
@@ -29,16 +31,16 @@ class AuthenticationController implements Controller {
     // TODO: confirm email
   }
 
-  // TODO: consider response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
   private login = async (request: Request, response: Response, next: NextFunction) => {
     const loginData: UserLoginDto = request.body;
     const user = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
     if (user) {
-      const isPasswordMatching = await bcrypt.compare(loginData.password, user.password);
+      const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
         user.password = undefined;
-        const tokenData = this.createToken(user);
-        response.send({user, token: tokenData}); // TODO: decide how to send token back
+        const tokenData = createToken(user);
+        // TODO: consider response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+        response.send({user, token: tokenData});
       } else {
         next(new WrongCredentialsException());
       }
@@ -47,9 +49,9 @@ class AuthenticationController implements Controller {
     }
   }
 
-  private logout = async (request: Request, response: Response, next: NextFunction) => {
-    // TODO: remove token from cache
-    response.send({success: true, data: null});
+  private logout = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const success = await removeTokenFromCache(parseToken(request));
+    response.send({success, data: null});
   }
 
   // TODO: send email verification link before user active
@@ -60,25 +62,16 @@ class AuthenticationController implements Controller {
     ) {
       next(new UserExistsException(userData.email));
     } else {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const hashedPassword = await hashPassword(userData.password);
       const user = this.userRepository.create({
         ...userData,
         password: hashedPassword,
+        roles: [{id: "guest"}]
       });
       await this.userRepository.save(user);
       user.password = undefined;
       response.send(user);
     }
-  }
-
-  private createToken(user: User): string {
-    const secret = process.env.JWT_SECRET;
-    // TODO: consider embedding auth model (or cache it)
-    const dataStoredInToken: {[key: string]: any} = {
-      id: user.id,
-    };
-
-    return jwt.sign(dataStoredInToken, secret, { expiresIn: "1h" });
   }
 
 }
