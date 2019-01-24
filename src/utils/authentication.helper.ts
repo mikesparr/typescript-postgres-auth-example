@@ -9,19 +9,35 @@ import logger from "../config/logger";
 import RequestWithUser from "../interfaces/request.interface";
 import { User } from "../services/user/user.entity";
 
+/**
+ * Keys for cache
+ */
 const DENYLIST_KEY: string = "token:denylist";
 const USER_TOKENS_KEY = (userId: number | string): string => `user:${userId}:tokens`;
 
+/**
+ * Returns hashed password string using preferred crypto
+ * @param plainTextPassword 
+ */
 const hashPassword = async (plainTextPassword: string): Promise<string> => {
   return bcrypt.hash(plainTextPassword, 10);
 }
 
+/**
+ * Returns true if hashed version of plain text matches hashed version
+ * @param plainTextPassword 
+ * @param hashedPassword 
+ */
 const verifyPassword = async (plainTextPassword: string, hashedPassword: string): Promise<boolean> => {
   return bcrypt.compare(plainTextPassword, hashedPassword);
 }
 
+/**
+ * Creates auth token and stores in cache
+ * @param user 
+ */
 const createToken = async (user: User): Promise<string> => {
-  const secret = process.env.JWT_SECRET;
+  const secret: string = process.env.JWT_SECRET;
   const dataStoredInToken: {[key: string]: any} = {
     id: user.id,
     displayName: `${user.firstName} ${user.lastName}`,
@@ -57,16 +73,28 @@ const parseToken = (request: RequestWithUser): string => {
   return foundToken;
 }
 
+/**
+ * Returns payload of token after decrypting
+ * @param token 
+ */
 const readToken = (token: string): User => {
-  const secret = process.env.JWT_SECRET;
+  const secret: string = process.env.JWT_SECRET;
   return jwt.verify(token, secret) as User;
 }
 
+/**
+ * Adds user tokens to deny list and removes from cache
+ * @param user 
+ */
 const revokeUserAccess = async (user: User): Promise<void> => {
   await addAllUserTokensToDenyList(user);
   await removeAllUserTokensFromCache(user);
 }
 
+/**
+ * Saves token in cache using itself as key
+ * @param token 
+ */
 const storeTokenInCache = async (token: string): Promise<boolean> => {
   const tokenData: User = readToken(token);
   let success: boolean = false;
@@ -81,10 +109,18 @@ const storeTokenInCache = async (token: string): Promise<boolean> => {
   return success;
 }
 
+/**
+ * Retrieves token payload from cache using itself as key
+ * @param token 
+ */
 const getTokenFromCache = async (token: string): Promise<string> => {
   return cache.get(token);
 }
 
+/**
+ * Removes token from cache (if that wasn't obvious)
+ * @param token 
+ */
 const removeTokenFromCache = async (token: string): Promise<boolean> => {
   let success: boolean = false;
   
@@ -98,40 +134,77 @@ const removeTokenFromCache = async (token: string): Promise<boolean> => {
   return success;
 }
 
+/**
+ * Adds token to list for a given user ID
+ * @param user 
+ * @param token 
+ */
 const addTokenToUserTokensList = async (user: User, token: string): Promise<boolean> => {
   return await cache.sadd(USER_TOKENS_KEY(user.id), token) === 1;
 }
 
+/**
+ * Returns array of token strings for a given user ID
+ * @param user 
+ */
 const getTokensFromUserTokensList = async (user: User): Promise<string[]> => {
   return cache.smembers(USER_TOKENS_KEY(user.id));
 }
 
+/**
+ * Removes a specified token from a given user's token list
+ * @param user 
+ * @param token 
+ */
 const removeTokenFromUserTokensList = async (user: User, token: string): Promise<boolean> => {
   return await cache.srem(USER_TOKENS_KEY(user.id), token) === 1;
 }
 
+/**
+ * Iterates through user token list and adds all to deny list
+ * @param user 
+ */
 const addAllUserTokensToDenyList = async (user:User): Promise<void> => {
   const userTokens = await getTokensFromUserTokensList(user);
   userTokens.forEach(async (token) => await addTokenToDenyList(token));
 }
 
+/**
+ * Iterates through user token list and removes from cache
+ * @param user 
+ */
 const removeAllUserTokensFromCache = async (user:User): Promise<void> => {
   const userTokens = await getTokensFromUserTokensList(user);
   userTokens.forEach(async (token) => await removeTokenFromCache(token));
 }
 
+/**
+ * Adds a given token to global deny list
+ * @param token 
+ */
 const addTokenToDenyList = async (token: string): Promise<boolean> => {
   return await cache.sadd(DENYLIST_KEY, token) === 1;
 }
 
+/**
+ * Checks whether token is in global deny list
+ * @param token 
+ */
 const isTokenInDenyList = async (token: string): Promise<boolean> => {
   return await cache.sismember(DENYLIST_KEY, token) === 1;
 }
 
+/**
+ * Removes token from global deny list
+ * @param token 
+ */
 const removeTokenFromDenyList = async (token: string): Promise<boolean> => {
   return await cache.srem(DENYLIST_KEY, token) >= 1;
 }
 
+/**
+ * Deletes global deny list (allowing all valid tokens)
+ */
 const resetDenyList = async (): Promise<boolean> => {
   return await cache.del(DENYLIST_KEY) === 1;
 }
