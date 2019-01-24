@@ -12,6 +12,7 @@
     "coverage": "./node_modules/.bin/jest --coverage --verbose"
   },
   "dependencies": {
+    "bcrypt": "^3.0.3",
     "class-transformer": "^0.2.0",
     "class-validator": "^0.9.1",
     "compression": "^1.7.3",
@@ -30,6 +31,7 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
     "@types/compression": "0.0.36",
     "@types/cookie-parser": "^1.4.1",
     "@types/cors": "^2.8.4",

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { getRepository } from "typeorm";
 import AuthenticationTokenMissingException from "../exceptions/AuthenticationTokenMissingException";
 import WrongAuthenticationTokenException from "../exceptions/WrongAuthenticationTokenException";
@@ -33,6 +33,7 @@ const authenticationMiddleware = async (request: RequestWithUser, response: Resp
 
     // TODO: add cert signing for more security
     // TODO: consider adding JWT blacklist check in cache (Redis) to avoid hijacking
+    // TODO: send token and reissue x-token-refresh header if active in Redis but past TTL
 
     try {
       const verificationResponse = jwt.verify(token, secret) as User;
