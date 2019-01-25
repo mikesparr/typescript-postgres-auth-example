@@ -14,5 +14,8 @@ module.exports = {
 	testMatch: [
 		'**/__tests__/**/*.test.(ts|js)'
 	],
-	testEnvironment: 'node'
+	testEnvironment: 'node',
+  setupTestFrameworkScriptFile: "./src/__tests__/setup.ts",
+  verbose: true,
+  testURL: "http://localhost:3000/",
 };
