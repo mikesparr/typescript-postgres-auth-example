@@ -3,6 +3,9 @@
  * provide hooks into authorization module
  */
 import { AccessControl } from "accesscontrol";
+import Authorizer from '../interfaces/authorizer.interface';
+import AuthPermission from '../interfaces/permission.interface';
+import AuthQuery from '../interfaces/query.interface';
 import cache from "../config/cache"; // Redis commands
 import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
@@ -15,6 +18,28 @@ import { Permission } from "../services/permission/permission.entity";
  */
 const AUTHORIZATION_GRANTS_KEY = "authorization:grants";
 const USER_ROLES_KEY = (userId: number | string) => `user:${userId}:roles`;
+
+/**
+ * Action types for deciding which query method to execute
+ * read[Own|Any], create[Own|Any], update[Own|Any], delete[Own|Any]
+ */
+enum AuthorizationActions {
+  READ = "read",
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+}
+
+/**
+ * Given UPPER-CASE HTTP request method, returns authorization action
+ * read, create, update, or delete
+ */
+const methodActions: {[key: string]: string} = {
+  GET: AuthorizationActions.READ,
+  PUT: AuthorizationActions.UPDATE,
+  POST: AuthorizationActions.CREATE,
+  DELETE: AuthorizationActions.DELETE,
+};
 
 /**
  * Builds JSON grant list from database roles and permissions
@@ -152,7 +177,54 @@ const getAuthorizer = async (): Promise<AccessControl> => {
   return new AccessControl(grantList);
 }
 
+/**
+ * Returns AuthPermission to check for grants and filter results
+ * @param user 
+ * @param isOwnerOrMember 
+ * @param action 
+ * @param resource 
+ */
+const getPermission = async (
+        user: User,
+        isOwnerOrMember: boolean, 
+        action: string, 
+        resource: string): Promise<AuthPermission> => {
+
+  const authorizer: Authorizer = await getAuthorizer();
+  const userRoles: string[] = await getUserRoles(user);
+  const query: AuthQuery = authorizer.can(userRoles);
+
+  if (isOwnerOrMember) {
+    switch (action) {
+      case AuthorizationActions.CREATE:
+        return query.createOwn(resource);
+      case AuthorizationActions.UPDATE:
+        return query.updateOwn(resource);
+      case AuthorizationActions.DELETE:
+        return query.deleteOwn(resource);
+      case AuthorizationActions.READ:
+        return query.readOwn(resource);
+      default:
+        return null; // throw Exception?
+    }
+  } else {
+    switch (action) {
+      case AuthorizationActions.CREATE:
+        return query.createAny(resource);
+      case AuthorizationActions.UPDATE:
+        return query.updateAny(resource);
+      case AuthorizationActions.DELETE:
+        return query.deleteAny(resource);
+      case AuthorizationActions.READ:
+        return query.readAny(resource);
+      default:
+        return null; // throw Exception?
+    }
+  }
+}
+
 export {
+  AuthorizationActions,
   getUserRoles,
   refreshUserRoles,
   getUserRolesFromDatabase,
@@ -165,4 +237,6 @@ export {
   removeGrantListFromCache,
   refreshGrants,
   getAuthorizer,
+  methodActions,
+  getPermission,
 };
