@@ -50,6 +50,11 @@ PGADMIN_DEFAULT_PASSWORD=admin
  9. Open another browser tab to localhost:3000/api-docs to explore API
 
 # User stories (demonstrated by test data and features)
+## Check test data
+See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 
+that fulfill the requirements below. The `/util/{type}.helper.ts` files abstract the specific module implementation 
+as much as possible so we could change out solutions in future without modifying the code base.
+
 ### Product Owner
  * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
 
@@ -78,11 +83,17 @@ PGADMIN_DEFAULT_PASSWORD=admin
  * As an `admin`, I want to be able to **delete** any `permission` record, so I can manage permissions and keep the system current
 
 # TODO
+## Add support for group permissions
 One could extend the functionality to add **group** or **department** (team) access as well. By making a `user`
 a member of a **group** and then adding author or group *ownership* to records, you can extend the Controller logic
 to `isOwnerOrMember` to check the records accordingly.
 
  * Example from AccessControl module author: https://github.com/onury/accesscontrol/issues/39
+
+## Add support for other API views (i.e. GraphQL)
+Some of the database interaction via ORM in Controllers could be factored out to a lib/model object for each 
+service so the Controller just calls methods. This way if we added a GraphQL service the resolvers could reuse the 
+same methods to keep the app DRY.
 
 # Contributing
 As this is just a research project, I don't plan on maintaining LTS but if any
