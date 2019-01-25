@@ -56,27 +56,55 @@ class UserController implements Controller {
   private one = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { id } = request.params;
     const user = await this.userRepository.findOne(id, { relations: ["roles"] });
-    if (user) {
-      response.send(user);
+
+    const isOwnerOrMember: boolean = request.user.id === user.id;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      if (!user) {
+        next(new UserNotFoundException(id));
+      } else {
+        response.send(permission.filter(user));
+      }
     } else {
-      next(new UserNotFoundException(id));
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
     }
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const userData: CreateUserDto = request.body;
-    await this.userRepository.save(userData);
-    response.send(userData);
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const filteredData: CreateUserDto = permission.filter(userData);
+      await this.userRepository.save(filteredData);
+      response.send(filteredData);
+    } else {
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    }
   }
 
   private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const { id } = request.params;
+    const { id } = request.params;    
     const userToRemove = await this.userRepository.findOne(id);
-    if (userToRemove) {
-      await this.userRepository.remove(userToRemove);
-      response.send(200);
+
+    const isOwnerOrMember: boolean = request.user.id === id;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      if (userToRemove) {
+        await this.userRepository.remove(userToRemove);
+        response.send(200);
+      } else {
+        next(new UserNotFoundException(id));
+      }
     } else {
-      next(new UserNotFoundException(id));
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
     }
   }
 

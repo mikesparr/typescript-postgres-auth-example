@@ -1,11 +1,17 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { getRepository, Repository } from "typeorm";
-import { Permission } from "./permission.entity";
+import AuthPermission from '../../interfaces/permission.interface';
 import Controller from '../../interfaces/controller.interface';
-import CreatePermissionDto from "./permission.dto";
+import RequestWithUser from "../../interfaces/request.interface";
 import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
+import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
+import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
+import { methodActions, getPermission } from "../../utils/authorization.helper";
+
+import { Permission } from "./permission.entity";
+import CreatePermissionDto from "./permission.dto";
 
 /**
  * Handles CRUD operations on Permission data in database
@@ -13,6 +19,7 @@ import validationMiddleware from '../../middleware/validation.middleware';
 class PermissionController implements Controller {
   public path: string = "/permissions";
   public router: Router = Router();
+  private resource: string = "permission";
   private permissionRepository: Repository<Permission> = getRepository(Permission);
 
   constructor() {
@@ -29,35 +36,76 @@ class PermissionController implements Controller {
       .delete(`${this.path}/:id`, this.remove)
   }
 
-  private all = async (request: Request, response: Response, next: NextFunction) => {
-    const permissions = await this.permissionRepository.find();
-    response.send(permissions);
-  }
+  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const roles = await this.permissionRepository.find();
+    
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
-  private one = async (request: Request, response: Response, next: NextFunction) => {
-    const { id } = request.params;
-    const permission = await this.permissionRepository.findOne(id);
-    if (permission) {
-      response.send(permission);
+    if (permission.granted) {
+      if (!roles) {
+        next(new RecordsNotFoundException(this.resource));
+      } else {
+        response.send(permission.filter(roles));
+      }
     } else {
-      next(new RecordNotFoundException(id));
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
     }
   }
 
-  private save = async (request: Request, response: Response, next: NextFunction) => {
-    const permissionData: CreatePermissionDto = request.body;
-    await this.permissionRepository.save(permissionData);
-    response.send(permissionData);
+  private one = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
+    const role = await this.permissionRepository.findOne(id, { relations: ["permissions"] });
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      if (!role) {
+        next(new RecordNotFoundException(id));
+      } else {
+        response.send(permission.filter(role));
+      }
+    } else {
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    }
   }
 
-  private remove = async (request: Request, response: Response, next: NextFunction) => {
-    const { id } = request.params;
-    const permissionToRemove = await this.permissionRepository.findOne(id);
-    if (permissionToRemove) {
-      await this.permissionRepository.remove(permissionToRemove);
-      response.send(200);
+  private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const roleData: CreatePermissionDto = request.body;
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const filteredData: CreatePermissionDto = permission.filter(roleData);
+      await this.permissionRepository.save(filteredData);
+      response.send(filteredData);
     } else {
-      next(new RecordNotFoundException(id));
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    }
+  }
+
+  private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;    
+    const roleToRemove = await this.permissionRepository.findOne(id);
+
+    const isOwnerOrMember: boolean = request.user.id === id;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      if (roleToRemove) {
+        await this.permissionRepository.remove(roleToRemove);
+        response.send(200);
+      } else {
+        next(new RecordNotFoundException(id));
+      }
+    } else {
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
     }
   }
 

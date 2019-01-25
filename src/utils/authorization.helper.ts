@@ -37,6 +37,7 @@ enum AuthorizationActions {
 const methodActions: {[key: string]: string} = {
   GET: AuthorizationActions.READ,
   PUT: AuthorizationActions.UPDATE,
+  PATCH: AuthorizationActions.UPDATE,
   POST: AuthorizationActions.CREATE,
   DELETE: AuthorizationActions.DELETE,
 };
@@ -179,6 +180,9 @@ const getAuthorizer = async (): Promise<AccessControl> => {
 
 /**
  * Returns AuthPermission to check for grants and filter results
+ * Methods to use on returned object: 
+ *  - .granted <boolean> true or false if permission granted
+ *  - .filter(Object) <Object[filtered]> optionally filter results for ABAC
  * @param user 
  * @param isOwnerOrMember 
  * @param action 

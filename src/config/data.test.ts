@@ -8,16 +8,14 @@ import {Role} from "../services/role/role.entity";
 import {Permission} from "../services/permission/permission.entity";
 
 const createTestData = async (connection: any) => {
-  const userSearchPermission = connection.manager.create(Permission, {
+  // search
+  const searchPermission = connection.manager.create(Permission, {
     resource: "search",
     action: "read:any",
     attributes: "*"
   });
-  const adminUserViewPermission = connection.manager.create(Permission, {
-    resource: "user",
-    action: "read:any",
-    attributes: "*, !password"
-  });
+
+  // user
   const userUserViewPermission = connection.manager.create(Permission, {
     resource: "user",
     action: "read:any",
@@ -27,6 +25,11 @@ const createTestData = async (connection: any) => {
     resource: "user",
     action: "update:own",
     attributes: "*"
+  });
+  const adminUserViewPermission = connection.manager.create(Permission, {
+    resource: "user",
+    action: "read:any",
+    attributes: "*, !password"
   });
   const adminUserCreatePermission = connection.manager.create(Permission, {
     resource: "user",
@@ -44,6 +47,56 @@ const createTestData = async (connection: any) => {
     attributes: "*"
   });
 
+  // role
+  const userRoleViewPermission = connection.manager.create(Permission, {
+    resource: "role",
+    action: "read:any",
+    attributes: "*, !permissions"
+  });
+  const adminRoleViewPermission = connection.manager.create(Permission, {
+    resource: "role",
+    action: "read:any",
+    attributes: "*"
+  });
+  const adminRoleCreatePermission = connection.manager.create(Permission, {
+    resource: "role",
+    action: "create:any",
+    attributes: "*"
+  });
+  const adminRoleUpdatePermission = connection.manager.create(Permission, {
+    resource: "role",
+    action: "update:any",
+    attributes: "*"
+  });
+  const adminRoleDeletePermission = connection.manager.create(Permission, {
+    resource: "role",
+    action: "delete:any",
+    attributes: "*"
+  });
+
+  // permission
+  const adminPermissionViewPermission = connection.manager.create(Permission, {
+    resource: "permission",
+    action: "read:any",
+    attributes: "*"
+  });
+  const adminPermissionCreatePermission = connection.manager.create(Permission, {
+    resource: "permission",
+    action: "create:any",
+    attributes: "*"
+  });
+  const adminPermissionUpdatePermission = connection.manager.create(Permission, {
+    resource: "permission",
+    action: "update:any",
+    attributes: "*"
+  });
+  const adminPermissionDeletePermission = connection.manager.create(Permission, {
+    resource: "permission",
+    action: "delete:any",
+    attributes: "*"
+  });
+
+
   const guestRole = connection.manager.create(Role, {
     id: "guest",
     description: "Unverified user with limited privileges",
@@ -53,9 +106,10 @@ const createTestData = async (connection: any) => {
     id: "user",
     description: "Authenticated user with basic privileges",
     permissions: [
-      userSearchPermission,
+      searchPermission,
       userUserViewPermission,
       userUserUpdatePermission,
+      userRoleViewPermission,
     ]
   });
   const adminRole = connection.manager.create(Role, {
@@ -66,15 +120,23 @@ const createTestData = async (connection: any) => {
       adminUserCreatePermission,
       adminUserUpdatePermission,
       adminUserDeletePermission,
+      adminRoleViewPermission,
+      adminRoleCreatePermission,
+      adminRoleUpdatePermission,
+      adminRoleDeletePermission,
+      adminPermissionViewPermission,
+      adminPermissionCreatePermission,
+      adminPermissionUpdatePermission,
+      adminPermissionDeletePermission,
     ]
   });
 
-  logger.info("Adding 2 test roles to database");
+  logger.info("Adding 3 test roles to database");
   await connection.manager.save(guestRole);
   await connection.manager.save(userRole);
   await connection.manager.save(adminRole);
 
-  logger.info("Adding 2 test users to database");
+  logger.info("Adding 3 test users to database");
   await connection.manager.save(connection.manager.create(User, {
     firstName: "Guest",
     lastName: "User",

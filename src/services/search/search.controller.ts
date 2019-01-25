@@ -1,6 +1,15 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getPlaces } from "./provider/OpenCageDataProvider";
+import AuthPermission from '../../interfaces/permission.interface';
 import Controller from '../../interfaces/controller.interface';
+import RequestWithUser from "../../interfaces/request.interface";
+import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
+import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
+import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
+import authenticationMiddleware from '../../middleware/authentication.middleware';
+import validationMiddleware from '../../middleware/validation.middleware';
+import { methodActions, getPermission } from "../../utils/authorization.helper";
+
+import { getPlaces } from "./provider/OpenCageDataProvider";
 
 /**
  * Example external API interaction searching geo service
@@ -8,24 +17,31 @@ import Controller from '../../interfaces/controller.interface';
 class SearchController implements Controller {
   public path: string = "/search";
   public router: Router = Router();
+  private resource: string = "search";
   
   constructor() {
-    this.router.get(this.path, this.getPlacesByName);
+    // TODO: figure out Dto pattern for querystrings for validation (q length > 3)
+    this.router.get(this.path, authenticationMiddleware, this.getPlacesByName);
   }
 
-  private getPlacesByName = async (request: Request, response: Response, next: NextFunction) => {
+  private getPlacesByName = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { q } = request.query;
 
-    let places: {[key: string]: any};
-    if (q.length < 3) {
-      places = {
-        features: [],
-        type: "FeatureCollection",
-      };
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions[request.method];
+    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const places: {[key: string]: any} = await getPlaces(q);
+      
+      if (!places) {
+        next(new RecordsNotFoundException(this.resource));
+      } else {
+        response.send(permission.filter(places));
+      }
+    } else {
+      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
     }
-  
-    places = await getPlaces(q);
-    response.send(places);
   }
 }
 

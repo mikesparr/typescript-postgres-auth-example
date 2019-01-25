@@ -29,6 +29,7 @@ const authenticationMiddleware = async (request: RequestWithUser, response: Resp
           request.user = user;
           next();
         } else {
+          // TODO: consider checking if token in cache, implying expired session (refresh token)
           next(new WrongAuthenticationTokenException());
         }
       } else {
