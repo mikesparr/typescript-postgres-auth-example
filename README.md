@@ -53,6 +53,7 @@ PGADMIN_DEFAULT_PASSWORD=admin
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
  * `npm test` or `npm run coverage`
  * NOTE: the Docker database and `createTestData` above must be run before testing
+ * SEE: `__tests__` folders in application
 
 # User stories (demonstrated by test data and features)
 ## Check test data
