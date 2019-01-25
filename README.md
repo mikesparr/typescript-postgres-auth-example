@@ -96,7 +96,7 @@ service so the Controller just calls methods. This way if we added a GraphQL ser
 same methods to keep the app DRY.
 
 # Resources
- * [Architecture: 12-factor](https://12factor.net/)
+ * [Methodology: 12-factor](https://12factor.net/)
  * [Language: Typescript](https://www.typescriptlang.org/)
  * [Framework: Express](https://expressjs.com/)
  * [Documentation: Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/)
