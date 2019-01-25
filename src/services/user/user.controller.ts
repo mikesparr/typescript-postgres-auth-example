@@ -10,10 +10,7 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import UserNotFoundException from '../../exceptions/UserNotFoundException';
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
-import { getUserRoles, getAuthorizer, createGrantListFromDatabase } from "../../utils/authorization.helper";
-
-import { AccessControl } from "accesscontrol";
-import { create } from "domain";
+import { getUserRoles, getAuthorizer } from "../../utils/authorization.helper";
 
 /**
  * Handles CRUD operations on User data in database
