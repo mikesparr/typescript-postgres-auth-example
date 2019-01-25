@@ -95,6 +95,26 @@ Some of the database interaction via ORM in Controllers could be factored out to
 service so the Controller just calls methods. This way if we added a GraphQL service the resolvers could reuse the 
 same methods to keep the app DRY.
 
+# Resources
+ * [Architecture: 12-factor](https://12factor.net/)
+ * [Language: Typescript](https://www.typescriptlang.org/)
+ * [Framework: Express](https://expressjs.com/)
+ * [Documentation: Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/)
+ * [Config: Dotenv](https://www.npmjs.com/package/dotenv)
+ * [Logging: Winston](https://www.npmjs.com/package/winston)
+ * [Security: Helmet](https://www.npmjs.com/package/helmet)
+ * [Authentication: JWT](https://www.npmjs.com/package/jsonwebtoken)
+ * [Authorization: AccessControl](https://www.npmjs.com/package/accesscontrol)
+ * [Validation: Class Validator](https://www.npmjs.com/package/class-validator)
+ * [Database: TypeORM](https://www.npmjs.com/package/typeorm)
+ * [Database: PostgreSQL](https://www.postgresql.org/)
+ * [Database: Redis](https://redis.io/commands/)
+ * [Testing: Jest](https://jestjs.io/en/)
+ * [Testing: Supertest](https://www.npmjs.com/package/supertest)
+ * [Testing: Docker Compose](https://docs.docker.com/compose/)
+ * [Testing: Postgres Admin](https://www.pgadmin.org/)
+ * [Testing: Redis CLI](https://redis.io/topics/rediscli)
+
 # Contributing
 As this is just a research project, I don't plan on maintaining LTS but if any
 suggestions on improving the app, please write Issue or PR and I'll consider. Thanks!
