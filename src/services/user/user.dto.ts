@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsNumber } from 'class-validator';
+import { IsEmail, IsString, IsNumber, IsDefined } from 'class-validator';
 
 /**
  * Data transfer object (DTO) with expected fields for creating users
@@ -14,6 +14,7 @@ class CreateUserDto {
   public age: number;
 
   @IsEmail()
+  @IsDefined()
   public email: string;
 
   @IsString()

@@ -37,17 +37,17 @@ class PermissionController implements Controller {
   }
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const roles = await this.permissionRepository.find();
+    const records = await this.permissionRepository.find();
     
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      if (!roles) {
+      if (!records) {
         next(new RecordsNotFoundException(this.resource));
       } else {
-        response.send(permission.filter(roles));
+        response.send(permission.filter(records));
       }
     } else {
       next(new UserNotAuthorizedException(request.user.id, action, this.resource));
@@ -56,17 +56,17 @@ class PermissionController implements Controller {
 
   private one = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { id } = request.params;
-    const role = await this.permissionRepository.findOne(id, { relations: ["permissions"] });
+    const record = await this.permissionRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      if (!role) {
+      if (!record) {
         next(new RecordNotFoundException(id));
       } else {
-        response.send(permission.filter(role));
+        response.send(permission.filter(record));
       }
     } else {
       next(new UserNotAuthorizedException(request.user.id, action, this.resource));
@@ -74,14 +74,14 @@ class PermissionController implements Controller {
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const roleData: CreatePermissionDto = request.body;
+    const newRecord: CreatePermissionDto = request.body;
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: CreatePermissionDto = permission.filter(roleData);
+      const filteredData: CreatePermissionDto = permission.filter(newRecord);
       await this.permissionRepository.save(filteredData);
       response.send(filteredData);
     } else {
@@ -91,15 +91,15 @@ class PermissionController implements Controller {
 
   private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { id } = request.params;    
-    const roleToRemove = await this.permissionRepository.findOne(id);
+    const recordToRemove = await this.permissionRepository.findOne(id);
 
     const isOwnerOrMember: boolean = request.user.id === id;
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      if (roleToRemove) {
-        await this.permissionRepository.remove(roleToRemove);
+      if (recordToRemove) {
+        await this.permissionRepository.remove(recordToRemove);
         response.send(200);
       } else {
         next(new RecordNotFoundException(id));

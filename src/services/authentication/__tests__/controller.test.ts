@@ -7,6 +7,7 @@ import App from "../../../app";
 import { User } from "../../user/user.entity";
 
 let app: Application;
+let testAuthToken: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -150,7 +151,22 @@ describe("Authentication", () => {
         .send(testData)
         .set("Accept", "application/json");
       
+      testAuthToken = result.body.token;
+      
       expect(result.status).toEqual(200);
     });
   }); // POST /login
+
+  describe("POST /logout", () => {
+    it("logs user out and removes token from cache", async () => {
+      const result = await request(app)
+        .post("/logout")
+        .set("Authorization", `Bearer ${testAuthToken}`)
+        .set("Accept", "application/json");
+      
+      // TODO: check cache record to confirm token removed
+      
+      expect(result.status).toEqual(200);
+    });
+  }); // POST /logout
 });

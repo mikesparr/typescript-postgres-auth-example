@@ -38,6 +38,6 @@ process.on("unhandledRejection", (e) => {
   app.listen();
 
   // TODO: remove me after test - insert new users for test
-  //  await createTestData(connection);
+  // await createTestData(connection);
   // end remove me
 })();

@@ -49,6 +49,11 @@ PGADMIN_DEFAULT_PASSWORD=admin
    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
  9. Open another browser tab to localhost:3000/api-docs to explore API
 
+# Testing
+This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
+ * `npm test` or `npm run coverage`
+ * NOTE: the Docker database and `createTestData` above must be run before testing
+
 # User stories (demonstrated by test data and features)
 ## Check test data
 See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 
