@@ -14,20 +14,21 @@ import { Permission } from "../services/permission/permission.entity";
  * Keys for cache
  */
 const AUTHORIZATION_GRANTS_KEY = "authorization:grants";
+const USER_ROLES_KEY = (userId: number | string) => `user:${userId}:roles`;
 
 /**
  * Builds JSON grant list from database roles and permissions
  */
-const createGrantListFromDatabase = async (): Promise<{[key: string]: any}> => {
+const createGrantListFromDatabase = async (): Promise<Array<{[key: string]: any}>> => {
   logger.info(`Created new grant list from database`);
   const grantList: Array<{[key: string]: any}> = [];
   const roleRepository: Repository<Role> = getRepository(Role);
-  const roles: Role[] = await this.roleRepository.find({ relations: ["permissions"] });
+  const roles: Role[] = await roleRepository.find({ relations: ["permissions"] });
 
   roles.forEach((role: Role) => {
     role.permissions.forEach((permission: Permission) => {
       const permObj: {[key: string]: any} = {
-        role,
+        role: role.id,
         resource: permission.resource,
         action: permission.action,
         attributes: permission.attributes,
@@ -36,18 +37,8 @@ const createGrantListFromDatabase = async (): Promise<{[key: string]: any}> => {
     });
   });
 
-  logger.info(grantList); // TODO: move to debug
+  logger.debug(grantList);
   return grantList;
-}
-
-const getRolesForUser = async (user: User): Promise<string[]> => {
-  const roles: string[] = [];
-  const userRepository: Repository<Role> = getRepository(Role);
-  const foundUser: User = await this.userRepository.find(user.id, { relations: ["roles"] });
-  foundUser.roles.forEach((role: Role) => roles.push(role.id));
-
-  logger.info(`Returning roles for user id ${user.id}`); // TODO: move to debug
-  return roles;
 }
 
 /**
@@ -56,13 +47,13 @@ const getRolesForUser = async (user: User): Promise<string[]> => {
  */
 const saveGrantListToCache = async (grantList: {[key: string]: any}): Promise<boolean> => {
   logger.info(`Saving grant list to cache with key ${AUTHORIZATION_GRANTS_KEY}`);
-  return await cache.set(AUTHORIZATION_GRANTS_KEY, grantList) !== null;
+  return await cache.set(AUTHORIZATION_GRANTS_KEY, JSON.stringify(grantList)) !== null;
 }
 
 /**
  * Returns global JSON grant list object if found
  */
-const getGrantListFromCache = async (): Promise<{[key: string]: any}> => {
+const getGrantListFromCache = async (): Promise<Array<{[key: string]: any}>> => {
   const grantsString = await cache.get(AUTHORIZATION_GRANTS_KEY);
   return JSON.parse(grantsString);
 }
@@ -84,35 +75,94 @@ const refreshGrants = async (): Promise<boolean> => {
 }
 
 /**
- * Checks whether user is authorized
+ * Returns array of role strings for given user ID from database
+ * @param user 
  */
-const authorize = async (user: User, action: string, resource: any): Promise<Boolean> => {
-  let grantList = await getGrantListFromCache();
-  if (!grantList) {
-    await refreshGrants();
-    grantList = await getGrantListFromCache();
-    logger.info("Had to refresh grant list as it wasn't found in cache");
-  }
+const getUserRolesFromDatabase = async (user: User): Promise<string[]> => {
+  const roles: string[] = [];
+  const userRepository: Repository<User> = getRepository(User);
+  const foundUser: User = await userRepository.findOne(user.id, { relations: ["roles"] });
+  foundUser.roles.forEach((role: Role) => roles.push(role.id));
 
-  const ac: AccessControl = new AccessControl(grantList);
-  // fetch user roles TODO: add to cache
-  // for each role, check if user can perform action
-
-  return true;
+  logger.debug(`Returning database roles for user id ${user.id}`);
+  return roles;
 }
 
 /**
- * Filters resource attributes based on user role permission policy
+ * Adds roles to cache for a given user ID
+ * @param user 
+ * @param token 
  */
-const filter = () => {}; // TODO: add filter implementation
+const addUserRolesToCache = async (user: User, roles: string[]): Promise<boolean> => {
+  return await cache.set(USER_ROLES_KEY(user.id), JSON.stringify(roles)) !== null;
+}
+
+/**
+ * Returns array of role strings for a given user ID from cache
+ * @param user 
+ */
+const getUserRolesFromCache = async (user: User): Promise<string[]> => {
+  const rolesString: string = await cache.get(USER_ROLES_KEY(user.id));
+  return JSON.parse(rolesString);
+}
+
+/**
+ * Removes roles from cache for given user
+ * @param user 
+ * @param roles 
+ */
+const removeUserRolesFromCache = async (user: User): Promise<boolean> => {
+  return await cache.del(USER_ROLES_KEY(user.id)) === 1;
+}
+
+/**
+ * Returns array of role strings for given user ID either from cache or database
+ * @param user 
+ */
+const getUserRoles = async (user: User): Promise<string[]> => {
+  const rolesInCache: string[] = await getUserRolesFromCache(user);
+  if (rolesInCache && rolesInCache.length > 0) {
+    return rolesInCache;
+  } else {
+    const rolesFromDatabase: string[] = await getUserRolesFromDatabase(user);
+    addUserRolesToCache(user, rolesFromDatabase);
+    return rolesFromDatabase;
+  }
+}
+
+/**
+ * Updates user roles cache from current database values
+ * @param user 
+ */
+const refreshUserRoles = async (user: User): Promise<boolean> => {
+  const rolesFromDatabase: string[] = await getUserRolesFromDatabase(user);
+  return addUserRolesToCache(user, rolesFromDatabase);
+}
+
+/**
+ * Checks whether user is authorized
+ */
+const getAuthorizer = async (): Promise<AccessControl> => {
+  let grantList: Array<{[key: string]: any}> = await getGrantListFromCache();
+  if (!grantList) {
+    await refreshGrants();
+    grantList = await createGrantListFromDatabase();
+  }
+
+  return new AccessControl(grantList);
+}
 
 export {
-  getRolesForUser,
+  getUserRoles,
+  refreshUserRoles,
+  getUserRolesFromDatabase,
+  getUserRolesFromCache,
+  addUserRolesToCache,
+  removeUserRolesFromCache,
   createGrantListFromDatabase,
   saveGrantListToCache,
   getGrantListFromCache,
   removeGrantListFromCache,
   refreshGrants,
-  authorize,
-  filter,
+  getAuthorizer,
 };

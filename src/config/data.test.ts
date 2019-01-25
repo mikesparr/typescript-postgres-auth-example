@@ -14,28 +14,33 @@ const createTestData = async (connection: any) => {
     attributes: "*"
   });
   const adminUserViewPermission = connection.manager.create(Permission, {
-    resource: "users",
+    resource: "user",
     action: "read:any",
-    attributes: "*"
+    attributes: "*, !password"
   });
   const userUserViewPermission = connection.manager.create(Permission, {
-    resource: "users",
+    resource: "user",
     action: "read:any",
-    attributes: "*, !age"
+    attributes: "*, !age, !password"
+  });
+  const userUserUpdatePermission = connection.manager.create(Permission, {
+    resource: "user",
+    action: "update:own",
+    attributes: "*"
   });
   const adminUserCreatePermission = connection.manager.create(Permission, {
-    resource: "users",
+    resource: "user",
     action: "create:any",
     attributes: "*"
   });
   const adminUserUpdatePermission = connection.manager.create(Permission, {
-    resource: "users",
+    resource: "user",
     action: "update:any",
     attributes: "*"
   });
   const adminUserDeletePermission = connection.manager.create(Permission, {
-    resource: "users",
-    action: "update:any",
+    resource: "user",
+    action: "delete:any",
     attributes: "*"
   });
 
@@ -50,6 +55,7 @@ const createTestData = async (connection: any) => {
     permissions: [
       userSearchPermission,
       userUserViewPermission,
+      userUserUpdatePermission,
     ]
   });
   const adminRole = connection.manager.create(Role, {
