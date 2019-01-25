@@ -119,7 +119,7 @@ same methods to keep the app DRY.
 As I wanted to piece together RBAC/ABAC using popular stack choices, I found several good examples online. I'd 
 like to give credit and thanks to the following for their hard work and excellent articles and examples.
 
- * https://github.com/i0natan/nodebestpractices
+ * [Node Best Practices](https://github.com/i0natan/nodebestpractices)
  * [Microsoft Typescript Node Starter](https://github.com/Microsoft/TypeScript-Node-Starter)
  * [Article by Alex Permyakov](https://medium.com/@alex.permyakov/production-ready-node-js-rest-apis-setup-using-typescript-postgresql-and-redis-a9525871407)
  * [Article by Marcin Wanago](https://wanago.io/2019/01/14/express-postgres-relational-databases-typeorm/)
