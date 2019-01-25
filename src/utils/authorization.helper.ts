@@ -2,7 +2,7 @@
  * Generate authorization models from User, Role, Permission data and
  * provide hooks into authorization module
  */
-import {AccessControl} from "accesscontrol";
+import { AccessControl } from "accesscontrol";
 import cache from "../config/cache"; // Redis commands
 import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
