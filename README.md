@@ -48,7 +48,41 @@ PGADMIN_DEFAULT_PASSWORD=admin
    * click on "Save"
    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
  9. Open another browser tab to localhost:3000/api-docs to explore API
-   * work in progress (pending tests and RBAC/ABAC features)
+
+# User stories (demonstrated by test data and features)
+### Product Owner
+ * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
+
+### Guest
+ * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
+
+### User
+ * As a `user`, I want to be able to `search` by city name, so I can view geo data about the city
+ * As a `user`, I want to be able to **view** `users` (*without age or password*), so I know users of the system
+ * As a `user`, I want to be able to **edit** my own `user` record, so I can keep my information current
+ * As a `user`, I want to be able to **view** a list of `roles` (*without permissions*) so I know what roles are available
+
+### Admin
+ * As an `admin`, I want to be able to `search` by city name, so I can view geo data about the city
+ * As an `admin`, I want to be able to **view** `users` (*with age but no password*), so I know users of the system and their age
+ * As an `admin`, I want to be able to **create** any `user` record, so I can manage users in the system
+ * As an `admin`, I want to be able to **edit** any `user` record, so I can manage users in the system
+ * As an `admin`, I want to be able to **delete** any `user` record, so I can manage users and keep the system current
+ * As an `admin`, I want to be able to **view** `roles` (*with permissions*), so I know roles of the system and their permissions
+ * As an `admin`, I want to be able to **create** any `role` record, so I can manage roles in the system
+ * As an `admin`, I want to be able to **edit** any `role` record, so I can manage roles in the system
+ * As an `admin`, I want to be able to **delete** any `role` record, so I can manage roles and keep the system current
+ * As an `admin`, I want to be able to **view** `permissions`, so I know permissions of the system and their permissions
+ * As an `admin`, I want to be able to **create** any `permission` record, so I can manage permissions in the system
+ * As an `admin`, I want to be able to **edit** any `permission` record, so I can manage permissions in the system
+ * As an `admin`, I want to be able to **delete** any `permission` record, so I can manage permissions and keep the system current
+
+# TODO
+One could extend the functionality to add **group** or **department** (team) access as well. By making a `user`
+a member of a **group** and then adding author or group *ownership* to records, you can extend the Controller logic
+to `isOwnerOrMember` to check the records accordingly.
+
+ * Example from AccessControl module author: https://github.com/onury/accesscontrol/issues/39
 
 # Contributing
 As this is just a research project, I don't plan on maintaining LTS but if any
