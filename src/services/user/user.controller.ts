@@ -30,13 +30,13 @@ class UserController implements Controller {
   }
 
   private all = async (request: Request, response: Response, next: NextFunction) => {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({ relations: ["roles"] });
     response.send(users);
   }
 
   private one = async (request: Request, response: Response, next: NextFunction) => {
     const { id } = request.params;
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne(id, { relations: ["roles"] });
     if (user) {
       response.send(user);
     } else {

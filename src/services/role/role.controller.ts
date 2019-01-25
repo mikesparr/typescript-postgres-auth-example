@@ -30,13 +30,13 @@ class RoleController implements Controller {
   }
 
   private all = async (request: Request, response: Response, next: NextFunction) => {
-    const roles = await this.roleRepository.find();
+    const roles = await this.roleRepository.find({ relations: ["permissions"] });
     response.send(roles);
   }
 
   private one = async (request: Request, response: Response, next: NextFunction) => {
     const { id } = request.params;
-    const role = await this.roleRepository.findOne(id);
+    const role = await this.roleRepository.findOne(id, { relations: ["permissions"] });
     if (role) {
       response.send(role);
     } else {
