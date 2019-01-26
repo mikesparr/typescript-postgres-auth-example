@@ -38,7 +38,7 @@ PGADMIN_DEFAULT_PASSWORD=admin
  7. Load some test data
    * uncomment `// await createTestData(connection);` in `server.ts` and "Save" (once)
    * after, re-comment it and "Save" again (avoid duplicate entries in database)
- 8. Open browser tab to [Postgres Admin](localhost:8080/browser) for Postgres Admin
+ 8. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
    * click on "Servers" and then "Object > Create > Server"
    * "General > Name" the connection "Test Server"
    * click on "Connection" tab:
