@@ -47,7 +47,7 @@ PGADMIN_DEFAULT_PASSWORD=admin
      * Password: `admin` (or whatever you set in ENV vars)
    * click on "Save"
    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
- 9. Open another browser tab to localhost:3000/api-docs to explore API
+ 9. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
 
 # Testing
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
