@@ -1,7 +1,18 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "1.0.0"
+    "title": "Example API with RBAC/ABAC authorization",
+    "description": "This is an example API written in Typescript and features authentication and authorization",
+    "contact": {
+      "name": "API Support",
+      "url": "http://www.example.com/support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.1"
   },
   "host": "localhost:3000",
   "basePath": "",
@@ -11,25 +22,45 @@
     "/register": {
       "post": {
         "tags": ["authentication"],
-        "summary": ""
+        "summary": "Creates a new user",
+        "requestBody": {
+          "description": "User information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        }
       }
     },
     "/login": {
       "post": {
         "tags": ["authentication"],
-        "summary": ""
+        "summary": "Authenticates user and generates new JWT auth token",
+        "requestBody": {
+          "description": "User login credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          }
+        }
       }
     },
     "/logout": {
       "post": {
         "tags": ["authentication"],
-        "summary": ""
+        "summary": "Disables user token from subsequent access"
       }
     },
     "/roles": {
       "get": {
         "tags": ["roles"],
-        "summary": "",
+        "summary": "Returns list of roles",
         "security": {
           "bearerAuth": []
         },
@@ -61,9 +92,19 @@
       },
       "post": {
         "tags": ["roles"],
-        "summary": "",
+        "summary": "Creates a new role",
         "security": {
           "bearerAuth": []
+        },
+        "requestBody": {
+          "description": "Role data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleInput"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -92,7 +133,7 @@
     "/roles/{id}": {
       "get": {
         "tags": ["roles"],
-        "summary": "",
+        "summary": "Returns a role if exists",
         "security": {
           "bearerAuth": []
         },
@@ -132,7 +173,7 @@
       },
       "put": {
         "tags": ["roles"],
-        "summary": "",
+        "summary": "Updates an existing role if exists",
         "security": {
           "bearerAuth": []
         },
@@ -147,6 +188,16 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "Role data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleInput"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "A copy of the updated role",
@@ -172,7 +223,7 @@
       },
       "delete": {
         "tags": ["roles"],
-        "summary": "",
+        "summary": "Deletes a role if exists",
         "security": {
           "bearerAuth": []
         },
@@ -207,7 +258,7 @@
     "/permissions": {
       "get": {
         "tags": ["permissions"],
-        "summary": "",
+        "summary": "Returns list of permissions",
         "security": {
           "bearerAuth": []
         },
@@ -239,9 +290,19 @@
       },
       "post": {
         "tags": ["permissions"],
-        "summary": "",
+        "summary": "Creates a new permission",
         "security": {
           "bearerAuth": []
+        },
+        "requestBody": {
+          "description": "Permission data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -270,7 +331,7 @@
     "/permissions/{id}": {
       "get": {
         "tags": ["permissions"],
-        "summary": "",
+        "summary": "Returns a permission if exists",
         "security": {
           "bearerAuth": []
         },
@@ -310,7 +371,7 @@
       },
       "put": {
         "tags": ["permissions"],
-        "summary": "",
+        "summary": "Updates permission if exists",
         "security": {
           "bearerAuth": []
         },
@@ -325,6 +386,16 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "Permission data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "A copy of the updated permission",
@@ -350,7 +421,7 @@
       },
       "delete": {
         "tags": ["permissions"],
-        "summary": "",
+        "summary": "Deletes a permission if exists",
         "security": {
           "bearerAuth": []
         },
@@ -385,7 +456,7 @@
     "/users": {
       "get": {
         "tags": ["users"],
-        "summary": "",
+        "summary": "Returns list of users",
         "security": {
           "bearerAuth": []
         },
@@ -417,9 +488,19 @@
       },
       "post": {
         "tags": ["users"],
-        "summary": "",
+        "summary": "Creates a new user",
         "security": {
           "bearerAuth": []
+        },
+        "requestBody": {
+          "description": "User data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -448,7 +529,7 @@
     "/users/{id}": {
       "get": {
         "tags": ["users"],
-        "summary": "",
+        "summary": "Returns a user if exists",
         "security": {
           "bearerAuth": []
         },
@@ -463,6 +544,16 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "User data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "A copy of the requested user",
@@ -488,7 +579,7 @@
       },
       "put": {
         "tags": ["users"],
-        "summary": "",
+        "summary": "Updates a user if exists",
         "security": {
           "bearerAuth": []
         },
@@ -503,6 +594,16 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "User data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "A copy of the updated user",
@@ -528,7 +629,7 @@
       },
       "delete": {
         "tags": ["users"],
-        "summary": "",
+        "summary": "Deletes user if exists",
         "security": {
           "bearerAuth": []
         },
@@ -606,6 +707,17 @@
           }
         }
       },
+      "RoleInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
       "Permission": {
         "type": "object",
         "properties": {
@@ -613,6 +725,23 @@
             "type": "integer",
             "format": "int64"
           },
+          "role": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "string"
+          }
+        }
+      },
+      "PermissionInput": {
+        "type": "object",
+        "properties": {
           "role": {
             "type": "string"
           },
@@ -655,6 +784,38 @@
             "items": {
               "$ref": "#/components/schemas/Role"
             }
+          }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
           }
         }
       },
