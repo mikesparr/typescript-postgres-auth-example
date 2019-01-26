@@ -6,7 +6,7 @@ import helmet from "helmet";
 import logger from "./config/logger";
 import Controller from "./interfaces/controller.interface";
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./config/swagger.json";
+import swaggerDocument from "./config/openapi.json";
 import errorMiddleware from "./middleware/error.middleware";
 
 /**
