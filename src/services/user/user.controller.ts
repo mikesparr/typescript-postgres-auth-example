@@ -73,9 +73,10 @@ class UserController implements Controller {
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
     const userData: CreateUserDto = request.body;
 
-    const isOwnerOrMember: boolean = false;
+    const isOwnerOrMember: boolean = id && Number(request.user.id) === Number(id);
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 

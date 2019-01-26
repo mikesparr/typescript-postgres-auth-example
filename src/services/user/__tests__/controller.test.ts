@@ -161,6 +161,24 @@ describe("User", () => {
       expect(result.status).toEqual(403);
     });
 
+    it("allows user role to edit their own user record", async () => {
+      const myOwnData = {
+        id: userId,
+        firstName: "Basic",
+        lastName: "User",
+        email: "user@test.com",
+        age: 21, // changed
+      };
+
+      const result = await request(app)
+        .put(`/users/${userId}`)
+        .send(myOwnData)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+      
+      expect(result.status).toEqual(200);
+    });
+
     it("throws if missing data", async () => {
       const result = await request(app)
         .put(`/users/${newUserId}`)
