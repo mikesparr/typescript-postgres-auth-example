@@ -14,8 +14,8 @@
     },
     "version": "1.0.1"
   },
-  "host": "localhost:3000",
-  "basePath": "",
+  "host": "http://localhost:3000",
+  "basePath": "/",
   "schemes": ["http"],
   "produces": ["application/json"],
   "paths": {
@@ -48,22 +48,45 @@
               }
             }
           }
+        },
+        "responses": {
+          "200": {
+            "description": "User record and JWT auth token that expires in 1 hour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
     "/logout": {
       "post": {
         "tags": ["authentication"],
-        "summary": "Disables user token from subsequent access"
+        "summary": "Disables user token from subsequent access",
+        "security": [
+          {"bearerAuth": []}
+        ]
       }
     },
     "/roles": {
       "get": {
         "tags": ["roles"],
         "summary": "Returns list of roles",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "responses": {
           "200": {
             "description": "A list of roles (optionally with nested permissions if allowed)",
@@ -93,9 +116,9 @@
       "post": {
         "tags": ["roles"],
         "summary": "Creates a new role",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "requestBody": {
           "description": "Role data",
           "content": {
@@ -134,9 +157,9 @@
       "get": {
         "tags": ["roles"],
         "summary": "Returns a role if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -174,9 +197,9 @@
       "put": {
         "tags": ["roles"],
         "summary": "Updates an existing role if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -224,9 +247,9 @@
       "delete": {
         "tags": ["roles"],
         "summary": "Deletes a role if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -259,9 +282,9 @@
       "get": {
         "tags": ["permissions"],
         "summary": "Returns list of permissions",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "responses": {
           "200": {
             "description": "A list of permissions",
@@ -291,9 +314,9 @@
       "post": {
         "tags": ["permissions"],
         "summary": "Creates a new permission",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "requestBody": {
           "description": "Permission data",
           "content": {
@@ -332,9 +355,9 @@
       "get": {
         "tags": ["permissions"],
         "summary": "Returns a permission if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -372,9 +395,9 @@
       "put": {
         "tags": ["permissions"],
         "summary": "Updates permission if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -422,9 +445,9 @@
       "delete": {
         "tags": ["permissions"],
         "summary": "Deletes a permission if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -457,9 +480,9 @@
       "get": {
         "tags": ["users"],
         "summary": "Returns list of users",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "responses": {
           "200": {
             "description": "A list of users (optionally with nested roles if allowed)",
@@ -489,9 +512,9 @@
       "post": {
         "tags": ["users"],
         "summary": "Creates a new user",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "requestBody": {
           "description": "User data",
           "content": {
@@ -530,9 +553,9 @@
       "get": {
         "tags": ["users"],
         "summary": "Returns a user if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -580,9 +603,9 @@
       "put": {
         "tags": ["users"],
         "summary": "Updates a user if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -630,9 +653,9 @@
       "delete": {
         "tags": ["users"],
         "summary": "Deletes user if exists",
-        "security": {
-          "bearerAuth": []
-        },
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
@@ -665,6 +688,9 @@
       "get": {
         "tags": ["search"],
         "summary": "Search by places using opencagedata service",
+        "security": [
+          {"bearerAuth": []}
+        ],
         "responses": {
           "200": {
             "description": "OK"
