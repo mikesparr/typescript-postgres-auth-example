@@ -106,6 +106,7 @@ same methods to keep the app DRY.
  * [Language: Typescript](https://www.typescriptlang.org/)
  * [Framework: Express](https://expressjs.com/)
  * [Documentation: Swagger UI](https://swagger.io/docs/open-source-tools/swagger-ui/usage/installation/)
+ * [Documentation: OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
  * [Config: Dotenv](https://www.npmjs.com/package/dotenv)
  * [Logging: Winston](https://www.npmjs.com/package/winston)
  * [Security: Helmet](https://www.npmjs.com/package/helmet)
