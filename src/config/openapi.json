@@ -30,6 +30,9 @@
       "get": {
         "tags": ["roles"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "responses": {
           "200": {
             "description": "A list of roles (optionally with nested permissions if allowed)",
@@ -43,18 +46,56 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
           }
         }
       },
       "post": {
         "tags": ["roles"],
-        "summary": ""
+        "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
+        "responses": {
+          "200": {
+            "description": "A copy of the created role with ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/roles/{id}": {
       "get": {
         "tags": ["roles"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -65,11 +106,36 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the requested role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": ["roles"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -80,11 +146,36 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the updated role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": ["roles"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -95,23 +186,94 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmation of successful operation"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/permissions": {
       "get": {
         "tags": ["permissions"],
-        "summary": ""
+        "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
+        "responses": {
+          "200": {
+            "description": "A list of permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Permission"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "post": {
         "tags": ["permissions"],
-        "summary": ""
+        "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
+        "responses": {
+          "200": {
+            "description": "A copy of the created permission with ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/permissions/{id}": {
       "get": {
         "tags": ["permissions"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -122,11 +284,36 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the requested permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": ["permissions"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -137,11 +324,36 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the updated permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": ["permissions"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -152,38 +364,134 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmation of successful operation"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/users": {
       "get": {
         "tags": ["users"],
-        "summary": ""
+        "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
+        "responses": {
+          "200": {
+            "description": "A list of users (optionally with nested roles if allowed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "post": {
         "tags": ["users"],
-        "summary": ""
+        "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
+        "responses": {
+          "200": {
+            "description": "A copy of the created user with ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/users/{id}": {
       "get": {
         "tags": ["users"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of record that needs retrieved",
+            "description": "ID of record that needs retrieved (optionally with nested roles if allowed)",
             "required": true,
             "schema": {
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the requested user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "put": {
         "tags": ["users"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -194,11 +502,36 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "A copy of the updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": ["users"],
         "summary": "",
+        "security": {
+          "bearerAuth": []
+        },
         "parameters": [
           {
             "name": "id",
@@ -209,7 +542,22 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmation of successful operation"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/search": {
@@ -309,14 +657,34 @@
             }
           }
         }
+      },
+      "ErrorModel": {
+        "type": "object",
+        "required": [
+          "message",
+          "status"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 600
+          }
+        }
       }
-    }
-  },
-  "securitySchemes": {
-    "JWT": {
-      "type": "http",
-      "scheme": "bearer",
-      "bearerFormat": "JWT"
+    },
+    "responses": {
+
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     }
   }
 }

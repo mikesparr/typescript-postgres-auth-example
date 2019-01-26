@@ -60,7 +60,7 @@ class App {
    * Adds Swagger (OAPI) generated documentation route
    */
   private initializeApiDocs() {
-    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {explorer: true}));
   }
 
   /**
