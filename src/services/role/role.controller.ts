@@ -93,7 +93,7 @@ class RoleController implements Controller {
     const { id } = request.params;    
     const roleToRemove = await this.roleRepository.findOne(id);
 
-    const isOwnerOrMember: boolean = request.user.id === id;
+    const isOwnerOrMember: boolean = false;
     const action: string = methodActions[request.method];
     const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
 
