@@ -35,12 +35,12 @@ PGADMIN_DEFAULT_PASSWORD=admin
  ```
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
  This will spin up Postgres, PGAdmin, and Redis
- 6. Run in development mode
+ 6. Run tests (will create test data)
+   * `npm run test`
+ 7. Start up app in developer mode (will watch and recompile for changes)
    * `npm run dev`
- 7. Load some test data
-   * uncomment `// await createTestData(connection);` in `server.ts` and "Save" (once)
-   * after, re-comment it and "Save" again (avoid duplicate entries in database)
- 8. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
+ 8. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
+ 9. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
    * click on "Servers" and then "Object > Create > Server"
    * "General > Name" the connection "Test Server"
    * click on "Connection" tab:
@@ -49,7 +49,6 @@ PGADMIN_DEFAULT_PASSWORD=admin
      * Password: `admin` (or whatever you set in ENV vars)
    * click on "Save"
    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
- 9. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
 
 # Testing
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
