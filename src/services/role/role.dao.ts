@@ -72,7 +72,7 @@ class RoleDao implements Dao {
       const filteredData: Role = permission.filter(newRecord);
       await this.roleRepository.save(filteredData);
 
-      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the databse`);
+      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
       return filteredData;
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
@@ -91,7 +91,7 @@ class RoleDao implements Dao {
       if (recordToRemove) {
         await this.roleRepository.remove(recordToRemove);
 
-        logger.info(`Removed ${this.resource} with ID ${id} from the databse`);
+        logger.info(`Removed ${this.resource} with ID ${id} from the database`);
         return true;
       } else {
         throw new RecordNotFoundException(id);

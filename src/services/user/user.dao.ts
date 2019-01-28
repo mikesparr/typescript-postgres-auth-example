@@ -71,7 +71,7 @@ class UserDao implements Dao {
       const filteredData: User = permission.filter(newRecord);
       await this.userRepository.save(filteredData);
 
-      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the databse`);
+      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
       return filteredData;
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
@@ -90,7 +90,7 @@ class UserDao implements Dao {
       if (recordToRemove) {
         await this.userRepository.remove(recordToRemove);
 
-        logger.info(`Removed ${this.resource} with ID ${id} from the databse`);
+        logger.info(`Removed ${this.resource} with ID ${id} from the database`);
         return true;
       } else {
         throw new RecordNotFoundException(id);

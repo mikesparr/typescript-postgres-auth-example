@@ -20,7 +20,7 @@ import CreateUserDto from "../../services/user/user.dto";
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
 class AuthenticationDao implements Dao {
-  private resource: string = "/"; // matches defined user user 'resource'
+  private resource: string = "authentication"; // matches defined user user 'resource'
   private userRepository: Repository<User> = getRepository(User);
   private roleRepository: Repository<Role> = getRepository(Role);
 

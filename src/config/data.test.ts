@@ -23,6 +23,13 @@ const createTestData = async (connection: Connection) => {
   // await clearDb(connection);
   // logger.info(`Truncated database tables, now creating test data ...`);
 
+  // logout
+  const logoutPermission = connection.manager.create(Permission, {
+    resource: "authentication",
+    action: "update:any",
+    attributes: "*"
+  });
+
   // search
   const searchPermission = connection.manager.create(Permission, {
     resource: "search",
@@ -115,12 +122,15 @@ const createTestData = async (connection: Connection) => {
   const guestRole = connection.manager.create(Role, {
     id: "guest",
     description: "Unverified user with limited privileges",
-    permissions: [],
+    permissions: [
+      logoutPermission,
+    ],
   });
   const userRole = connection.manager.create(Role, {
     id: "user",
     description: "Authenticated user with basic privileges",
     permissions: [
+      logoutPermission,
       searchPermission,
       userUserViewPermission,
       userUserUpdatePermission,
