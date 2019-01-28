@@ -5,7 +5,7 @@
 version: 2
 jobs:
   build:
-    context: "Auth Example App ENV Vars"
+    context: auth-example-app
     working_directory: ~/repo
 
     docker:
