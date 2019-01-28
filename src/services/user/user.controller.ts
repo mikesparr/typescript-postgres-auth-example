@@ -1,25 +1,19 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getRepository, Repository } from "typeorm";
-import { User } from "./user.entity";
-import AuthPermission from '../../interfaces/permission.interface';
 import Controller from '../../interfaces/controller.interface';
 import RequestWithUser from "../../interfaces/request.interface";
-import CreateUserDto from "./user.dto";
-import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import UserNotFoundException from '../../exceptions/UserNotFoundException';
-import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
-import { methodActions, getPermission } from "../../utils/authorization.helper";
+
+import UserDao from "./user.dao";
+import CreateUserDto from "./user.dto";
 
 /**
- * Handles CRUD operations on User data in database
+ * Handles User routes for RESTful interface
  */
 class UserController implements Controller {
   public path: string = "/users";
   public router: Router = Router();
-  private resource: string = "user"; // use for authorization
-  private userRepository: Repository<User> = getRepository(User);
+  private userDao: UserDao = new UserDao();
 
   constructor() {
     this.initializeRoutes();
@@ -35,77 +29,41 @@ class UserController implements Controller {
       .delete(`${this.path}/:id`, this.remove)
   }
 
-  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const users = await this.userRepository.find({ relations: ["roles"] });
-    
-    const isOwnerOrMember: boolean = false;
-    const action: string = methodActions[request.method];
-    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
-
-    if (permission.granted) {
-      if (!users) {
-        next(new RecordsNotFoundException(this.resource));
-      } else {
-        response.send(permission.filter(users));
-      }
-    } else {
-      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {    
+    try {
+      response.send(await this.userDao.getAll(request.user));
+    } catch (error) {
+      next(error);
     }
   }
 
   private one = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { id } = request.params;
-    const user = await this.userRepository.findOne(id, { relations: ["roles"] });
 
-    const isOwnerOrMember: boolean = Number(request.user.id) === Number(user.id);
-    const action: string = methodActions[request.method];
-    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
-
-    if (permission.granted) {
-      if (!user) {
-        next(new UserNotFoundException(id));
-      } else {
-        response.send(permission.filter(user));
-      }
-    } else {
-      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    try {
+      response.send(await this.userDao.getOne(request.user, id));
+    } catch (error) {
+      next(error);
     }
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const { id } = request.params;
-    const userData: CreateUserDto = request.body;
+    const newRecord: CreateUserDto = request.body;
 
-    const isOwnerOrMember: boolean = id && Number(request.user.id) === Number(id);
-    const action: string = methodActions[request.method];
-    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
-
-    if (permission.granted) {
-      const filteredData: CreateUserDto = permission.filter(userData);
-      await this.userRepository.save(filteredData);
-      response.send(filteredData);
-    } else {
-      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    try {
+      response.send(await this.userDao.save(request.user, newRecord));
+    } catch (error) {
+      next(error);
     }
   }
 
   private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { id } = request.params;    
-    const userToRemove = await this.userRepository.findOne(id);
 
-    const isOwnerOrMember: boolean = Number(request.user.id) === Number(id);
-    const action: string = methodActions[request.method];
-    const permission: AuthPermission = await getPermission(request.user, isOwnerOrMember, action, this.resource);
-
-    if (permission.granted) {
-      if (userToRemove) {
-        await this.userRepository.remove(userToRemove);
-        response.send(200);
-      } else {
-        next(new UserNotFoundException(id));
-      }
-    } else {
-      next(new UserNotAuthorizedException(request.user.id, action, this.resource));
+    try {
+      response.send(await this.userDao.remove(request.user, id));
+    } catch (error) {
+      next(error);
     }
   }
 
