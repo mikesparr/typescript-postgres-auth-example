@@ -1,7 +1,7 @@
 node_modules
 npm-debug.log
+.env
+.circleci
+client-secret.json
 deploy-staging.sh
 deploy-production.sh
-.env
-.travis.yml
-client-secret.json
