@@ -18,9 +18,9 @@ gather input from peers.
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
  This will spin up Postgres, PGAdmin, and Redis
  6. Run tests (will create test data)
-   * `npm run test`
+    * `npm run test`
  7. Start up app in developer mode (will watch and recompile for changes)
-   * `npm run dev`
+    * `npm run dev`
  8. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
  9. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
    * click on "Servers" and then "Object > Create > Server"
