@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn, OneToMany, ManyToMany } from "typeorm";
+import { Column, Entity, Index, PrimaryColumn, OneToMany, ManyToMany } from "typeorm";
 import { Permission } from "../permission/permission.entity";
 import { User } from "../user/user.entity";
 
@@ -6,6 +6,7 @@ import { User } from "../user/user.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
+//@Index(["id"], { unique: true })
 export class Role {
 
   @PrimaryColumn()

@@ -1,10 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
 import { Role } from "../role/role.entity";
 
 /**
  * Data object with annotations to configure database in ORM
  */
 @Entity()
+//@Index(["email"], { unique: true })
 export class User {
 
   @PrimaryGeneratedColumn()
