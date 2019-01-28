@@ -1,17 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { getRepository, Repository } from "typeorm";
 import Controller from '../../interfaces/controller.interface';
-import WrongCredentialsException from '../../exceptions/WrongCredentialsException';
-import UserExistsException from '../../exceptions/UserExistsException';
-import { hashPassword, verifyPassword, createToken, parseToken, removeTokenFromCache } from "../../utils/authentication.helper";
+import { parseToken } from "../../utils/authentication.helper";
 import authenticationMiddleware from '../../middleware/authentication.middleware';
 import validationMiddleware from '../../middleware/validation.middleware';
 
-import { User } from "../user/user.entity";
-import { Role } from "../role/role.entity";
 import UserLoginDto from "./login.dto";
 import CreateUserDto from "../user/user.dto";
 import RequestWithUser from "../../interfaces/request.interface";
+import AuthenticationDao from "./authentication.dao";
 
 /**
  * Handles global route and authentication routes
@@ -19,8 +15,8 @@ import RequestWithUser from "../../interfaces/request.interface";
 class AuthenticationController implements Controller {
   public path: string = "";
   public router: Router = Router();
-  private userRepository: Repository<User> = getRepository(User);
-  private roleRepository: Repository<Role> = getRepository(Role);
+
+  private authenticationDao: AuthenticationDao = new AuthenticationDao();
 
   constructor() {
     this.initializeRoutes();
@@ -40,19 +36,11 @@ class AuthenticationController implements Controller {
    */
   private login = async (request: Request, response: Response, next: NextFunction) => {
     const loginData: UserLoginDto = request.body;
-    const user = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
-    if (user) {
-      const isPasswordMatching = await verifyPassword(loginData.password, user.password);
-      if (isPasswordMatching) {
-        user.password = undefined;
-        const tokenData = await createToken(user);
-        // TODO: consider response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-        response.send({user, token: tokenData});
-      } else {
-        next(new WrongCredentialsException());
-      }
-    } else {
-      next(new WrongCredentialsException());
+
+    try {
+      response.send(await this.authenticationDao.login(loginData));
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -60,8 +48,11 @@ class AuthenticationController implements Controller {
    * Removes token from cache and prevents future requests for that device
    */
   private logout = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const success = await removeTokenFromCache(parseToken(request)); // TODO: add to deny list
-    response.send({success, data: null});
+    try {
+      response.send(await this.authenticationDao.logout(request.user, parseToken(request)));
+    } catch (error) {
+      next(error);
+    }
   }
 
   /**
@@ -70,21 +61,11 @@ class AuthenticationController implements Controller {
    */
   private register = async (request: Request, response: Response, next: NextFunction) => {
     const userData: CreateUserDto = request.body;
-    if (
-      await this.userRepository.findOne({ email: userData.email })
-    ) {
-      next(new UserExistsException(userData.email));
-    } else {
-      const hashedPassword = await hashPassword(userData.password);
-      const guestRole = this.roleRepository.create({id: "guest"});
-      const user = this.userRepository.create({
-        ...userData,
-        password: hashedPassword,
-        roles: [guestRole]
-      });
-      await this.userRepository.save(user);
-      user.password = undefined;
-      response.send(user);
+
+    try {
+      response.send(await this.authenticationDao.register(userData));
+    } catch (error) {
+      next(error);
     }
   }
 
