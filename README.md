@@ -23,20 +23,20 @@ gather input from peers.
     * `npm run dev`
  8. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
  9. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
-   * click on "Servers" and then "Object > Create > Server"
-   * "General > Name" the connection "Test Server"
-   * click on "Connection" tab:
-     * Host: `postgres` (network exposed by docker-compose)
-     * Maintenance database: `auth_example` (or whatever you set in ENV vars)
-     * Password: `admin` (or whatever you set in ENV vars)
-   * click on "Save"
-   * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
+    * click on "Servers" and then "Object > Create > Server"
+    * "General > Name" the connection "Test Server"
+    * click on "Connection" tab:
+      * Host: `postgres` (network exposed by docker-compose)
+      * Maintenance database: `auth_example` (or whatever you set in ENV vars)
+      * Password: `admin` (or whatever you set in ENV vars)
+    * click on "Save"
+    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
 
 # Testing
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
  * `npm test` or `npm run coverage`
- * NOTE: the Docker database and `createTestData` above must be run before testing
- * SEE: `__tests__` folders in application
+ * NOTE: the Docker database must be running (see Step 5 above)
+ * SEE: `__tests__` folders in application for test source code
 
 # User stories (demonstrated by test data and features)
 ## Check test data
