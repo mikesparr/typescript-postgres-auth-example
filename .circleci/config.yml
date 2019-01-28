@@ -5,7 +5,6 @@
 version: 2
 jobs:
   build:
-    context: auth-example-app
     working_directory: ~/repo
 
     docker:
@@ -44,6 +43,11 @@ jobs:
 
       # run tests!
       - run: printenv
-        context: auth-example-app
       - run: npm test
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
         context: auth-example-app
