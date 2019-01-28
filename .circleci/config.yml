@@ -5,6 +5,8 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/repo
+
     docker:
       # specify the version you desire here
       - image: circleci/node:10
@@ -14,9 +16,6 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mongo:3.4.4
 
-    working_directory: ~/repo
-
-    docker:
       - image: circleci/redis:alpine
 
       - image: circleci/postgres:latest
