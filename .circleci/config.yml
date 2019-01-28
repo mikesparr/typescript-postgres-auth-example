@@ -44,4 +44,6 @@ jobs:
 
       # run tests!
       - run: printenv
+        context: auth-example-app
       - run: npm test
+        context: auth-example-app
