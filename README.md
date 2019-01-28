@@ -100,6 +100,8 @@ to `isOwnerOrMember` to check the records accordingly.
 Some of the database interaction via ORM in Controllers could be factored out to a lib/model object for each 
 service so the Controller just calls methods. This way if we added a GraphQL service the resolvers could reuse the 
 same methods to keep the app DRY.
+ * UPDATE 1/27/19: I factored controller logic to DAO layer so they could be reused by GraphQL resolvers
+ * Time permitting, I may add GraphQL Schema/Resolvers and interface as well so this is multi-purpose API
 
 # Resources
  * [Methodology: 12-factor](https://12factor.net/)
