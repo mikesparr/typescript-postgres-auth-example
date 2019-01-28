@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/mikesparr/typescript-postgres-auth-example.svg?style=svg)](https://circleci.com/gh/mikesparr/typescript-postgres-auth-example)
+
 # Typescript Postgres Auth Example
 This project was created more for research purposes, reviewing how various other
 apps organize their Node/Express/Typescript repos and trying to pick the best 
