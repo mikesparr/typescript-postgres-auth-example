@@ -3,11 +3,26 @@
  */
 import logger from "./logger";
 import { hashPassword } from "../utils/authentication.helper";
+import { Connection } from "typeorm";
 import {User} from "../services/user/user.entity";
 import {Role} from "../services/role/role.entity";
 import {Permission} from "../services/permission/permission.entity";
 
-const createTestData = async (connection: any) => {
+// truncate entity tables in database
+const clearDb = async (connection: Connection) => {
+  const entities = connection.entityMetadatas;
+
+  for (const entity of entities) {
+    const repository = await connection.getRepository(entity.name);
+    await repository.query(`DELETE FROM ${entity.tableName};`);
+  }
+};
+
+const createTestData = async (connection: Connection) => {
+  // clear database first
+  // await clearDb(connection);
+  // logger.info(`Truncated database tables, now creating test data ...`);
+
   // search
   const searchPermission = connection.manager.create(Permission, {
     resource: "search",

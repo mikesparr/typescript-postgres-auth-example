@@ -12,8 +12,6 @@ import logger from "./config/logger"; // console logger using winston
 import controllers from "./services";
 import validateEnv from "./utils/env.validator";
 
-import createTestData from "./config/data.test";
-
 validateEnv();
 
 process.on("uncaughtException", (e) => {
@@ -36,8 +34,4 @@ process.on("unhandledRejection", (e) => {
 
   const app = new App(controllers.map((controller) => new controller()));
   app.listen();
-
-  // TODO: remove me after test - insert new users for test
-  // await createTestData(connection);
-  // end remove me
 })();
