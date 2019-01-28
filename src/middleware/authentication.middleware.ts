@@ -1,4 +1,5 @@
 import { NextFunction, Response } from "express";
+import logger from "../config/logger";
 import { parseToken, readToken, isTokenInDenyList } from "../utils/authentication.helper";
 import { getRepository } from "typeorm";
 import AuthenticationTokenExpiredException from "../exceptions/AuthenticationTokenExpiredException";

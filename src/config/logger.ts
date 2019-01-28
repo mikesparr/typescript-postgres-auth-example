@@ -33,7 +33,7 @@ const devFormat = () => {
 const logger = createLogger({
   exitOnError: false,
   format: process.env.NODE_ENV === "production" ? prodFormat() : devFormat(),
-  level: "error",
+  level: "info",
   transports: [
     new transports.Console(),
     // new winston.transports.File({ filename: "errors.log" }),

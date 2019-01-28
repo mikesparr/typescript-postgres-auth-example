@@ -1,4 +1,5 @@
 import { getRepository, Repository } from "typeorm";
+import logger from "../../config/logger";
 import AuthPermission from '../../interfaces/permission.interface';
 import Dao from '../../interfaces/dao.interface';
 import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
@@ -70,6 +71,8 @@ class RoleDao implements Dao {
     if (permission.granted) {
       const filteredData: Role = permission.filter(newRecord);
       await this.roleRepository.save(filteredData);
+
+      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the databse`);
       return filteredData;
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
@@ -87,6 +90,8 @@ class RoleDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         await this.roleRepository.remove(recordToRemove);
+
+        logger.info(`Removed ${this.resource} with ID ${id} from the databse`);
         return true;
       } else {
         throw new RecordNotFoundException(id);

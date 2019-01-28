@@ -27,9 +27,10 @@ process.on("unhandledRejection", (e) => {
   let connection: any;
   try {
     connection = await createConnection(rdbms);
+    logger.info("Database connected");
   } catch (error) {
     logger.error("Error while connecting to the database", error);
-    return error;
+    process.exit(1);
   }
 
   const app = new App(controllers.map((controller) => new controller()));

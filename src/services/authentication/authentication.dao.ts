@@ -1,4 +1,5 @@
 import { getRepository, Repository } from "typeorm";
+import logger from "../../config/logger";
 import AuthPermission from '../../interfaces/permission.interface';
 import Dao from '../../interfaces/dao.interface';
 import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
@@ -36,6 +37,7 @@ class AuthenticationDao implements Dao {
         user.password = undefined;
         const tokenData = await createToken(user);
 
+        logger.info(`User with email ${user.email} just logged in`);
         return {user, token: tokenData};
       } else {
         throw new WrongCredentialsException();
@@ -49,6 +51,8 @@ class AuthenticationDao implements Dao {
     // TODO: add to deny list
     // TODO: check permissions to log out
     const success = await removeTokenFromCache(token);
+
+    logger.info(`User with email ${user.email} just logged out`);
     return {success, data: null};
   }
 
@@ -56,6 +60,7 @@ class AuthenticationDao implements Dao {
     if (
       await this.userRepository.findOne({ email: userData.email })
     ) {
+      logger.info(`Attempt to register duplicate user with email ${userData.email}`);
       throw new UserExistsException(userData.email);
     } else {
       const hashedPassword = await hashPassword(userData.password);
@@ -67,6 +72,8 @@ class AuthenticationDao implements Dao {
       });
       await this.userRepository.save(user);
       user.password = undefined;
+
+      logger.info(`User with email ${user.email} just registered`);
       return user;
     }
   }
