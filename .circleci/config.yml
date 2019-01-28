@@ -50,4 +50,4 @@ workflows:
   build-and-test:
     jobs:
       - build
-        context: auth-example-app
+          context: auth-example-app
