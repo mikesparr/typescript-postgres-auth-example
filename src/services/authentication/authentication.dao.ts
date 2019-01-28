@@ -2,14 +2,12 @@ import { getRepository, Repository } from "typeorm";
 import logger from "../../config/logger";
 import AuthPermission from '../../interfaces/permission.interface';
 import Dao from '../../interfaces/dao.interface';
-import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
-import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import UserExistsException from '../../exceptions/UserExistsException';
 import WrongCredentialsException from '../../exceptions/WrongCredentialsException';
 import { methodActions, getPermission } from "../../utils/authorization.helper";
-import { hashPassword, verifyPassword, createToken, parseToken, removeTokenFromCache } from "../../utils/authentication.helper";
+import { hashPassword, verifyPassword, createToken, addTokenToDenyList, removeTokenFromCache } from "../../utils/authentication.helper";
 
 import UserLoginDto from "./login.dto";
 import { User } from "../../services/user/user.entity";
@@ -48,19 +46,25 @@ class AuthenticationDao implements Dao {
   }
 
   public logout = async (user: User, token: string): Promise<Object | Error> => {
-    // TODO: add to deny list
-    // TODO: check permissions to log out
-    const success = await removeTokenFromCache(token);
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.PUT;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
-    logger.info(`User with email ${user.email} just logged out`);
-    return {success, data: null};
+    if (permission.granted) {
+      await addTokenToDenyList(token);
+      const success = await removeTokenFromCache(token);
+
+      logger.info(`User with email ${user.email} just logged out`);
+      return {success, data: null};
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
   }
 
   public register = async (userData: CreateUserDto): Promise<User | Error> => {
     if (
       await this.userRepository.findOne({ email: userData.email })
     ) {
-      logger.info(`Attempt to register duplicate user with email ${userData.email}`);
       throw new UserExistsException(userData.email);
     } else {
       const hashedPassword = await hashPassword(userData.password);
