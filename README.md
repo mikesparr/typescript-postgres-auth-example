@@ -11,28 +11,10 @@ gather input from peers.
 # Usage (for testing purposes)
  1. clone the repo
  2. `npm install`
- 3. Create a `.env` file in project root
- ```bash
-# .env
-PORT=3000
-JWT_SECRET={YOUR JWT SECRET HERE}
-OPEN_CAGE_DATA_KEY={YOUR API KEY HERE}
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=auth_example
-REDIS_URL=localhost
- ```
- 4. Create a `docker.env` file in project root
- ```bash
-# docker.env
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=auth_example
-PGADMIN_DEFAULT_EMAIL=admin@example.com
-PGADMIN_DEFAULT_PASSWORD=admin
- ```
+ 3. Setup temp environment configs (TEST only)
+    * RUN in CLI from project root `./setenv.test.sh`
+ 4. Make note of generated files and change to your preferences
+    * IMPORTANT: when deploying app, don't use the `.env` file, simply set vars in your CI provider or container manager
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
  This will spin up Postgres, PGAdmin, and Redis
  6. Run tests (will create test data)
