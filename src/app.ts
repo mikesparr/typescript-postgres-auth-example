@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import bodyParser from "body-parser";
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -12,10 +13,12 @@ import errorMiddleware from "./middleware/error.middleware";
 /**
  * Express application wrapper class to centralize initialization
  */
-class App {
+class App extends EventEmitter {
   public app: express.Application;
 
   constructor(controllers: Controller[]) {
+    super();
+
     this.app = express();
 
     this.initializeSecurity();

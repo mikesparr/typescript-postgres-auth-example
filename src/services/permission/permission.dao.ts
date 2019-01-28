@@ -1,4 +1,5 @@
 import { getRepository, Repository } from "typeorm";
+import event from "../../config/event";
 import logger from "../../config/logger";
 import AuthPermission from '../../interfaces/permission.interface';
 import Dao from '../../interfaces/dao.interface';
@@ -34,6 +35,16 @@ class PermissionDao implements Dao {
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
       } else {
+        // log event to central handler
+        event.emit("read-all", {
+          actor: user, 
+          resource: this.resource,
+          action: action,
+          verb: "read-all", 
+          object: records, 
+          timestamp: Date.now()
+        });
+
         return permission.filter(records);
       }
     } else {
@@ -53,6 +64,16 @@ class PermissionDao implements Dao {
       if (!record) {
         throw new RecordNotFoundException(id);
       } else {
+        // log event to central handler
+        event.emit("read-one", {
+          actor: user, 
+          resource: this.resource,
+          action: action,
+          verb: "read-one", 
+          object: record, 
+          timestamp: Date.now()
+        });
+
         return permission.filter(record);
       }
     } else {
@@ -72,6 +93,16 @@ class PermissionDao implements Dao {
       const filteredData: Permission = permission.filter(newRecord);
       await this.permissionRepository.save(filteredData);
 
+      // log event to central handler
+      event.emit("save", {
+        actor: user, 
+        resource: this.resource,
+        action: action,
+        verb: "save", 
+        object: filteredData, 
+        timestamp: Date.now()
+      });
+
       logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
       return filteredData;
     } else {
@@ -90,6 +121,16 @@ class PermissionDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         await this.permissionRepository.remove(recordToRemove);
+
+        // log event to central handler
+        event.emit("remove", {
+          actor: user, 
+          resource: this.resource,
+          action: action,
+          verb: "remove", 
+          object: recordToRemove,
+          timestamp: Date.now()
+        });
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);
         return true;

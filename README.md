@@ -38,6 +38,10 @@ This app includes automated tests using **Supertest** and **Jest** to test route
  * NOTE: the Docker database must be running (see Step 5 above)
  * SEE: `__tests__` folders in application for test source code
 
+# Extending
+Every DAO method should `emit` an event in an activity stream format as shown. For max flexibility,
+like to disable writes and make the architecture CQRS, you can create a new handler in `src/config/events.ts`.
+
 # User stories (demonstrated by test data and features)
 ## Check test data
 See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 

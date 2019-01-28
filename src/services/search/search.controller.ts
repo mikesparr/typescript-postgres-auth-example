@@ -24,6 +24,7 @@ class SearchController implements Controller {
     this.router.get(this.path, authenticationMiddleware, this.getPlacesByName);
   }
 
+  // TODO: add DAO layer and Event Emitter and tests
   private getPlacesByName = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const { q } = request.query;
 

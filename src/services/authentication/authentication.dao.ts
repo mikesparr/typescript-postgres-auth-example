@@ -1,4 +1,5 @@
 import { getRepository, Repository } from "typeorm";
+import event from "../../config/event";
 import logger from "../../config/logger";
 import AuthPermission from '../../interfaces/permission.interface';
 import Dao from '../../interfaces/dao.interface';
@@ -35,6 +36,16 @@ class AuthenticationDao implements Dao {
         user.password = undefined;
         const tokenData = await createToken(user);
 
+        // log event to central handler
+        event.emit("login", {
+          actor: user,
+          resource: this.resource,
+          action: "create",
+          verb: "login",
+          object: user,
+          timestamp: Date.now()
+        });
+
         logger.info(`User with email ${user.email} just logged in`);
         return {user, token: tokenData};
       } else {
@@ -53,6 +64,16 @@ class AuthenticationDao implements Dao {
     if (permission.granted) {
       await addTokenToDenyList(token);
       const success = await removeTokenFromCache(token);
+
+      // log event to central handler
+      event.emit("logout", {
+        actor: user, 
+        resource: this.resource, 
+        action: action,
+        verb: "logout", 
+        object: null, 
+        timestamp: Date.now()
+      });
 
       logger.info(`User with email ${user.email} just logged out`);
       return {success, data: null};
@@ -74,7 +95,19 @@ class AuthenticationDao implements Dao {
         password: hashedPassword,
         roles: [guestRole]
       });
+
       await this.userRepository.save(user);
+
+      // log event to central handler
+      event.emit("register", {
+        actor: user, 
+        resource: this.resource,
+        action: "create",
+        verb: "register", 
+        object: user, 
+        timestamp: Date.now()
+      }); // before password removed in case need to store in another DB
+
       user.password = undefined;
 
       logger.info(`User with email ${user.email} just registered`);
