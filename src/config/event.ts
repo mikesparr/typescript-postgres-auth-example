@@ -25,5 +25,6 @@ event.on("read-all", handleEvent);
 event.on("read-one", handleEvent);
 event.on("save", handleEvent);
 event.on("remove", handleEvent);
+event.on("search", handleEvent);
 
 export default event;
