@@ -19,11 +19,11 @@ beforeAll(async () => {
 
   // log in test users and store tokens for testing
   const testUserData = {
-    email: "user@test.com",
+    email: "user@example.com",
     password: "changeme",
   };
   const testAdminData = {
-    email: "admin@test.com",
+    email: "admin@example.com",
     password: "changeme",
   };
 
@@ -105,7 +105,7 @@ describe("User", () => {
   describe("POST /users", () => {
     const testData = {
       age: 35,
-      email: "test@test.com",
+      email: "test@example.com",
       firstName: "Testy",
       lastName: "McTestface",
       password: "changeme",
@@ -145,7 +145,7 @@ describe("User", () => {
   describe("PUT /users/:id", () => {
     const testData = {
       age: 36,
-      email: "test@test.com",
+      email: "test@example.com",
       firstName: "Testy",
       lastName: "McTestface",
       password: "changeme",
@@ -164,7 +164,7 @@ describe("User", () => {
     it("allows user role to edit their own user record", async () => {
       const myOwnData = {
         age: 21, // changed
-        email: "user@test.com",
+        email: "user@example.com",
         firstName: "Basic",
         id: userId,
         lastName: "User",

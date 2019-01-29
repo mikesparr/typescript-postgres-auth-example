@@ -48,7 +48,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"age\": \"20\",\n\t\"email\": \"test@test.com\",\n\t\"password\": \"testpassword\"\n}"
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"age\": \"20\",\n\t\"email\": \"test@example.com\",\n\t\"password\": \"testpassword\"\n}"
 				},
 				"url": {
 					"raw": "localhost:3000/register",
@@ -77,7 +77,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"age\": 20,\n\t\"email\": \"test@test.com\",\n\t\"password\": \"testpassword\"\n}"
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"age\": 20,\n\t\"email\": \"test@example.com\",\n\t\"password\": \"testpassword\"\n}"
 				},
 				"url": {
 					"raw": "localhost:3000/register",
@@ -164,7 +164,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"test@test.com\",\n\t\"password\": \"testpassword\"\n}"
+					"raw": "{\n\t\"email\": \"test@example.com\",\n\t\"password\": \"testpassword\"\n}"
 				},
 				"url": {
 					"raw": "localhost:3000/login",

@@ -163,7 +163,7 @@ const createTestData = async (connection: Connection) => {
   logger.info("Adding 3 test users to database");
   await connection.manager.save(connection.manager.create(User, {
     age: 0,
-    email: "guest@test.com",
+    email: "guest@example.com",
     firstName: "Guest",
     lastName: "User",
     password: await hashPassword("changeme"),
@@ -171,7 +171,7 @@ const createTestData = async (connection: Connection) => {
   }));
   await connection.manager.save(connection.manager.create(User, {
     age: 20,
-    email: "user@test.com",
+    email: "user@example.com",
     firstName: "Basic",
     lastName: "User",
     password: await hashPassword("changeme"),
@@ -179,7 +179,7 @@ const createTestData = async (connection: Connection) => {
   }));
   await connection.manager.save(connection.manager.create(User, {
     age: 30,
-    email: "admin@test.com",
+    email: "admin@example.com",
     firstName: "Admin",
     lastName: "User",
     password: await hashPassword("changeme"),

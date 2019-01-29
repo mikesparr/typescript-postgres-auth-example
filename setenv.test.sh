@@ -6,6 +6,8 @@
 
 echo "Creating test .env file ..."
 tee -a .env << END
+EMAIL_FROM_DEFAULT=no-reply@example.com
+EMAIL_TO_DEFAULT={Add Your Email Here}
 PORT=3000
 JWT_SECRET=d3vs3cr3t
 OPEN_CAGE_DATA_KEY={Add Your Key Here}
@@ -15,6 +17,7 @@ POSTGRES_USER=admin
 POSTGRES_PASSWORD=admin
 POSTGRES_DB=auth_example
 REDIS_URL=localhost
+SENDGRID_API_KEY={Add Your Key Here}
 END
 
 echo "Creating test docker.env file ..."

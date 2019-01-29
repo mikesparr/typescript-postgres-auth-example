@@ -14,7 +14,7 @@ beforeAll(async () => {
 
   // log in test users and store tokens for testing
   const testUserData = {
-    email: "user@test.com",
+    email: "user@example.com",
     password: "changeme",
   };
 

@@ -26,5 +26,6 @@ event.on("read-one", handleEvent);
 event.on("save", handleEvent);
 event.on("remove", handleEvent);
 event.on("search", handleEvent);
+event.on("send-email", handleEvent);
 
 export default event;

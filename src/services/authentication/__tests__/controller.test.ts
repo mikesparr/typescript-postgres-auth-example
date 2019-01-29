@@ -17,7 +17,7 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const userToRemove: User = await connection.manager.findOne(User, { email: "sally@test.com" });
+  const userToRemove: User = await connection.manager.findOne(User, { email: "sally@example.com" });
   await connection.manager.delete(User, userToRemove);
 });
 
@@ -72,7 +72,7 @@ describe("Authentication", () => {
     it("creates a new user", async () => {
       const testData = {
         age: 40,
-        email: "sally@test.com",
+        email: "sally@example.com",
         firstName: "Sally",
         lastName: "Tester",
         password: "changeme",
@@ -89,7 +89,7 @@ describe("Authentication", () => {
     it("throws if user email already exists", async () => {
       const testData = {
         age: 40,
-        email: "sally@test.com",
+        email: "sally@example.com",
         firstName: "Sally",
         lastName: "Tester",
         password: "changeme",
@@ -115,7 +115,7 @@ describe("Authentication", () => {
 
     it("throws if incomplete data", async () => {
       const testData = {
-        email: "sally@test.com",
+        email: "sally@example.com",
       };
 
       const result = await request(app)
@@ -128,7 +128,7 @@ describe("Authentication", () => {
 
     it("throws authentication error if invalid password", async () => {
       const testData = {
-        email: "sally@test.com",
+        email: "sally@example.com",
         password: "iforgot",
       };
 
@@ -142,7 +142,7 @@ describe("Authentication", () => {
 
     it("logs user in and returns token if valid email and password", async () => {
       const testData = {
-        email: "sally@test.com",
+        email: "sally@example.com",
         password: "changeme",
       };
 

@@ -16,10 +16,13 @@ import {
   removeTokenFromCache,
   verifyPassword } from "../../utils/authentication.helper";
 
+import Email from "../email/email";
+import EmailDto from "../email/email.dto";
 import UserLoginDto from "./login.dto";
 import CreateUserDto from "../../services/user/user.dto";
 import { Role } from "../../services/role/role.entity";
 import { User } from "../../services/user/user.entity";
+import { email } from "envalid";
 
 /**
  * Handles CRUD operations on User data in database
@@ -29,9 +32,10 @@ class AuthenticationDao implements Dao {
   private resource: string = "authentication"; // matches defined user user 'resource'
   private userRepository: Repository<User> = getRepository(User);
   private roleRepository: Repository<Role> = getRepository(Role);
+  private email: Email;
 
   constructor() {
-    // do nothing
+    this.email = new Email(); // initialize
   }
 
   public login = async (loginData: UserLoginDto): Promise<object | Error> => {
@@ -113,6 +117,20 @@ class AuthenticationDao implements Dao {
         timestamp: Date.now(),
         verb: "register",
       }); // before password removed in case need to store in another DB
+
+      // send email confirmation link to user
+      // TODO: add verfication link feature and HTML email template config
+      try {
+        this.email.send({
+          from: process.env.EMAIL_FROM_DEFAULT,
+          subject: "Demo App: email confirmation",
+          text: `Click this link to confirm your email address with \
+                us: https://myco.com/email/12345/confirm`,
+          to: user.email,
+        });
+      } catch (error) {
+        logger.error(`Registration email failed for ${user.email}`);
+      }
 
       user.password = undefined;
 

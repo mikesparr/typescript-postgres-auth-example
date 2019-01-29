@@ -10,7 +10,7 @@ import App from "./app";
 import rdbms from "./config/rdbms"; // config file for typeorm
 import logger from "./config/logger"; // console logger using winston
 import controllers from "./services";
-import validateEnv from "./utils/env.validator";
+import { validateEnv } from "./utils/validation.helper";
 
 validateEnv();
 

@@ -12,6 +12,7 @@
     "coverage": "./node_modules/.bin/jest --coverage --verbose"
   },
   "dependencies": {
+    "@sendgrid/mail": "^6.3.1",
     "accesscontrol": "^2.2.1",
     "bcrypt": "^3.0.3",
     "class-transformer": "^0.2.0",
