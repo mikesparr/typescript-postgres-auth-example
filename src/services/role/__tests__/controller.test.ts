@@ -100,8 +100,8 @@ describe("Role", () => {
 
   describe("POST /roles", () => {
     const testData = {
-      id: "test",
       description: "Test role from automated tests",
+      id: "test",
     };
 
     it("denies user role ability to create new permissions", async () => {
@@ -110,7 +110,7 @@ describe("Role", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
@@ -137,8 +137,8 @@ describe("Role", () => {
 
   describe("PUT /roles/:id", () => {
     const testData = {
-      id: "test",
       description: "Test role from automated tests (updated)",
+      id: "test",
     };
 
     it("denies user role ability to update permissions", async () => {
@@ -147,7 +147,7 @@ describe("Role", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
@@ -177,7 +177,7 @@ describe("Role", () => {
         .delete(`/roles/${newRoleId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 

@@ -75,11 +75,11 @@ class App extends EventEmitter {
 
   /**
    * Iterates through controllers in services/index and adds their routes/handlers to app
-   * @param controllers 
+   * @param controllers
    */
   private initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
-      this.app.use('/', controller.router);
+      this.app.use("/", controller.router);
     });
   }
 

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
-import Controller from '../../interfaces/controller.interface';
+import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
-import authenticationMiddleware from '../../middleware/authentication.middleware';
-import validationMiddleware from '../../middleware/validation.middleware';
+import authenticationMiddleware from "../../middleware/authentication.middleware";
+import validationMiddleware from "../../middleware/validation.middleware";
 
 import RoleDao from "./role.dao";
 import CreateRoleDto from "./role.dto";
@@ -26,10 +26,10 @@ class RoleController implements Controller {
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateRoleDto), this.save)
       .put(`${this.path}/:id`, validationMiddleware(CreateRoleDto, true), this.save)
-      .delete(`${this.path}/:id`, this.remove)
+      .delete(`${this.path}/:id`, this.remove);
   }
 
-  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {    
+  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       response.send(await this.roleDao.getAll(request.user));
     } catch (error) {
@@ -58,7 +58,7 @@ class RoleController implements Controller {
   }
 
   private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const { id } = request.params;    
+    const { id } = request.params;
 
     try {
       response.send(await this.roleDao.remove(request.user, id));

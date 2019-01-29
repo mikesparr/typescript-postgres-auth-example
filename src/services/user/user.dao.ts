@@ -1,12 +1,11 @@
 import { getRepository, Repository } from "typeorm";
 import event from "../../config/event";
 import logger from "../../config/logger";
-import AuthPermission from '../../interfaces/permission.interface';
-import Dao from '../../interfaces/dao.interface';
-import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
-import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
+import Dao from "../../interfaces/dao.interface";
+import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
+import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import { methodActions, getPermission } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
 import { User } from "./user.entity";
 import CreateUserDto from "./user.dto";
@@ -16,16 +15,17 @@ import CreateUserDto from "./user.dto";
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
 class UserDao implements Dao {
-  private resource: string = "user"; // matches defined user user 'resource'
+  private resource: string = "user"; // matches defined user user "resource"
   private userRepository: Repository<User> = getRepository(User);
 
   constructor() {
+    // nothing
   }
 
-  public getAll = async (user: User, params?: {[key: string]: any}): 
+  public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<User[] | RecordsNotFoundException | UserNotAuthorizedException> => {
     const records = await this.userRepository.find({ relations: ["roles"] });
-    
+
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
@@ -36,12 +36,12 @@ class UserDao implements Dao {
       } else {
         // log event to central handler
         event.emit("read-all", {
-          actor: user, 
+          action,
+          actor: user,
+          object: records,
           resource: this.resource,
-          action: action,
-          verb: "read-all", 
-          object: records, 
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          verb: "read-all",
         });
 
         return permission.filter(records);
@@ -51,7 +51,7 @@ class UserDao implements Dao {
     }
   }
 
-  public getOne = async (user: User, id: string | number): 
+  public getOne = async (user: User, id: string | number):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const record = await this.userRepository.findOne(id, { relations: ["roles"] });
 
@@ -65,12 +65,12 @@ class UserDao implements Dao {
       } else {
         // log event to central handler
         event.emit("read-one", {
-          actor: user, 
+          action,
+          actor: user,
+          object: record,
           resource: this.resource,
-          action: action,
-          verb: "read-one", 
-          object: record, 
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          verb: "read-one",
         });
 
         return permission.filter(record);
@@ -80,7 +80,7 @@ class UserDao implements Dao {
     }
   }
 
-  public save = async (user: User, data: any): 
+  public save = async (user: User, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const newRecord: CreateUserDto = data;
 
@@ -94,12 +94,12 @@ class UserDao implements Dao {
 
       // log event to central handler
       event.emit("save", {
-        actor: user, 
+        action,
+        actor: user,
+        object: filteredData,
         resource: this.resource,
-        action: action,
-        verb: "save", 
-        object: filteredData, 
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        verb: "save",
       });
 
       logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
@@ -109,7 +109,7 @@ class UserDao implements Dao {
     }
   }
 
-  public remove = async (user: User, id: string | number): 
+  public remove = async (user: User, id: string | number):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.userRepository.findOne(id);
 
@@ -123,12 +123,12 @@ class UserDao implements Dao {
 
         // log event to central handler
         event.emit("remove", {
-          actor: user, 
-          resource: this.resource,
-          action: action,
-          verb: "remove", 
+          action,
+          actor: user,
           object: recordToRemove,
-          timestamp: Date.now()
+          resource: this.resource,
+          timestamp: Date.now(),
+          verb: "remove",
         });
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);

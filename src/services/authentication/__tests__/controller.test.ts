@@ -1,8 +1,8 @@
-import request from "supertest";
-import controllers from "../../index";
 import { Application } from "express";
-import { getConnection, Connection } from "typeorm";
+import request from "supertest";
+import { Connection, getConnection } from "typeorm";
 import App from "../../../app";
+import controllers from "../../index";
 
 import { User } from "../../user/user.entity";
 
@@ -34,7 +34,7 @@ describe("Authentication", () => {
       const result = await request(app)
         .post("/register")
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
 
@@ -48,58 +48,58 @@ describe("Authentication", () => {
         .post("/register")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
 
     it("throws if data complete but email invalid", async () => {
       const testData = {
-        firstName: "Sally", 
-        lastName: "Tester", 
-        email: "blahblah", 
-        password: "changeme", 
         age: 40,
+        email: "blahblah",
+        firstName: "Sally",
+        lastName: "Tester",
+        password: "changeme",
       };
 
       const result = await request(app)
         .post("/register")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
 
     it("creates a new user", async () => {
       const testData = {
-        firstName: "Sally", 
-        lastName: "Tester", 
-        email: "sally@test.com", 
-        password: "changeme", 
         age: 40,
+        email: "sally@test.com",
+        firstName: "Sally",
+        lastName: "Tester",
+        password: "changeme",
       };
 
       const result = await request(app)
         .post("/register")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(200);
     });
 
     it("throws if user email already exists", async () => {
       const testData = {
-        firstName: "Sally", 
-        lastName: "Tester", 
-        email: "sally@test.com", 
-        password: "changeme", 
         age: 40,
+        email: "sally@test.com",
+        firstName: "Sally",
+        lastName: "Tester",
+        password: "changeme",
       };
 
       const result = await request(app)
         .post("/register")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
   }); // POST /register
@@ -109,7 +109,7 @@ describe("Authentication", () => {
       const result = await request(app)
         .post("/login")
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
 
@@ -122,7 +122,7 @@ describe("Authentication", () => {
         .post("/login")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(400);
     });
 
@@ -136,7 +136,7 @@ describe("Authentication", () => {
         .post("/login")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(401);
     });
 
@@ -150,9 +150,9 @@ describe("Authentication", () => {
         .post("/login")
         .send(testData)
         .set("Accept", "application/json");
-      
+
       testAuthToken = result.body.token;
-      
+
       expect(result.status).toEqual(200);
     });
   }); // POST /login
@@ -163,9 +163,8 @@ describe("Authentication", () => {
         .post("/logout")
         .set("Authorization", `Bearer ${testAuthToken}`)
         .set("Accept", "application/json");
-      
+
       // TODO: check cache record to confirm token removed
-      
       expect(result.status).toEqual(200);
     });
   }); // POST /logout

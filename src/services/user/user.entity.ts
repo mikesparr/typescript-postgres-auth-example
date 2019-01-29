@@ -5,7 +5,6 @@ import { Role } from "../role/role.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-//@Index(["email"], { unique: true })
 export class User {
 
   @PrimaryGeneratedColumn()
@@ -26,8 +25,8 @@ export class User {
   @Column({ nullable: true })
   public password: string;
 
-  @ManyToMany(type => Role, role => role.users)
+  @ManyToMany((type) => Role, (role) => role.users)
   @JoinTable()
-  roles: Role[];
+  public roles: Role[];
 
 }

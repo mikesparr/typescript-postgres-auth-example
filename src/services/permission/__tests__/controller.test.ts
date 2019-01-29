@@ -96,10 +96,10 @@ describe("Permission", () => {
 
   describe("POST /permissions", () => {
     const testData = {
-      role: "user",
-      resource: "test",
       action: "create:any",
       attributes: "*",
+      resource: "test",
+      role: "user",
     };
 
     it("denies user role ability to create new permissions", async () => {
@@ -108,7 +108,7 @@ describe("Permission", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
@@ -135,10 +135,10 @@ describe("Permission", () => {
 
   describe("PUT /permissions/:id", () => {
     const testData = {
-      role: "user",
-      resource: "test",
       action: "read:any",
       attributes: "*, !id",
+      resource: "test",
+      role: "user",
     };
 
     it("denies user role ability to update permissions", async () => {
@@ -147,7 +147,7 @@ describe("Permission", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
@@ -177,7 +177,7 @@ describe("Permission", () => {
         .delete(`/permissions/${newPermissionId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 

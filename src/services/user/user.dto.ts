@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsNumber, IsDefined } from 'class-validator';
+import { IsEmail, IsString, IsNumber, IsDefined } from "class-validator";
 
 /**
  * Data transfer object (DTO) with expected fields for creating users

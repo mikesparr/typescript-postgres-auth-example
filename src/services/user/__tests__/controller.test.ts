@@ -104,10 +104,10 @@ describe("User", () => {
 
   describe("POST /users", () => {
     const testData = {
-      firstName: "Testy",
-      lastName: "McTestface",
       age: 35,
       email: "test@test.com",
+      firstName: "Testy",
+      lastName: "McTestface",
       password: "changeme",
     };
 
@@ -117,7 +117,7 @@ describe("User", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
@@ -144,10 +144,10 @@ describe("User", () => {
 
   describe("PUT /users/:id", () => {
     const testData = {
-      firstName: "Testy",
-      lastName: "McTestface",
       age: 36,
       email: "test@test.com",
+      firstName: "Testy",
+      lastName: "McTestface",
       password: "changeme",
     };
 
@@ -157,17 +157,17 @@ describe("User", () => {
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 
     it("allows user role to edit their own user record", async () => {
       const myOwnData = {
-        id: userId,
-        firstName: "Basic",
-        lastName: "User",
-        email: "user@test.com",
         age: 21, // changed
+        email: "user@test.com",
+        firstName: "Basic",
+        id: userId,
+        lastName: "User",
       };
 
       const result = await request(app)
@@ -175,7 +175,7 @@ describe("User", () => {
         .send(myOwnData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(200);
     });
 
@@ -205,7 +205,7 @@ describe("User", () => {
         .delete(`/users/${newUserId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
-      
+
       expect(result.status).toEqual(403);
     });
 

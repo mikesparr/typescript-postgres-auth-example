@@ -5,7 +5,6 @@ import { Role } from "../role/role.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-//@Index(["resource", "action", "attributes"], { unique: true} )
 export class Permission {
 
   @PrimaryGeneratedColumn()
@@ -20,7 +19,7 @@ export class Permission {
   @Column()
   public attributes: string;
 
-  @ManyToOne(type => Role, role => role.permissions)
-  role: Role
+  @ManyToOne((type) => Role, (role) => role.permissions)
+  public role: Role;
 
 }

@@ -1,8 +1,8 @@
 import { NextFunction, Response, Router } from "express";
-import Controller from '../../interfaces/controller.interface';
+import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
-import authenticationMiddleware from '../../middleware/authentication.middleware';
-import validationMiddleware from '../../middleware/validation.middleware';
+import authenticationMiddleware from "../../middleware/authentication.middleware";
+import validationMiddleware from "../../middleware/validation.middleware";
 
 import PermissionDao from "./permission.dao";
 import CreatePermissionDto from "./permission.dto";
@@ -26,10 +26,10 @@ class PermissionController implements Controller {
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreatePermissionDto), this.save)
       .put(`${this.path}/:id`, validationMiddleware(CreatePermissionDto, true), this.save)
-      .delete(`${this.path}/:id`, this.remove)
+      .delete(`${this.path}/:id`, this.remove);
   }
 
-  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {    
+  private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       response.send(await this.permissionDao.getAll(request.user));
     } catch (error) {
@@ -58,7 +58,7 @@ class PermissionController implements Controller {
   }
 
   private remove = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const { id } = request.params;    
+    const { id } = request.params;
 
     try {
       response.send(await this.permissionDao.remove(request.user, id));

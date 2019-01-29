@@ -2,10 +2,7 @@
  * Generate authorization models from User, Role, Permission data and
  * provide hooks into authorization module
  */
-import { AccessControl } from "accesscontrol";
-import Authorizer from '../interfaces/authorizer.interface';
-import AuthPermission from '../interfaces/permission.interface';
-import AuthQuery from '../interfaces/query.interface';
+import { AccessControl as Authorizer, Permission as AuthPermission, Query as AuthQuery } from "accesscontrol";
 import cache from "../config/cache"; // Redis commands
 import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
@@ -35,11 +32,11 @@ enum AuthorizationActions {
  * read, create, update, or delete
  */
 const methodActions: {[key: string]: string} = {
+  DELETE: AuthorizationActions.DELETE,
   GET: AuthorizationActions.READ,
-  PUT: AuthorizationActions.UPDATE,
   PATCH: AuthorizationActions.UPDATE,
   POST: AuthorizationActions.CREATE,
-  DELETE: AuthorizationActions.DELETE,
+  PUT: AuthorizationActions.UPDATE,
 };
 
 /**
@@ -54,27 +51,27 @@ const createGrantListFromDatabase = async (): Promise<Array<{[key: string]: any}
   roles.forEach((role: Role) => {
     role.permissions.forEach((permission: Permission) => {
       const permObj: {[key: string]: any} = {
-        role: role.id,
-        resource: permission.resource,
         action: permission.action,
         attributes: permission.attributes,
-      }
+        resource: permission.resource,
+        role: role.id,
+      };
       grantList.push(permObj);
     });
   });
 
   logger.debug(grantList);
   return grantList;
-}
+};
 
 /**
  * Saves grant list object to cache
- * @param grantList 
+ * @param grantList
  */
 const saveGrantListToCache = async (grantList: {[key: string]: any}): Promise<boolean> => {
   logger.info(`Saving grant list to cache with key ${AUTHORIZATION_GRANTS_KEY}`);
   return await cache.set(AUTHORIZATION_GRANTS_KEY, JSON.stringify(grantList)) !== null;
-}
+};
 
 /**
  * Returns global JSON grant list object if found
@@ -82,7 +79,7 @@ const saveGrantListToCache = async (grantList: {[key: string]: any}): Promise<bo
 const getGrantListFromCache = async (): Promise<Array<{[key: string]: any}>> => {
   const grantsString = await cache.get(AUTHORIZATION_GRANTS_KEY);
   return JSON.parse(grantsString);
-}
+};
 
 /**
  * Deletes global grants list from cache
@@ -90,7 +87,7 @@ const getGrantListFromCache = async (): Promise<Array<{[key: string]: any}>> => 
 const removeGrantListFromCache = async (): Promise<boolean> => {
   logger.info(`Removing grant list from cache with key ${AUTHORIZATION_GRANTS_KEY}`);
   return await cache.del(AUTHORIZATION_GRANTS_KEY) === 1;
-}
+};
 
 /**
  * Fetches latest role permissions from database and updates cache
@@ -98,11 +95,11 @@ const removeGrantListFromCache = async (): Promise<boolean> => {
 const refreshGrants = async (): Promise<boolean> => {
   const newGrantList: {[key: string]: any} = await createGrantListFromDatabase();
   return saveGrantListToCache(newGrantList);
-}
+};
 
 /**
  * Returns array of role strings for given user ID from database
- * @param user 
+ * @param user
  */
 const getUserRolesFromDatabase = async (user: User): Promise<string[]> => {
   const roles: string[] = [];
@@ -112,38 +109,38 @@ const getUserRolesFromDatabase = async (user: User): Promise<string[]> => {
 
   logger.debug(`Returning database roles for user id ${user.id}`);
   return roles;
-}
+};
 
 /**
  * Adds roles to cache for a given user ID
- * @param user 
- * @param token 
+ * @param user
+ * @param token
  */
 const addUserRolesToCache = async (user: User, roles: string[]): Promise<boolean> => {
   return await cache.set(USER_ROLES_KEY(user.id), JSON.stringify(roles)) !== null;
-}
+};
 
 /**
  * Returns array of role strings for a given user ID from cache
- * @param user 
+ * @param user
  */
 const getUserRolesFromCache = async (user: User): Promise<string[]> => {
   const rolesString: string = await cache.get(USER_ROLES_KEY(user.id));
   return JSON.parse(rolesString);
-}
+};
 
 /**
  * Removes roles from cache for given user
- * @param user 
- * @param roles 
+ * @param user
+ * @param roles
  */
 const removeUserRolesFromCache = async (user: User): Promise<boolean> => {
   return await cache.del(USER_ROLES_KEY(user.id)) === 1;
-}
+};
 
 /**
  * Returns array of role strings for given user ID either from cache or database
- * @param user 
+ * @param user
  */
 const getUserRoles = async (user: User): Promise<string[]> => {
   const rolesInCache: string[] = await getUserRolesFromCache(user);
@@ -154,44 +151,44 @@ const getUserRoles = async (user: User): Promise<string[]> => {
     addUserRolesToCache(user, rolesFromDatabase);
     return rolesFromDatabase;
   }
-}
+};
 
 /**
  * Updates user roles cache from current database values
- * @param user 
+ * @param user
  */
 const refreshUserRoles = async (user: User): Promise<boolean> => {
   const rolesFromDatabase: string[] = await getUserRolesFromDatabase(user);
   return addUserRolesToCache(user, rolesFromDatabase);
-}
+};
 
 /**
  * Checks whether user is authorized
  */
-const getAuthorizer = async (): Promise<AccessControl> => {
+const getAuthorizer = async (): Promise<Authorizer> => {
   let grantList: Array<{[key: string]: any}> = await getGrantListFromCache();
   if (!grantList) {
     await refreshGrants();
     grantList = await createGrantListFromDatabase();
   }
 
-  return new AccessControl(grantList);
-}
+  return new Authorizer(grantList);
+};
 
 /**
- * Returns AuthPermission to check for grants and filter results
- * Methods to use on returned object: 
+ * Returns Permission to check for grants and filter results
+ * Methods to use on returned object:
  *  - .granted <boolean> true or false if permission granted
  *  - .filter(Object) <Object[filtered]> optionally filter results for ABAC
- * @param user 
- * @param isOwnerOrMember 
- * @param action 
- * @param resource 
+ * @param user
+ * @param isOwnerOrMember
+ * @param action
+ * @param resource
  */
 const getPermission = async (
         user: User,
-        isOwnerOrMember: boolean, 
-        action: string, 
+        isOwnerOrMember: boolean,
+        action: string,
         resource: string): Promise<AuthPermission> => {
 
   const authorizer: Authorizer = await getAuthorizer();
@@ -225,9 +222,10 @@ const getPermission = async (
         return null; // throw Exception?
     }
   }
-}
+};
 
 export {
+  AuthPermission,
   AuthorizationActions,
   getUserRoles,
   refreshUserRoles,

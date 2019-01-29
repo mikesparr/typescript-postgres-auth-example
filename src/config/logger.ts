@@ -18,7 +18,7 @@ const prodFormat = () => {
     value instanceof Error ? replaceError(value) : value;
 
   return combine(format.json({ replacer }));
-}
+};
 
 const devFormat = () => {
   const formatMessage = (info: any) => `${info.level} ${info.message}`;
@@ -28,7 +28,7 @@ const devFormat = () => {
   const fmt = (info: any) =>
     info instanceof Error ? formatError(info) : formatMessage(info);
   return combine(colorize(), printf(fmt));
-}
+};
 
 const logger = createLogger({
   exitOnError: false,

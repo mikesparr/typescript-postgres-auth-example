@@ -8,12 +8,12 @@ function validateEnv() {
   cleanEnv(process.env, {
     JWT_SECRET: str(),
     OPEN_CAGE_DATA_KEY: str(),
+    PORT: port(),
+    POSTGRES_DB: str(),
     POSTGRES_HOST: str(),
+    POSTGRES_PASSWORD: str(),
     POSTGRES_PORT: port(),
     POSTGRES_USER: str(),
-    POSTGRES_PASSWORD: str(),
-    POSTGRES_DB: str(),
-    PORT: port(),
     REDIS_URL: str(),
   });
 }

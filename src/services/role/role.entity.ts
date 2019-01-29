@@ -6,7 +6,6 @@ import { User } from "../user/user.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-//@Index(["id"], { unique: true })
 export class Role {
 
   @PrimaryColumn()
@@ -15,12 +14,12 @@ export class Role {
   @Column()
   public description: string;
 
-  @OneToMany(type => Permission, permission => permission.role, {
-    cascade: true
+  @OneToMany((type) => Permission, (permission) => permission.role, {
+    cascade: true,
   })
-  permissions: Permission[];
+  public permissions: Permission[];
 
-  @ManyToMany(type => User, user => user.roles)
-  users: User[];
+  @ManyToMany((type) => User, (user) => user.roles)
+  public users: User[];
 
 }

@@ -1,13 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
-import AuthPermission from '../../interfaces/permission.interface';
-import Controller from '../../interfaces/controller.interface';
+import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
-import RecordNotFoundException from '../../exceptions/RecordNotFoundException';
-import RecordsNotFoundException from '../../exceptions/RecordsNotFoundException';
+import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
+import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import authenticationMiddleware from '../../middleware/authentication.middleware';
-import validationMiddleware from '../../middleware/validation.middleware';
-import { methodActions, getPermission } from "../../utils/authorization.helper";
+import authenticationMiddleware from "../../middleware/authentication.middleware";
+import validationMiddleware from "../../middleware/validation.middleware";
+import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
 import { getPlaces } from "./provider/OpenCageDataProvider";
 
@@ -18,7 +17,7 @@ class SearchController implements Controller {
   public path: string = "/search";
   public router: Router = Router();
   private resource: string = "search";
-  
+
   constructor() {
     // TODO: figure out Dto pattern for querystrings for validation (q length > 3)
     this.router.get(this.path, authenticationMiddleware, this.getPlacesByName);
@@ -34,7 +33,7 @@ class SearchController implements Controller {
 
     if (permission.granted) {
       const places: {[key: string]: any} = await getPlaces(q);
-      
+
       if (!places) {
         next(new RecordsNotFoundException(this.resource));
       } else {

@@ -2,7 +2,7 @@ import request from "request-promise";
 
 /**
  * Retrieves data from RESTful API
- * @param query 
+ * @param query
  */
 export const getPlaces = async (query: string) => {
   const key = process.env.OPEN_CAGE_DATA_KEY;

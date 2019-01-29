@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
-import Controller from '../../interfaces/controller.interface';
+import Controller from "../../interfaces/controller.interface";
 import { parseToken } from "../../utils/authentication.helper";
-import authenticationMiddleware from '../../middleware/authentication.middleware';
-import validationMiddleware from '../../middleware/validation.middleware';
+import authenticationMiddleware from "../../middleware/authentication.middleware";
+import validationMiddleware from "../../middleware/validation.middleware";
 
 import UserLoginDto from "./login.dto";
 import CreateUserDto from "../user/user.dto";
