@@ -30,6 +30,13 @@ describe("Authentication", () => {
     });
   });
 
+  describe("GET /healthz", () => {
+    it("Returns success if app running", async () => {
+      const result = await request(app).get("/healthz");
+      expect(result.status).toEqual(200);
+    });
+  });
+
   describe("GET /verify/:token", () => {
     it("throws if invalid", async () => {
       const result = await request(app).get("/verify/badtoken");

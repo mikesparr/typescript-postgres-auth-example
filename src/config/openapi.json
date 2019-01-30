@@ -825,6 +825,27 @@
           }
         ]
       }
+    },
+    "/healthz": {
+      "get": {
+        "tags": ["systems"],
+        "summary": "Returns success if app running",
+        "responses": {
+          "200": {
+            "description": "A successful status code to indicate app is running"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

@@ -25,6 +25,7 @@ class AuthenticationController implements Controller {
 
   private initializeRoutes(): void {
     this.router.get(this.path, authenticationMiddleware); // secure index route (require login)
+    this.router.get(`${this.path}/healthz`, this.healthCheck);
     this.router.get(`${this.path}/verify/:token`, this.verify);
     this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), this.login);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
@@ -99,6 +100,14 @@ class AuthenticationController implements Controller {
     } catch (error) {
       next(error);
     }
+  }
+
+  /**
+   * Sends back successful response if system is running for container
+   * orchestration or other load balancing tools
+   */
+  private healthCheck = async (request: Request, response: Response, next: NextFunction) => {
+    response.send("OK");
   }
 
 }
