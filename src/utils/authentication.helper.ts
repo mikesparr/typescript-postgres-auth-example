@@ -46,14 +46,14 @@ const verifyPassword = async (plainTextPassword: string, hashedPassword: string)
  * @param user
  * @param expiresIn - default 1 hour
  */
-const createUserToken = async (user: User, expiresIn: string = "1h"): Promise<string> => {
+const createUserToken = async (user: User, userAgent: object, expiresIn: string = "1h"): Promise<string> => {
   const dataStoredInToken: {[key: string]: any} = {
     displayName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     id: user.id,
   };
   const token: string = createToken(dataStoredInToken, expiresIn);
-  await storeTokenInCache(token);
+  await storeTokenInCache(token, userAgent);
   await addTokenToUserTokensList(user, token);
 
   return token;
@@ -74,7 +74,7 @@ const createEmailToken = async (
     type,
   };
   const token: string = createToken(dataStoredInToken, expiresIn);
-  await storeTokenInCache(token);
+  await storeTokenInCache(token, {vendor: null, model: null, type: null});
 
   return token;
 };
@@ -137,12 +137,12 @@ const revokeUserAccess = async (user: User): Promise<void> => {
  * Saves token in cache using itself as key
  * @param token
  */
-const storeTokenInCache = async (token: string): Promise<boolean> => {
+const storeTokenInCache = async (token: string, device: object): Promise<boolean> => {
   const tokenData: User = readToken(token);
   let success: boolean = false;
 
   try {
-    cache.set(token, tokenData);
+    cache.set(token, device);
     success = true;
   } catch (error) {
     logger.error(error);

@@ -30,6 +30,7 @@
     "request-promise": "^4.2.2",
     "swagger-ui-express": "^4.0.2",
     "typeorm": "^0.2.12",
+    "ua-parser-js": "^0.7.19",
     "winston": "^3.1.0"
   },
   "devDependencies": {
@@ -47,6 +48,7 @@
     "@types/request-promise": "^4.1.42",
     "@types/supertest": "^2.0.7",
     "@types/swagger-ui-express": "^3.0.0",
+    "@types/ua-parser-js": "^0.7.32",
     "jest": "^23.6.0",
     "supertest": "^3.4.2",
     "ts-jest": "^23.10.5",

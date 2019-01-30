@@ -54,13 +54,13 @@ class AuthenticationDao implements Dao {
     this.email = new Email(); // initialize
   }
 
-  public login = async (loginData: UserLoginDto): Promise<object | Error> => {
+  public login = async (loginData: UserLoginDto, userAgent: object): Promise<object | Error> => {
     const user: User = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
     if (user) {
       const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
         user.password = undefined;
-        return this.logUserIn(user);
+        return this.logUserIn(user, userAgent);
       } else {
         throw new WrongCredentialsException();
       }
@@ -95,7 +95,7 @@ class AuthenticationDao implements Dao {
     }
   }
 
-  public register = async (userData: CreateUserDto): Promise<User | Error> => {
+  public register = async (userData: CreateUserDto, userAgent: object): Promise<User | Error> => {
     if (
       await this.userRepository.findOne({ email: userData.email })
     ) {
@@ -130,7 +130,7 @@ class AuthenticationDao implements Dao {
     }
   }
 
-  public verifyToken = async (token: string): Promise<object | Error> => {
+  public verifyToken = async (token: string, userAgent: object): Promise<object | Error> => {
     if (! await isTokenInDenyList(token)) {
       try {
         const tokenResult: any = await readToken(token);
@@ -168,7 +168,7 @@ class AuthenticationDao implements Dao {
           await addTokenToDenyList(token);
           await removeTokenFromCache(token);
 
-          return this.logUserIn(foundUser);
+          return this.logUserIn(foundUser, userAgent);
         }
       } catch (error) {
         // first check if token previously existed, and user in database
@@ -187,7 +187,7 @@ class AuthenticationDao implements Dao {
     }
   }
 
-  public lostPassword = async (userData: UserEmailDto): Promise<object | Error> => {
+  public lostPassword = async (userData: UserEmailDto, userAgent: object): Promise<object | Error> => {
     const foundUser = await this.userRepository.findOne({ email: userData.email });
 
     if (foundUser) {
@@ -241,8 +241,8 @@ class AuthenticationDao implements Dao {
    *
    * @param user
    */
-  private logUserIn = async (user: User): Promise<{[key: string]: any}> => {
-    const tokenData = await createUserToken(user);
+  private logUserIn = async (user: User, userAgent: object): Promise<{[key: string]: any}> => {
+    const tokenData = await createUserToken(user, userAgent);
 
     // log event to central handler
     event.emit("login", {
@@ -328,7 +328,7 @@ class AuthenticationDao implements Dao {
       }
 
       // add temp token to cache to handle expiry case
-      await storeTokenInCache(emailToken);
+      await storeTokenInCache(emailToken, {vendor: null, model: null});
 
       await this.email.send({
         from: process.env.EMAIL_FROM_DEFAULT,

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import Controller from "../../interfaces/controller.interface";
 import { parseToken } from "../../utils/authentication.helper";
+import addUserAgent from "../../middleware/ua.middleware";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
 
@@ -26,23 +27,21 @@ class AuthenticationController implements Controller {
   private initializeRoutes(): void {
     this.router.get(this.path, authenticationMiddleware); // secure index route (require login)
     this.router.get(`${this.path}/healthz`, this.healthCheck);
-    this.router.get(`${this.path}/verify/:token`, this.verify);
-    this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), this.login);
+    this.router.get(`${this.path}/verify/:token`, addUserAgent, this.verify);
+    this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), addUserAgent, this.login);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
-    this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), this.register);
+    this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), addUserAgent, this.register);
     this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), this.lostPassword);
-    // TODO: reset password
-    // TODO: confirm email
   }
 
   /**
    * Returns valid token if successful login credentials
    */
-  private login = async (request: Request, response: Response, next: NextFunction) => {
+  private login = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const loginData: UserLoginDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.login(loginData));
+      response.send(await this.authenticationDao.login(loginData, request.userAgent));
     } catch (error) {
       next(error);
     }
@@ -61,13 +60,12 @@ class AuthenticationController implements Controller {
 
   /**
    * Registers new guest user (pending verification) and stores in database
-   * TODO: send email verification link
    */
-  private register = async (request: Request, response: Response, next: NextFunction) => {
+  private register = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const userData: CreateUserDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.register(userData));
+      response.send(await this.authenticationDao.register(userData, request.userAgent));
     } catch (error) {
       next(error);
     }
@@ -76,11 +74,12 @@ class AuthenticationController implements Controller {
   /**
    * Accepts token in URL and activates user and logs them in if valid
    */
-  private verify = async (request: Request, response: Response, next: NextFunction) => {
+  private verify = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const tempToken: string = request.params.token;
 
     try {
-      const verificationResult: {[key: string]: any} = await this.authenticationDao.verifyToken(tempToken);
+      const verificationResult: {[key: string]: any} =
+              await this.authenticationDao.verifyToken(tempToken, request.userAgent);
       const redirectUrl: string = `${process.env.CLIENT_REDIRECT_URL}?token=${verificationResult.token}`;
       // TODO: require client to register redirect URL at some point (perhaps during register)
       response.redirect(redirectUrl);
@@ -92,11 +91,11 @@ class AuthenticationController implements Controller {
   /**
    * Attempts to send encoded link via email if user email match
    */
-  private lostPassword = async (request: Request, response: Response, next: NextFunction) => {
+  private lostPassword = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     const userData: UserEmailDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.lostPassword(userData));
+      response.send(await this.authenticationDao.lostPassword(userData, request.userAgent));
     } catch (error) {
       next(error);
     }
