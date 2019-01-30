@@ -74,7 +74,7 @@ const createEmailToken = async (
     type,
   };
   const token: string = createToken(dataStoredInToken, expiresIn);
-  await storeTokenInCache(token, {vendor: null, model: null, type: null});
+  await storeTokenInCache(token, {vendor: undefined, model: undefined, type: undefined});
 
   return token;
 };

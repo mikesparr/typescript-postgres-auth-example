@@ -328,7 +328,7 @@ class AuthenticationDao implements Dao {
       }
 
       // add temp token to cache to handle expiry case
-      await storeTokenInCache(emailToken, {vendor: null, model: null});
+      await storeTokenInCache(emailToken, {vendor: undefined, model: undefined, type: undefined});
 
       await this.email.send({
         from: process.env.EMAIL_FROM_DEFAULT,
