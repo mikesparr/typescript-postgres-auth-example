@@ -61,6 +61,7 @@ as much as possible so we could change out solutions in future without modifying
 
 ### Product Owner
  * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
+ * As a `product owner`, I want all features of the app automatically nested using TDD, so we can keep customers happy with stability
 
 ### Guest
  * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
