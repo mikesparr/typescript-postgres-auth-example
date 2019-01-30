@@ -19,7 +19,7 @@ import {
   getTokenFromCache,
   removeTokenFromCache,
   isTokenInDenyList,
-  verifyPassword, 
+  verifyPassword,
   storeTokenInCache} from "../../utils/authentication.helper";
 
 import Email from "../email/email";
