@@ -53,7 +53,7 @@ You can follow along the commit history relating to the issues (closed) and see 
  6. if non-CRUD feature, add a new `src/config/event.ts` listener and be sure to `emit` within Dao methods
     * this is key to support CQRS-ES architecture and scale to PubSub or message bus in future as needed
 
-# User stories (demonstrated by test data and features)
+# User stories (applied herein and demonstrated by test data and features)
 ## Check test data
 See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 
 that fulfill the requirements below. The `/util/{type}.helper.ts` files abstract the specific module implementation 
@@ -62,6 +62,12 @@ as much as possible so we could change out solutions in future without modifying
 ### Product Owner
  * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
  * As a `product owner`, I want all features of the app automatically tested using TDD, so we can keep customers happy with stability
+
+### Architect
+ * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
+ * As an `architect`, I want the app to be 'stateless' with remote DB, so that I can easily scale to meet growth requirements
+ * As an `architect`, I want the app to be layered, so it's extensible with minimal duplicate code and able to change providers
+ * As an `architect`, I want to app to be able to run in containers, so it is isolated and can easily scale to meet growth requirements
 
 ### Guest
  * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
