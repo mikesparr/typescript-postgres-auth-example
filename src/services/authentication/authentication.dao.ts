@@ -34,7 +34,7 @@ import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 // helper for supporting multiple email types
 enum NotificationType {
   REGISTER = "register",
-  RE_REGISTER = "re_register",
+  REISSUE = "reissue",
 }
 
 /**
@@ -240,7 +240,7 @@ class AuthenticationDao implements Dao {
       let emailSubject: string;
       let emailToken: string;
       switch (type) {
-        case NotificationType.RE_REGISTER:
+        case NotificationType.REISSUE:
           emailToken = await createEmailToken(user.email, "1h");
           emailSubject = `Demo App: email confirmation required`;
           emailBody = `Attempt to confirm registration with expired token. Please \
