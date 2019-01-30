@@ -1,7 +1,7 @@
 import { plainToClass } from "class-transformer";
 import { validate, ValidationError } from "class-validator";
 import HttpException from "../exceptions/HttpException";
-import { cleanEnv, port, str } from "envalid";
+import { cleanEnv, port, str, url } from "envalid";
 
 /**
  * Validates data against Dto constraints
@@ -26,6 +26,8 @@ const validateDto = async (type: any, data: any, skipMissingProperties = false):
  */
 const validateEnv = () => {
   cleanEnv(process.env, {
+    API_BASE_URL: url(),
+    CLIENT_REDIRECT_URL: url(),
     EMAIL_FROM_DEFAULT: str(),
     EMAIL_TO_DEFAULT: str(),
     JWT_SECRET: str(),

@@ -16,6 +16,15 @@ const DENYLIST_KEY: string = "token:denylist";
 const USER_TOKENS_KEY = (userId: number | string): string => `user:${userId}:tokens`;
 
 /**
+ * Token Types
+ */
+enum TokenTypes {
+  USER = "user",
+  EMAIL = "email",
+  PASSWORD = "password",
+}
+
+/**
  * Returns hashed password string using preferred crypto
  * @param plainTextPassword
  */
@@ -35,20 +44,40 @@ const verifyPassword = async (plainTextPassword: string, hashedPassword: string)
 /**
  * Creates auth token and stores in cache
  * @param user
+ * @param expiresIn - default 1 hour
  */
-const createToken = async (user: User): Promise<string> => {
-  const secret: string = process.env.JWT_SECRET;
+const createUserToken = async (user: User, expiresIn: string = "1h"): Promise<string> => {
   const dataStoredInToken: {[key: string]: any} = {
     displayName: `${user.firstName} ${user.lastName}`,
     email: user.email,
     id: user.id,
   };
-
-  const token: string = jwt.sign(dataStoredInToken, secret, { expiresIn: "1h" });
+  const token: string = createToken(dataStoredInToken, expiresIn);
   await storeTokenInCache(token);
   await addTokenToUserTokensList(user, token);
 
   return token;
+};
+
+/**
+ * Creates auth token for email confirmation links
+ * @param email
+ * @param expiresIn
+ */
+const createEmailToken = async (email: string, expiresIn: string = "1h"): Promise<string> => {
+  const dataStoredInToken: {[key: string]: any} = {
+    email,
+    type: TokenTypes.EMAIL,
+  };
+  const token: string = createToken(dataStoredInToken, expiresIn);
+  await storeTokenInCache(token);
+
+  return token;
+};
+
+const createToken = (data: any, expiresIn: string = "1h"): string => {
+  const secret: string = process.env.JWT_SECRET;
+  return jwt.sign(data, secret, { expiresIn });
 };
 
 /**
@@ -77,9 +106,9 @@ const parseToken = (request: RequestWithUser): string => {
  * Returns payload of token after decrypting
  * @param token
  */
-const readToken = (token: string): User => {
+const readToken = (token: string): any => {
   const secret: string = process.env.JWT_SECRET;
-  return jwt.verify(token, secret) as User;
+  return jwt.verify(token, secret);
 };
 
 /**
@@ -211,9 +240,11 @@ const resetDenyList = async (): Promise<boolean> => {
 
 // TODO: consider device-level grants (store user agent instead of payload)
 export {
+  TokenTypes,
   hashPassword,
   verifyPassword,
-  createToken,
+  createUserToken,
+  createEmailToken,
   revokeUserAccess,
   parseToken,
   readToken,

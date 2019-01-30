@@ -29,6 +29,15 @@ describe("Authentication", () => {
     });
   });
 
+  describe("GET /verify/:token", () => {
+    it("throws if invalid", async () => {
+      const result = await request(app).get("/verify/badtoken");
+      expect(result.status).toEqual(401);
+    });
+
+    // TODO: generate test token after register and make sure works
+  }); // GET /verify/:token
+
   describe("POST /register", () => {
     it("throws if no data provided", async () => {
       const result = await request(app)

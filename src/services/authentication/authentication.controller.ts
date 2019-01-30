@@ -24,6 +24,7 @@ class AuthenticationController implements Controller {
 
   private initializeRoutes(): void {
     this.router.get(this.path, authenticationMiddleware); // secure index route (require login)
+    this.router.get(`${this.path}/verify/:token`, this.verify);
     this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), this.login);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
     this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), this.register);
@@ -64,6 +65,19 @@ class AuthenticationController implements Controller {
 
     try {
       response.send(await this.authenticationDao.register(userData));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private verify = async (request: Request, response: Response, next: NextFunction) => {
+    const tempToken: string = request.params.token;
+
+    try {
+      const verificationResult: {[key: string]: any} = await this.authenticationDao.verifyToken(tempToken);
+      const redirectUrl: string = `${process.env.CLIENT_REDIRECT_URL}?token=${verificationResult.token}`;
+      // TODO: require client to register redirect URL at some point (perhaps during register)
+      response.redirect(redirectUrl);
     } catch (error) {
       next(error);
     }

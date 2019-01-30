@@ -55,6 +55,53 @@
         }
       }
     },
+    "/verify/{token}": {
+      "get": {
+        "tags": ["authentication"],
+        "summary": "Activates user and logs them in if valid, redirecting to configured URL",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "JWT token received in email link",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User record and JWT auth token that expires in 1 hour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/login": {
       "post": {
         "tags": ["authentication"],

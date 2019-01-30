@@ -10,10 +10,14 @@ import WrongCredentialsException from "../../exceptions/WrongCredentialsExceptio
 
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 import {
+  TokenTypes,
   addTokenToDenyList,
-  createToken,
+  createUserToken,
+  createEmailToken,
+  readToken,
   hashPassword,
   removeTokenFromCache,
+  isTokenInDenyList,
   verifyPassword } from "../../utils/authentication.helper";
 
 import Email from "../email/email";
@@ -22,7 +26,9 @@ import UserLoginDto from "./login.dto";
 import CreateUserDto from "../../services/user/user.dto";
 import { Role } from "../../services/role/role.entity";
 import { User } from "../../services/user/user.entity";
-import { email } from "envalid";
+import AuthenticationTokenExpiredException from "../../exceptions/AuthenticationTokenExpiredException";
+import WrongAuthenticationTokenException from "../../exceptions/WrongAuthenticationTokenException";
+import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 
 /**
  * Handles CRUD operations on User data in database
@@ -39,12 +45,12 @@ class AuthenticationDao implements Dao {
   }
 
   public login = async (loginData: UserLoginDto): Promise<object | Error> => {
-    const user = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
+    const user: User = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
     if (user) {
       const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
         user.password = undefined;
-        const tokenData = await createToken(user);
+        const tokenData = await createUserToken(user);
 
         // log event to central handler
         event.emit("login", {
@@ -121,11 +127,13 @@ class AuthenticationDao implements Dao {
       // send email confirmation link to user
       // TODO: add verfication link feature and HTML email template config
       try {
+        const emailToken: string = await createEmailToken(user.email, "1h");
+
         this.email.send({
           from: process.env.EMAIL_FROM_DEFAULT,
           subject: "Demo App: email confirmation",
           text: `Click this link to confirm your email address with \
-                us: https://myco.com/email/12345/confirm`,
+                us: ${process.env.API_BASE_URL}/verify/${emailToken}`,
           to: user.email,
         });
       } catch (error) {
@@ -136,6 +144,72 @@ class AuthenticationDao implements Dao {
 
       logger.info(`User with email ${user.email} just registered`);
       return user;
+    }
+  }
+
+  public verifyToken = async (token: string): Promise<object | Error> => {
+    if (! await isTokenInDenyList(token)) {
+      try {
+        const tokenResult: any = await readToken(token);
+        // TODO: if invalid, check cache first and if there, generate new and notify user
+
+        const foundUser: User = await this.userRepository.findOne({ email: tokenResult.email });
+
+        if (!foundUser) {
+          throw new RecordNotFoundException(tokenResult.email);
+        } else {
+          switch (tokenResult.type) {
+            case TokenTypes.EMAIL:
+              const userRole: Role = this.roleRepository.create({id: "user"});
+              foundUser.roles = [userRole];
+              await this.userRepository.save(foundUser);
+              break;
+            case TokenTypes.PASSWORD:
+              throw new NotImplementedException(`tokenType:${TokenTypes.PASSWORD}`);
+            case TokenTypes.USER:
+            default:
+              throw new NotImplementedException(`tokenType:${TokenTypes.USER}`);
+          }
+
+          // log event to central handler
+          event.emit("verify", {
+            action: "update",
+            actor: foundUser,
+            object: foundUser,
+            resource: this.resource,
+            timestamp: Date.now(),
+            verb: "verify",
+          });
+
+          await addTokenToDenyList(token);
+          await removeTokenFromCache(token);
+
+          /**
+           * Generate new login token
+           * TODO: consider factoring out to reuse logic in login function
+           */
+          const tokenData = await createUserToken(foundUser);
+
+          // log event to central handler
+          event.emit("login", {
+            action: "create",
+            actor: foundUser,
+            object: foundUser,
+            resource: this.resource,
+            timestamp: Date.now(),
+            verb: "login",
+          });
+
+          logger.info(`User with email ${foundUser.email} just logged in (after verify)`);
+          return {user: foundUser, token: tokenData};
+        }
+      } catch (error) {
+        logger.warn(`Error verifying token ${token}`);
+        logger.error(error.message);
+        throw new WrongAuthenticationTokenException();
+      }
+    } else {
+      throw new AuthenticationTokenExpiredException();
     }
   }
 

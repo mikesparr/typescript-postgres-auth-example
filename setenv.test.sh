@@ -6,6 +6,8 @@
 
 echo "Creating test .env file ..."
 tee -a .env << END
+API_BASE_URL=http://localhost:3000
+CLIENT_REDIRECT_URL=http://example.com
 EMAIL_FROM_DEFAULT=no-reply@example.com
 EMAIL_TO_DEFAULT={Add Your Email Here}
 PORT=3000
