@@ -172,6 +172,27 @@
         }
       }
     },
+    "/lost-password": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Emails new magic link to log user in if found",
+        "requestBody": {
+          "description": "Email address for valid user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation and prompt to check email (TODO)"
+          }
+        }
+      }
+    },
     "/roles": {
       "get": {
         "tags": ["roles"],
@@ -933,6 +954,14 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailInput": {
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string"
           }
         }

@@ -4,6 +4,7 @@ import { parseToken } from "../../utils/authentication.helper";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
 
+import UserEmailDto from "./email.dto";
 import UserLoginDto from "./login.dto";
 import CreateUserDto from "../user/user.dto";
 import RequestWithUser from "../../interfaces/request.interface";
@@ -28,6 +29,7 @@ class AuthenticationController implements Controller {
     this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), this.login);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
     this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), this.register);
+    this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), this.lostPassword);
     // TODO: reset password
     // TODO: confirm email
   }
@@ -70,6 +72,9 @@ class AuthenticationController implements Controller {
     }
   }
 
+  /**
+   * Accepts token in URL and activates user and logs them in if valid
+   */
   private verify = async (request: Request, response: Response, next: NextFunction) => {
     const tempToken: string = request.params.token;
 
@@ -78,6 +83,19 @@ class AuthenticationController implements Controller {
       const redirectUrl: string = `${process.env.CLIENT_REDIRECT_URL}?token=${verificationResult.token}`;
       // TODO: require client to register redirect URL at some point (perhaps during register)
       response.redirect(redirectUrl);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Attempts to send encoded link via email if user email match
+   */
+  private lostPassword = async (request: Request, response: Response, next: NextFunction) => {
+    const userData: UserEmailDto = request.body;
+
+    try {
+      response.send(await this.authenticationDao.lostPassword(userData));
     } catch (error) {
       next(error);
     }

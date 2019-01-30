@@ -20,6 +20,8 @@ const handleEvent = (data: {[key: string]: any}) => {
 
 event.on("register", handleEvent);
 event.on("verify", handleEvent);
+event.on("reissue", handleEvent);
+event.on("lost-password", handleEvent);
 event.on("login", handleEvent);
 event.on("logout", handleEvent);
 event.on("read-all", handleEvent);

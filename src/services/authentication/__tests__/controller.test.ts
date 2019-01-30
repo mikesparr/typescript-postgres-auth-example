@@ -5,6 +5,7 @@ import App from "../../../app";
 import controllers from "../../index";
 
 import { User } from "../../user/user.entity";
+import UserEmailDto from "../email.dto";
 
 let app: Application;
 let testAuthToken: string;
@@ -33,6 +34,39 @@ describe("Authentication", () => {
     it("throws if invalid", async () => {
       const result = await request(app).get("/verify/badtoken");
       expect(result.status).toEqual(401);
+    });
+
+    // TODO: generate test token after register and make sure works
+  }); // GET /verify/:token
+
+  describe("POST /lost-password", () => {
+    it("throws if missing email", async () => {
+      const result = await request(app).post("/lost-password");
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if invalid email", async () => {
+      const testData: UserEmailDto = {
+        email: "bademail",
+      };
+
+      const result = await request(app)
+        .post("/lost-password")
+        .send(testData)
+        .set("Accept", "application/json");
+      expect(result.status).toEqual(400);
+    });
+
+    it("sends magic url to valid user via email", async () => {
+      const testData: UserEmailDto = {
+        email: "user@example.com",
+      };
+
+      const result = await request(app)
+        .post("/lost-password")
+        .send(testData)
+        .set("Accept", "application/json");
+      expect(result.status).toEqual(200);
     });
 
     // TODO: generate test token after register and make sure works

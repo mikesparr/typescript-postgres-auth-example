@@ -14,6 +14,7 @@ import {
   addTokenToDenyList,
   createUserToken,
   createEmailToken,
+  decodeToken,
   readToken,
   hashPassword,
   getTokenFromCache,
@@ -23,6 +24,7 @@ import {
   storeTokenInCache} from "../../utils/authentication.helper";
 
 import Email from "../email/email";
+import UserEmailDto from "./email.dto";
 import UserLoginDto from "./login.dto";
 import CreateUserDto from "../../services/user/user.dto";
 import { Role } from "../../services/role/role.entity";
@@ -33,6 +35,7 @@ import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 
 // helper for supporting multiple email types
 enum NotificationType {
+  PASSWORD = "password",
   REGISTER = "register",
   REISSUE = "reissue",
 }
@@ -138,16 +141,17 @@ class AuthenticationDao implements Dao {
           throw new RecordNotFoundException(tokenResult.email);
         } else {
           switch (tokenResult.type) {
-            case TokenTypes.EMAIL:
+            case TokenTypes.REGISTER:
               const userRole: Role = this.roleRepository.create({id: "user"});
               foundUser.roles = [userRole];
               await this.userRepository.save(foundUser);
               break;
             case TokenTypes.PASSWORD:
-              throw new NotImplementedException(`tokenType:${TokenTypes.PASSWORD}`);
-            case TokenTypes.USER:
+              // just log user in
+              break;
+            case TokenTypes.LOGIN:
             default:
-              throw new NotImplementedException(`tokenType:${TokenTypes.USER}`);
+              throw new NotImplementedException(`tokenType:${TokenTypes.LOGIN}`);
           }
 
           // log event to central handler
@@ -167,9 +171,11 @@ class AuthenticationDao implements Dao {
           return this.logUserIn(foundUser);
         }
       } catch (error) {
+        // first check if token previously existed, and user in database
         if (error.message === "invalid algorithm" && await getTokenFromCache(token)) {
           logger.info(`User tried to verify expired token ${token}. Re-issuing ...`);
-
+          await this.reissueFromExpiredToken(token);
+          throw new AuthenticationTokenExpiredException();
         } else {
           logger.warn(`Error verifying token ${token}`);
           logger.error(error.message);
@@ -177,8 +183,33 @@ class AuthenticationDao implements Dao {
         }
       }
     } else {
-      throw new AuthenticationTokenExpiredException();
+      throw new WrongAuthenticationTokenException();
     }
+  }
+
+  public lostPassword = async (userData: UserEmailDto): Promise<object | Error> => {
+    const foundUser = await this.userRepository.findOne({ email: userData.email });
+
+    if (foundUser) {
+      // log event to central handler
+      event.emit("lost-password", {
+        action: "create",
+        actor: foundUser,
+        object: foundUser,
+        resource: this.resource,
+        timestamp: Date.now(),
+        verb: "lost-password",
+      });
+
+      await this.notifyByEmail(foundUser, NotificationType.PASSWORD);
+    } else {
+      logger.warn(`Someone attempted invalid lost password for email ${userData.email}`);
+    }
+
+    return {
+      message: "If valid user then an email was sent to address on file. Please check your email.",
+      status: 200,
+    };
   }
 
   /**
@@ -228,28 +259,68 @@ class AuthenticationDao implements Dao {
   }
 
   /**
+   * Convenience method attempting to find user from expired token and
+   * send them a magic link via email to regain access
+   */
+  private reissueFromExpiredToken = async (token: string): Promise<void> => {
+    try {
+      const tokenResult: any = await decodeToken(token);
+
+      const foundUser: User = await this.userRepository.findOne({ email: tokenResult.email });
+
+      if (foundUser) {
+        // log event to central handler
+        event.emit("reissue", {
+          action: "create",
+          actor: foundUser,
+          object: foundUser,
+          resource: this.resource,
+          timestamp: Date.now(),
+          verb: "reissue",
+        }); // before password removed in case need to store in another DB
+
+        await this.notifyByEmail(foundUser, NotificationType.REGISTER, tokenResult.type);
+      }
+    } catch (error) {
+      logger.error(error.message);
+    }
+  }
+
+  /**
    * Convenience method to reuse sending notifications for auth events
    *
    * @param user
    * @param type
    */
-  private notifyByEmail = async (user: User, type: NotificationType): Promise<void> => {
+  private notifyByEmail = async (
+            user: User,
+            type: NotificationType,
+            tokenType: TokenTypes = TokenTypes.REGISTER): Promise<void> => {
+
     try {
       // TODO: add HTML email template config
       let emailBody: string;
       let emailSubject: string;
       let emailToken: string;
       switch (type) {
+        case NotificationType.PASSWORD:
+          emailToken = await createEmailToken(user.email, "1h", TokenTypes.PASSWORD);
+          emailSubject = `Demo App: forgot password`;
+          emailBody = `Sorry you forgot your password. If you requested this, \
+                      please click the magic link below to log in. You can \
+                      change your information after logging in. Login: \
+                      ${process.env.API_BASE_URL}/verify/${emailToken}`;
+          break;
         case NotificationType.REISSUE:
           emailToken = await createEmailToken(user.email, "1h");
           emailSubject = `Demo App: email confirmation required`;
-          emailBody = `Attempt to confirm registration with expired token. Please \
-                      click this new link to confirm your email address with \
-                      us: ${process.env.API_BASE_URL}/verify/${emailToken}`;
+          emailBody = `Attempt access with expired token. Please \
+                      click this new link to access the app: \
+                      ${process.env.API_BASE_URL}/verify/${emailToken}`;
           break;
         case NotificationType.REGISTER:
         default:
-          emailToken = await createEmailToken(user.email, "1h");
+          emailToken = await createEmailToken(user.email, "6h");
           emailSubject = `Demo App: email confirmation required`;
           emailBody = `Click this link to confirm your email address with \
                       us: ${process.env.API_BASE_URL}/verify/${emailToken}`;

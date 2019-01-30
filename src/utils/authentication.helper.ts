@@ -19,8 +19,8 @@ const USER_TOKENS_KEY = (userId: number | string): string => `user:${userId}:tok
  * Token Types
  */
 enum TokenTypes {
-  USER = "user",
-  EMAIL = "email",
+  LOGIN = "login",
+  REGISTER = "register",
   PASSWORD = "password",
 }
 
@@ -64,10 +64,14 @@ const createUserToken = async (user: User, expiresIn: string = "1h"): Promise<st
  * @param email
  * @param expiresIn
  */
-const createEmailToken = async (email: string, expiresIn: string = "1h"): Promise<string> => {
+const createEmailToken = async (
+        email: string,
+        expiresIn: string = "1h",
+        type: TokenTypes = TokenTypes.REGISTER): Promise<string> => {
+
   const dataStoredInToken: {[key: string]: any} = {
     email,
-    type: TokenTypes.EMAIL,
+    type,
   };
   const token: string = createToken(dataStoredInToken, expiresIn);
   await storeTokenInCache(token);
@@ -109,6 +113,15 @@ const parseToken = (request: RequestWithUser): string => {
 const readToken = (token: string): any => {
   const secret: string = process.env.JWT_SECRET;
   return jwt.verify(token, secret);
+};
+
+/**
+ * Returns payload of token after decrypting
+ * @param token
+ */
+const decodeToken = (token: string): any => {
+  const secret: string = process.env.JWT_SECRET;
+  return jwt.decode(token);
 };
 
 /**
@@ -247,6 +260,7 @@ export {
   createEmailToken,
   revokeUserAccess,
   parseToken,
+  decodeToken,
   readToken,
   storeTokenInCache,
   getTokenFromCache,
