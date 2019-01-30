@@ -62,12 +62,15 @@ as much as possible so we could change out solutions in future without modifying
 ### Product Owner
  * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
  * As a `product owner`, I want all features of the app automatically tested using TDD, so we can keep customers happy with stability
+ * As a `product owner`, I want to allow external authentication providers (IdP), so we can offload effort or meet compliance guidelines
 
 ### Architect
  * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
  * As an `architect`, I want the app to be 'stateless' with remote DB, so that I can easily scale to meet growth requirements
  * As an `architect`, I want the app to be layered, so it's extensible with minimal duplicate code and able to change providers
  * As an `architect`, I want to app to be able to run in containers, so it is isolated and can easily scale to meet growth requirements
+ * As an `architect`, I want to be able to change password hash solutions, so we can stay current as security standards evolve
+ * As an `architect`, I want to be able to plug in security middleware, so we can stay current as security standards evolve
 
 ### Guest
  * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
