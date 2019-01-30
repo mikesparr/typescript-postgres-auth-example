@@ -42,6 +42,17 @@ This app includes automated tests using **Supertest** and **Jest** to test route
 Every DAO method should `emit` an event in an activity stream format as shown. For max flexibility,
 like to disable writes and make the architecture CQRS, you can create a new handler in `src/config/events.ts`.
 
+## Adding new services
+You can follow along the commit history relating to the issues (closed) and see how, but a general idea is:
+ 1. add a new folder (i.e. category) in the `src/services/` folder
+ 2. if CRUD feature with database, copy `src/services/role/*` and find/replace to match new names
+ 3. edit `src/config/data.test.ts` and add necessary test data and permissions for CRUD
+ 4. if new providers, add `src/config/{provider}.ts` and make connections from `process.env.{vars here}`
+    * be sure to add test vars to `setenv.test.sh`, `src/utils/validation.helper.ts`, `.env`
+ 5. edit `src/config/openapi.json` and add routes to documentation (if REST implementation)
+ 6. if non-CRUD feature, add a new `src/config/event.ts` listener and be sure to `emit` within Dao methods
+    * this is key to support CQRS-ES architecture and scale to PubSub or message bus in future as needed
+
 # User stories (demonstrated by test data and features)
 ## Check test data
 See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 
