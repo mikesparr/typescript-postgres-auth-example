@@ -64,12 +64,16 @@ as much as possible so we could change out solutions in future without modifying
 
 ### Guest
  * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
+ * As a `guest`, I want to confirm my valid `email` address, so that I can gain access to the application
+ * As a `guest`, I want to be able to submit my `email` credentials, so I can still `login` if my password is lost
 
 ### User
  * As a `user`, I want to be able to `search` by city name, so I can view geo data about the city
  * As a `user`, I want to be able to **view** `users` (*without age or password*), so I know users of the system
  * As a `user`, I want to be able to **edit** my own `user` record, so I can keep my information current
  * As a `user`, I want to be able to **view** a list of `roles` (*without permissions*) so I know what roles are available
+ * As a `user`, I want to be able to `logout`, so that my authentication session cannot be used by others
+ * As a `user`, I want to be informed if attempts to gain access to my account occur, so I can help prevent unauthorized access
 
 ### Admin
  * As an `admin`, I want to be able to `search` by city name, so I can view geo data about the city
@@ -85,6 +89,11 @@ as much as possible so we could change out solutions in future without modifying
  * As an `admin`, I want to be able to **create** any `permission` record, so I can manage permissions in the system
  * As an `admin`, I want to be able to **edit** any `permission` record, so I can manage permissions in the system
  * As an `admin`, I want to be able to **delete** any `permission` record, so I can manage permissions and keep the system current
+
+### Systems Administrator
+ * As a `sysadmin`, I want to be able to automatically check app health, so I can automate scaling and recovery
+ * As a `sysadmin`, I want the app to log all events, so that I can optionally add alerts if acceptable thresholds are exceeded
+ * As a `sysadmin`, I want to be able to deny protected access to any user or individual token, so I can prevent unauthorized access
 
 # TODO
 ## Add support for group permissions
