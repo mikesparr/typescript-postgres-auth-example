@@ -100,7 +100,36 @@ describe("User", () => {
       expect(result.body.age).toBeDefined();
       expect(result.body.password).toBeUndefined();
     });
-  }); // GET /users:id
+  }); // GET /users/:id
+
+  describe("GET /users/:id/tokens", () => {
+    it("does not allow user role to view other users tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to view their own tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin role to view other user tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/tokens
 
   describe("POST /users", () => {
     const testData = {
