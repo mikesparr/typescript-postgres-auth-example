@@ -167,7 +167,13 @@ const removeTokenFromCache = async (token: string): Promise<boolean> => {
   let success: boolean = false;
 
   try {
-    cache.del(token);
+    await cache.del(token);
+
+    // attempt to decode token and remove from user token list also
+    const decodedToken: any = await decodeToken(token);
+    if (decodedToken && decodedToken.id) {
+      removeTokenFromUserTokensList(decodedToken, token);
+    }
     success = true;
   } catch (error) {
     logger.error(error);
@@ -209,6 +215,7 @@ const removeTokenFromUserTokensList = async (user: User, token: string): Promise
 const addAllUserTokensToDenyList = async (user: User): Promise<void> => {
   const userTokens = await getTokensFromUserTokensList(user);
   userTokens.forEach(async (token) => await addTokenToDenyList(token));
+  await removeAllUserTokensFromCache(user);
 };
 
 /**
@@ -218,6 +225,7 @@ const addAllUserTokensToDenyList = async (user: User): Promise<void> => {
 const removeAllUserTokensFromCache = async (user: User): Promise<void> => {
   const userTokens = await getTokensFromUserTokensList(user);
   userTokens.forEach(async (token) => await removeTokenFromCache(token));
+  await cache.del(USER_TOKENS_KEY(user.id));
 };
 
 /**

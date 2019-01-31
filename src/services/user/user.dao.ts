@@ -8,13 +8,13 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
 import {
-  addTokenToDenyList,
-  getTokenFromCache,
+  addAllUserTokensToDenyList,
   getTokensFromUserTokensList,
 } from "../../utils/authentication.helper";
 
 import { User } from "./user.entity";
 import CreateUserDto from "./user.dto";
+import { add } from "winston";
 
 /**
  * Handles CRUD operations on User data in database
@@ -127,6 +127,7 @@ class UserDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         await this.userRepository.remove(recordToRemove);
+        await addAllUserTokensToDenyList(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {
