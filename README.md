@@ -53,7 +53,7 @@ You can follow along the commit history relating to the issues (closed) and see 
  6. if non-CRUD feature, add a new `src/config/event.ts` listener and be sure to `emit` within Dao methods
     * this is key to support CQRS-ES architecture and scale to PubSub or message bus in future as needed
 
-# User stories (applied herein and demonstrated by test data and features)
+# User stories (demonstrated within by test data and features)
 ## Check test data
 See the `/config/data.test.ts` file to see how permissions, roles, and users were added to the database 
 that fulfill the requirements below. The `/util/{type}.helper.ts` files abstract the specific module implementation 
