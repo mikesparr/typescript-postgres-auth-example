@@ -69,6 +69,18 @@ const createTestData = async (connection: Connection) => {
     resource: "user",
   });
 
+  // user tokens
+  const userUserViewTokens = connection.manager.create(Permission, {
+    action: "read:own",
+    attributes: "*",
+    resource: "token",
+  });
+  const adminUserViewTokens = connection.manager.create(Permission, {
+    action: "read:any",
+    attributes: "*",
+    resource: "token",
+  });
+
   // role
   const userRoleViewPermission = connection.manager.create(Permission, {
     action: "read:any",
@@ -134,6 +146,7 @@ const createTestData = async (connection: Connection) => {
       userUserViewPermission,
       userUserUpdatePermission,
       userRoleViewPermission,
+      userUserViewTokens,
     ],
   });
   const adminRole = connection.manager.create(Role, {
@@ -141,6 +154,7 @@ const createTestData = async (connection: Connection) => {
     id: "admin",
     permissions: [
       adminUserViewPermission,
+      adminUserViewTokens,
       adminUserCreatePermission,
       adminUserUpdatePermission,
       adminUserDeletePermission,

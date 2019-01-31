@@ -7,6 +7,12 @@ import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException"
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
+import {
+  addTokenToDenyList,
+  getTokenFromCache,
+  getTokensFromUserTokensList,
+} from "../../utils/authentication.helper";
+
 import { User } from "./user.entity";
 import CreateUserDto from "./user.dto";
 
@@ -16,6 +22,7 @@ import CreateUserDto from "./user.dto";
  */
 class UserDao implements Dao {
   private resource: string = "user"; // matches defined user user "resource"
+  private tokenResource: string = "token";
   private userRepository: Repository<User> = getRepository(User);
 
   constructor() {
@@ -55,7 +62,7 @@ class UserDao implements Dao {
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const record = await this.userRepository.findOne(id, { relations: ["roles"] });
 
-    const isOwnerOrMember: boolean = false;
+    const isOwnerOrMember: boolean = String(user.id) === String(id);
     const action: string = methodActions.GET;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
@@ -84,7 +91,7 @@ class UserDao implements Dao {
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const newRecord: CreateUserDto = data;
 
-    const isOwnerOrMember: boolean = (data.id && user.id === data.id);
+    const isOwnerOrMember: boolean = (data.id && String(user.id) === String(data.id));
     const action: string = data.id ? methodActions.PUT : methodActions.POST;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
@@ -113,7 +120,7 @@ class UserDao implements Dao {
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.userRepository.findOne(id);
 
-    const isOwnerOrMember: boolean = false;
+    const isOwnerOrMember: boolean = String(user.id) === String(id);
     const action: string = methodActions.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
@@ -138,6 +145,38 @@ class UserDao implements Dao {
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
+  }
+
+  public getUserTokens = async (user: User, tokenUserId: string | number): Promise<object | Error> => {
+    const record = await this.userRepository.findOne(tokenUserId);
+
+    const isOwnerOrMember: boolean = String(user.id) === String(tokenUserId);
+    const action: string = methodActions.GET;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+
+    if (permission.granted) {
+      logger.info(`User ${user.id} viewing tokens for user ${tokenUserId}`);
+
+      if (!record) {
+        throw new RecordNotFoundException(tokenUserId);
+      } else {
+        const userTokens: string[] = await getTokensFromUserTokensList(record);
+
+        // log event to central handler
+        event.emit("read-tokens", {
+          action,
+          actor: user,
+          object: userTokens,
+          resource: this.resource,
+          timestamp: Date.now(),
+          verb: "read-tokens",
+        });
+
+        return userTokens;
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
     }
   }
 

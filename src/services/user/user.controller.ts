@@ -27,6 +27,7 @@ class UserController implements Controller {
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateUserDto), this.save)
       .put(`${this.path}/:id`, validationMiddleware(CreateUserDto, true), this.save)
       .delete(`${this.path}/:id`, this.remove);
+    this.router.get(`${this.path}/:id/tokens`, authenticationMiddleware, this.getTokens);
   }
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
@@ -62,6 +63,16 @@ class UserController implements Controller {
 
     try {
       response.send(await this.userDao.remove(request.user, id));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private getTokens = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
+
+    try {
+      response.send(await this.userDao.getUserTokens(request.user, id));
     } catch (error) {
       next(error);
     }
