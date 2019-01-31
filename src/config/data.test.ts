@@ -75,8 +75,23 @@ const createTestData = async (connection: Connection) => {
     attributes: "*",
     resource: "token",
   });
+  const userUserDeleteTokens = connection.manager.create(Permission, {
+    action: "delete:own",
+    attributes: "*",
+    resource: "token",
+  });
   const adminUserViewTokens = connection.manager.create(Permission, {
     action: "read:any",
+    attributes: "*",
+    resource: "token",
+  });
+  const adminUserUpdateTokens = connection.manager.create(Permission, {
+    action: "update:any",
+    attributes: "*",
+    resource: "token",
+  });
+  const adminUserDeleteTokens = connection.manager.create(Permission, {
+    action: "delete:any",
     attributes: "*",
     resource: "token",
   });
@@ -155,6 +170,8 @@ const createTestData = async (connection: Connection) => {
     permissions: [
       adminUserViewPermission,
       adminUserViewTokens,
+      adminUserUpdateTokens,
+      adminUserDeleteTokens,
       adminUserCreatePermission,
       adminUserUpdatePermission,
       adminUserDeletePermission,
@@ -168,13 +185,26 @@ const createTestData = async (connection: Connection) => {
       adminPermissionDeletePermission,
     ],
   });
+  const sysadminRole = connection.manager.create(Role, {
+    description: "Authenticated user with sysadmin privileges",
+    id: "sysadmin",
+    permissions: [
+      logoutPermission,
+      adminUserViewPermission,
+      adminUserUpdatePermission,
+      adminUserViewTokens,
+      adminUserUpdateTokens,
+      adminUserDeleteTokens,
+    ],
+  });
 
-  logger.info("Adding 3 test roles to database");
+  logger.info("Adding 4 test roles to database");
   await connection.manager.save(guestRole);
   await connection.manager.save(userRole);
   await connection.manager.save(adminRole);
+  await connection.manager.save(sysadminRole);
 
-  logger.info("Adding 3 test users to database");
+  logger.info("Adding 4 test users to database");
   await connection.manager.save(connection.manager.create(User, {
     age: 0,
     email: "guest@example.com",
@@ -198,6 +228,14 @@ const createTestData = async (connection: Connection) => {
     lastName: "User",
     password: await hashPassword("changeme"),
     roles: [userRole, adminRole],
+  }));
+  await connection.manager.save(connection.manager.create(User, {
+    age: 40,
+    email: "sysadmin@example.com",
+    firstName: "Sysadmin",
+    lastName: "User",
+    password: await hashPassword("changeme"),
+    roles: [userRole, sysadminRole],
   }));
 };
 
