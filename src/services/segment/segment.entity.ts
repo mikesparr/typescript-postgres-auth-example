@@ -16,11 +16,14 @@ export class Segment {
   @Column()
   public name: string;
 
-  @Column({ type: "jsonb", nullable: true })
-  public included: any;
+  @Column({ type: "simple-array", nullable: true })
+  public included: number[] | string[];
+
+  @Column({ type: "simple-array", nullable: true })
+  public excluded: number[] | string[];
 
   @Column({ type: "jsonb", nullable: true })
-  public excluded: any;
+  public rules: any;
 
   @Column({ default: false })
   public deleted: boolean;

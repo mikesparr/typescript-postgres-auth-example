@@ -346,9 +346,11 @@ const createTestData = async (connection: Connection) => {
     { type: "field", expression: "country == 'US' || country == 'CA'" },
   ];
   const northAmericaSegment = connection.manager.create(Segment, {
-    included: rules,
+    excluded: [4],
+    included: [2, 3],
     key: "north-america-beta-users",
     name: "Users in US and Canada",
+    rules,
   });
   await connection.manager.save(northAmericaSegment);
 
