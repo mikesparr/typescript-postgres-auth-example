@@ -121,7 +121,7 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        recordToRemove.deleted = true;
+        recordToRemove.enabled = false;
         await this.goalRepository.save(recordToRemove);
 
         // log event to central handler

@@ -100,6 +100,10 @@ describe("Segment", () => {
       key: "test",
       name: "Test segment",
     };
+    const testDataWithBadKey = {
+      key: "test segment",
+      name: "Test segment",
+    };
 
     it("denies user ability to create new segments", async () => {
       const result = await request(app)
@@ -116,6 +120,17 @@ describe("Segment", () => {
         .post("/segments")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if spaces in key name", async () => {
+      const result = await request(app)
+        .post("/segments")
+        .send(testDataWithBadKey)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newSegmentId = result.body.id;
 
       expect(result.status).toEqual(400);
     });

@@ -101,6 +101,18 @@ describe("Flag", () => {
       type: "user",
     };
 
+    const testDataWithBadKey = {
+      key: "test flag",
+      name: "Test flag",
+      type: "user",
+    };
+
+    const testDataWithBadType = {
+      key: "test",
+      name: "Test flag",
+      type: "American",
+    };
+
     it("denies user ability to create new flags", async () => {
       const result = await request(app)
         .post("/flags")
@@ -114,6 +126,26 @@ describe("Flag", () => {
     it("throws if missing data", async () => {
       const result = await request(app)
         .post("/flags")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if key has spaces", async () => {
+      const result = await request(app)
+        .post("/flags")
+        .send(testDataWithBadKey)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if type does not match enum values", async () => {
+      const result = await request(app)
+        .post("/flags")
+        .send(testDataWithBadType)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

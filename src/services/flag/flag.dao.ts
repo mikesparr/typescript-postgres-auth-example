@@ -121,7 +121,8 @@ class FlagDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.flagRepository.remove(recordToRemove);
+        recordToRemove.archived = true;
+        await this.flagRepository.save(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {

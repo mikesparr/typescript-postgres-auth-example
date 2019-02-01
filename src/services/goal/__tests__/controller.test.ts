@@ -99,6 +99,10 @@ describe("Goal", () => {
       key: "test",
       name: "Test goal",
     };
+    const testDataWithBadKey = {
+      key: "test goal",
+      name: "Test goal",
+    };
 
     it("denies user ability to create new goals", async () => {
       const result = await request(app)
@@ -115,6 +119,17 @@ describe("Goal", () => {
         .post("/goals")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if adding space to key name", async () => {
+      const result = await request(app)
+        .post("/goals")
+        .send(testDataWithBadKey)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newGoalId = result.body.id;
 
       expect(result.status).toEqual(400);
     });

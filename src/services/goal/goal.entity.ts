@@ -20,19 +20,13 @@ export class Goal {
   public hits: number;
 
   @Column({ type: "bigint", default: 0 })
-  public minHits: number;
-
-  @Column({ type: "bigint", default: 0 })
-  public maxHits: number;
-
-  @Column({ type: "bigint", default: 0 })
   public uniqueUsers: number;
 
   @Column({ type: "bigint", default: 0 })
-  public minUniqueUsers: number;
+  public targetHits: number;
 
   @Column({ type: "bigint", default: 0 })
-  public maxUniqueUsers: number;
+  public targetUniqueUsers: number;
 
   @Column({ nullable: true })
   public start: Date;
@@ -41,7 +35,7 @@ export class Goal {
   public stop: Date;
 
   @Column({ default: false })
-  public deleted: boolean;
+  public enabled: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.goals)
   public flags: Flag[];
