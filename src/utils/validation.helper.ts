@@ -10,7 +10,8 @@ import { cleanEnv, port, str, url } from "envalid";
  * @param skipMissingProperties
  */
 const validateDto = async (type: any, data: any, skipMissingProperties = false): Promise<boolean | HttpException> => {
-  const errors: ValidationError[] = await validate(plainToClass(type, data), { skipMissingProperties });
+  const errors: ValidationError[] = await validate(
+          plainToClass(type, data), { skipMissingProperties, forbidUnknownValues: true });
 
   if (errors.length > 0) {
     const message = errors.map((error: ValidationError) =>
