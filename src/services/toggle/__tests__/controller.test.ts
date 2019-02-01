@@ -48,23 +48,23 @@ afterAll(async () => {
   const toggleToRemove: Toggle = await connection.manager.findOne(Toggle, newToggleId);
 
   // only remove new toggles if a test failed and they exist
-  if (toggleToRemove && toggleToRemove.id !== "user" && toggleToRemove.id !== "admin") {
+  if (toggleToRemove && toggleToRemove.id !== 1) {
     await connection.manager.delete(Toggle, toggleToRemove);
   }
 });
 
 describe("Toggle", () => {
   describe("GET /toggles", () => {
-    it("allows user toggle access but without permissions", async () => {
+    it("denies user toggle access", async () => {
       const result = await request(app)
         .get("/toggles")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
-      expect(result.status).toEqual(200);
+      expect(result.status).toEqual(403);
     });
 
-    it("allows admin toggle access with permissions", async () => {
+    it("allows admin toggle access with rules and goals", async () => {
       const result = await request(app)
         .get("/toggles")
         .set("Authorization", `Bearer ${adminToken}`)
@@ -75,18 +75,18 @@ describe("Toggle", () => {
   }); // GET /toggles
 
   describe("GET /toggles/:id", () => {
-    it("allows user toggle access without permissions", async () => {
+    it("denies user toggle access", async () => {
       const result = await request(app)
-        .get("/toggles/user.login")
+        .get("/toggles/1")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
-      expect(result.status).toEqual(200);
+      expect(result.status).toEqual(403);
     });
 
-    it("allows admin toggle access with permissions", async () => {
+    it("allows admin toggle access with rules and goals", async () => {
       const result = await request(app)
-        .get("/toggles/user.login")
+        .get("/toggles/1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
@@ -96,11 +96,12 @@ describe("Toggle", () => {
 
   describe("POST /toggles", () => {
     const testData = {
-      id: "test",
+      key: "test",
       name: "Test toggle",
+      type: "user",
     };
 
-    it("denies user toggle ability to create new permissions", async () => {
+    it("denies user ability to create new toggles", async () => {
       const result = await request(app)
         .post("/toggles")
         .send(testData)
@@ -119,7 +120,7 @@ describe("Toggle", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin toggle to create new permissions", async () => {
+    it("allows admin to create new toggles", async () => {
       const result = await request(app)
         .post("/toggles")
         .send(testData)
@@ -133,11 +134,12 @@ describe("Toggle", () => {
 
   describe("PUT /toggles/:id", () => {
     const testData = {
-      id: "test",
+      key: "test",
       name: "Test toggle (updated)",
+      type: "user",
     };
 
-    it("denies user toggle ability to update permissions", async () => {
+    it("denies user ability to update toggles", async () => {
       const result = await request(app)
         .put(`/toggles/${newToggleId}`)
         .send(testData)
@@ -156,7 +158,7 @@ describe("Toggle", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin toggle to update existing permissions", async () => {
+    it("allows admin to update existing toggles", async () => {
       const result = await request(app)
         .put(`/toggles/${newToggleId}`)
         .send(testData)
@@ -168,7 +170,7 @@ describe("Toggle", () => {
   }); // PUT /toggles
 
   describe("DELETE /toggles/:id", () => {
-    it("denies user toggle ability to delete permissions", async () => {
+    it("denies user ability to delete toggles", async () => {
       const result = await request(app)
         .delete(`/toggles/${newToggleId}`)
         .set("Authorization", `Bearer ${userToken}`)
@@ -186,7 +188,7 @@ describe("Toggle", () => {
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin toggle to delete existing permissions", async () => {
+    it("allows admin to delete existing toggles", async () => {
       const result = await request(app)
         .delete(`/toggles/${newToggleId}`)
         .set("Authorization", `Bearer ${adminToken}`)

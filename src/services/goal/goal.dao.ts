@@ -25,7 +25,7 @@ class GoalDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Goal[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.goalRepository.find({ relations: ["permissions"] });
+    const records = await this.goalRepository.find({ relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -54,7 +54,8 @@ class GoalDao implements Dao {
 
   public getOne = async (user: User, id: string | number):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
-    const record = await this.goalRepository.findOne(id, { relations: ["permissions"] });
+    logger.info(`Fetching ${this.resource} with ID ${id}`);
+    const record = await this.goalRepository.findOne(id, { relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -120,7 +121,8 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.goalRepository.remove(recordToRemove);
+        recordToRemove.deleted = true;
+        await this.goalRepository.save(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {

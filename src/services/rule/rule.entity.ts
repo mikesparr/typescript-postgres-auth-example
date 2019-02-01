@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, ManyToMany } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 import { Toggle } from "../toggle/toggle.entity";
 
 /**
@@ -7,14 +7,14 @@ import { Toggle } from "../toggle/toggle.entity";
 @Entity()
 export class Rule {
 
-  @PrimaryColumn()
-  public id: string;
+  @PrimaryGeneratedColumn()
+  public id: number;
+
+  @Column()
+  public key: string;
 
   @Column()
   public name: string;
-
-  @Column()
-  public owner: string;
 
   @Column({ type: "jsonb", nullable: true })
   public included: any;

@@ -55,7 +55,7 @@ afterAll(async () => {
 
 describe("Role", () => {
   describe("GET /roles", () => {
-    it("allows user role access but without permissions", async () => {
+    it("allows user role access but without roles", async () => {
       const result = await request(app)
         .get("/roles")
         .set("Authorization", `Bearer ${userToken}`)
@@ -65,7 +65,7 @@ describe("Role", () => {
       expect(result.body[0].permissions).toBeUndefined();
     });
 
-    it("allows admin role access with permissions", async () => {
+    it("allows admin role access with roles", async () => {
       const result = await request(app)
         .get("/roles")
         .set("Authorization", `Bearer ${adminToken}`)
@@ -77,7 +77,7 @@ describe("Role", () => {
   }); // GET /roles
 
   describe("GET /roles/:id", () => {
-    it("allows user role access without permissions", async () => {
+    it("allows user role access without roles", async () => {
       const result = await request(app)
         .get("/roles/guest")
         .set("Authorization", `Bearer ${userToken}`)
@@ -87,7 +87,7 @@ describe("Role", () => {
       expect(result.body.permissions).toBeUndefined();
     });
 
-    it("allows admin role access with permissions", async () => {
+    it("allows admin role access with roles", async () => {
       const result = await request(app)
         .get("/roles/guest")
         .set("Authorization", `Bearer ${adminToken}`)
@@ -104,7 +104,7 @@ describe("Role", () => {
       id: "test",
     };
 
-    it("denies user role ability to create new permissions", async () => {
+    it("denies user role ability to create new roles", async () => {
       const result = await request(app)
         .post("/roles")
         .send(testData)
@@ -123,7 +123,7 @@ describe("Role", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin role to create new permissions", async () => {
+    it("allows admin role to create new roles", async () => {
       const result = await request(app)
         .post("/roles")
         .send(testData)
@@ -141,7 +141,7 @@ describe("Role", () => {
       id: "test",
     };
 
-    it("denies user role ability to update permissions", async () => {
+    it("denies user role ability to update roles", async () => {
       const result = await request(app)
         .put(`/roles/${newRoleId}`)
         .send(testData)
@@ -160,7 +160,7 @@ describe("Role", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin role to update existing permissions", async () => {
+    it("allows admin role to update existing roles", async () => {
       const result = await request(app)
         .put(`/roles/${newRoleId}`)
         .send(testData)
@@ -172,7 +172,7 @@ describe("Role", () => {
   }); // PUT /roles
 
   describe("DELETE /roles/:id", () => {
-    it("denies user role ability to delete permissions", async () => {
+    it("denies user role ability to delete roles", async () => {
       const result = await request(app)
         .delete(`/roles/${newRoleId}`)
         .set("Authorization", `Bearer ${userToken}`)
@@ -190,7 +190,7 @@ describe("Role", () => {
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin role to delete existing permissions", async () => {
+    it("allows admin role to delete existing roles", async () => {
       const result = await request(app)
         .delete(`/roles/${newRoleId}`)
         .set("Authorization", `Bearer ${adminToken}`)

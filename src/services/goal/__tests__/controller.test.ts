@@ -48,23 +48,23 @@ afterAll(async () => {
   const goalToRemove: Goal = await connection.manager.findOne(Goal, newGoalId);
 
   // only remove new goals if a test failed and they exist
-  if (goalToRemove && goalToRemove.id !== "user" && goalToRemove.id !== "admin") {
+  if (goalToRemove && goalToRemove.id !== 1) {
     await connection.manager.delete(Goal, goalToRemove);
   }
 });
 
 describe("Goal", () => {
   describe("GET /goals", () => {
-    it("allows user goal access but without permissions", async () => {
+    it("denies user goal access", async () => {
       const result = await request(app)
         .get("/goals")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
-      expect(result.status).toEqual(200);
+      expect(result.status).toEqual(403);
     });
 
-    it("allows admin goal access with permissions", async () => {
+    it("allows admin goal access with toggles", async () => {
       const result = await request(app)
         .get("/goals")
         .set("Authorization", `Bearer ${adminToken}`)
@@ -75,18 +75,18 @@ describe("Goal", () => {
   }); // GET /goals
 
   describe("GET /goals/:id", () => {
-    it("allows user goal access without permissions", async () => {
+    it("denies user goal access", async () => {
       const result = await request(app)
-        .get("/goals/guest")
+        .get("/goals/1")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
-      expect(result.status).toEqual(200);
+      expect(result.status).toEqual(403);
     });
 
-    it("allows admin goal access with permissions", async () => {
+    it("allows admin goal access with toggles", async () => {
       const result = await request(app)
-        .get("/goals/guest")
+        .get("/goals/1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
@@ -96,11 +96,11 @@ describe("Goal", () => {
 
   describe("POST /goals", () => {
     const testData = {
-      id: "test",
+      key: "test",
       name: "Test goal",
     };
 
-    it("denies user goal ability to create new permissions", async () => {
+    it("denies user ability to create new goals", async () => {
       const result = await request(app)
         .post("/goals")
         .send(testData)
@@ -119,7 +119,7 @@ describe("Goal", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin goal to create new permissions", async () => {
+    it("allows admin to create new goals", async () => {
       const result = await request(app)
         .post("/goals")
         .send(testData)
@@ -133,11 +133,11 @@ describe("Goal", () => {
 
   describe("PUT /goals/:id", () => {
     const testData = {
-      id: "test",
+      key: "test",
       name: "Test goal (updated)",
     };
 
-    it("denies user goal ability to update permissions", async () => {
+    it("denies user ability to update goals", async () => {
       const result = await request(app)
         .put(`/goals/${newGoalId}`)
         .send(testData)
@@ -156,7 +156,7 @@ describe("Goal", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin goal to update existing permissions", async () => {
+    it("allows admin to update existing goals", async () => {
       const result = await request(app)
         .put(`/goals/${newGoalId}`)
         .send(testData)
@@ -168,7 +168,7 @@ describe("Goal", () => {
   }); // PUT /goals
 
   describe("DELETE /goals/:id", () => {
-    it("denies user goal ability to delete permissions", async () => {
+    it("denies user ability to delete goals", async () => {
       const result = await request(app)
         .delete(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${userToken}`)
@@ -186,7 +186,7 @@ describe("Goal", () => {
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin goal to delete existing permissions", async () => {
+    it("allows admin to delete existing goals", async () => {
       const result = await request(app)
         .delete(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${adminToken}`)

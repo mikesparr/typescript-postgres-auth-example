@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, OneToMany, ManyToMany } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, JoinTable, ManyToMany } from "typeorm";
 import { Goal } from "../goal/goal.entity";
 import { Rule } from "../rule/rule.entity";
 
@@ -13,8 +13,11 @@ enum ToggleType {
 @Entity()
 export class Toggle {
 
-  @PrimaryColumn()
-  public id: string;
+  @PrimaryGeneratedColumn()
+  public id: number;
+
+  @Column()
+  public key: string;
 
   @Column()
   public name: string;
@@ -31,9 +34,6 @@ export class Toggle {
   @Column({ nullable: true })
   public squad: string;
 
-  @Column({ nullable: true })
-  public owner: string;
-
   @Column({ default: true })
   public trackable: boolean;
 
@@ -44,9 +44,11 @@ export class Toggle {
   public deleted: boolean;
 
   @ManyToMany((type) => Goal, (goal) => goal.toggles)
+  @JoinTable()
   public goals: Goal[];
 
   @ManyToMany((type) => Rule, (rule) => rule.toggles)
+  @JoinTable()
   public rules: Rule[];
 
 }

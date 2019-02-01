@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, ManyToMany } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 import { Toggle } from "../toggle/toggle.entity";
 
 /**
@@ -7,8 +7,11 @@ import { Toggle } from "../toggle/toggle.entity";
 @Entity()
 export class Goal {
 
-  @PrimaryColumn()
-  public id: string;
+  @PrimaryGeneratedColumn()
+  public id: number;
+
+  @Column()
+  public key: string;
 
   @Column()
   public name: string;
@@ -36,6 +39,9 @@ export class Goal {
 
   @Column({ nullable: true })
   public stop: Date;
+
+  @Column({ default: false })
+  public deleted: boolean;
 
   @ManyToMany((type) => Toggle, (toggle) => toggle.goals)
   public toggles: Toggle[];

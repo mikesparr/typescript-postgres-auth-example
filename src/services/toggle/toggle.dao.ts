@@ -25,7 +25,7 @@ class ToggleDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Toggle[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.toggleRepository.find({ relations: ["permissions"] });
+    const records = await this.toggleRepository.find({ relations: ["rules", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -54,7 +54,8 @@ class ToggleDao implements Dao {
 
   public getOne = async (user: User, id: string | number):
             Promise<Toggle | RecordNotFoundException | UserNotAuthorizedException> => {
-    const record = await this.toggleRepository.findOne(id, { relations: ["permissions"] });
+    logger.info(`Fetching ${this.resource} with ID ${id}`);
+    const record = await this.toggleRepository.findOne(id, { relations: ["rules", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;

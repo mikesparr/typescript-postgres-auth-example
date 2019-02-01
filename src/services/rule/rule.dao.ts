@@ -25,7 +25,7 @@ class RuleDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Rule[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.ruleRepository.find({ relations: ["permissions"] });
+    const records = await this.ruleRepository.find({ relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -54,7 +54,8 @@ class RuleDao implements Dao {
 
   public getOne = async (user: User, id: string | number):
             Promise<Rule | RecordNotFoundException | UserNotAuthorizedException> => {
-    const record = await this.ruleRepository.findOne(id, { relations: ["permissions"] });
+    logger.info(`Fetching ${this.resource} with ID ${id}`);
+    const record = await this.ruleRepository.findOne(id, { relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -120,7 +121,8 @@ class RuleDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.ruleRepository.remove(recordToRemove);
+        recordToRemove.deleted = true;
+        await this.ruleRepository.save(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {

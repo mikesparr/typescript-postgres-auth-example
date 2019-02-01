@@ -31,11 +31,11 @@ afterAll(async () => {
   const connection: Connection = await getConnection();
 });
 
-describe("Role", () => {
+describe("Search", () => {
   describe("GET /search", () => {
-    it("allows user role access but without permissions", async () => {
+    it("allows user search geo data", async () => {
       const result = await request(app)
-        .get("/roles?q=Missoula")
+        .get("/search?q=Missoula")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
