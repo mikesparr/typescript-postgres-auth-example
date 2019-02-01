@@ -59,21 +59,6 @@ See the `/config/data.test.ts` file to see how permissions, roles, and users wer
 that fulfill the requirements below. The `/util/{type}.helper.ts` files abstract the specific module implementation 
 as much as possible so we could change out solutions in future without modifying the code base.
 
-### Product Owner
- * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
- * As a `product owner`, I want all features of the app automatically tested using TDD, so we can keep customers happy with stability
- * As a `product owner`, I want to allow external authentication providers (IdP), so we can offload effort or meet compliance guidelines
- * As a `product owner`, I want to test new features on a subset of users or geographies, so we can measure impact, refine, or revert as needed
- * As a `product owner`, I want to be able to track usage of toggle/flag features, so we can fine-tune before global deployment (or omit)
-
-### Architect
- * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
- * As an `architect`, I want the app to be 'stateless' with remote DB, so that I can easily scale to meet growth requirements
- * As an `architect`, I want the app to be layered, so it's extensible with minimal duplicate code and able to change providers
- * As an `architect`, I want to app to be able to run in containers, so it is isolated and can easily scale to meet growth requirements
- * As an `architect`, I want to be able to change password hash solutions, so we can stay current as security standards evolve
- * As an `architect`, I want to be able to plug in security middleware, so we can stay current as security standards evolve
-
 ### Guest
  * As a `guest`, I want to be able to `register` or `login`, so that I can access features within the app
  * As a `guest`, I want to confirm my valid `email` address, so that I can gain access to the application
@@ -107,6 +92,21 @@ as much as possible so we could change out solutions in future without modifying
  * As a `sysadmin`, I want the app to log all events, so that I can optionally add alerts if acceptable thresholds are exceeded
  * As a `sysadmin`, I want to be able to deny protected access to any user or individual token, so I can prevent unauthorized access
  * As a `sysadmin`, I want to be able to disable client features that may have issues, so I can maintain app stability
+
+### Product Owner
+ * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
+ * As a `product owner`, I want all features of the app automatically tested using TDD, so we can keep customers happy with stability
+ * As a `product owner`, I want to allow external authentication providers (IdP), so we can offload effort or meet compliance guidelines
+ * As a `product owner`, I want to test new features on a subset of users or geographies, so we can measure impact, refine, or revert as needed
+ * As a `product owner`, I want to be able to track usage of toggle/flag features, so we can fine-tune before global deployment (or omit)
+
+### Architect
+ * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
+ * As an `architect`, I want the app to be 'stateless' with remote DB, so that I can easily scale to meet growth requirements
+ * As an `architect`, I want the app to be layered, so it's extensible with minimal duplicate code and able to change providers
+ * As an `architect`, I want to app to be able to run in containers, so it is isolated and can easily scale to meet growth requirements
+ * As an `architect`, I want to be able to change password hash solutions, so we can stay current as security standards evolve
+ * As an `architect`, I want to be able to plug in security middleware, so we can stay current as security standards evolve
 
 ### Developer
  * As a `developer`, I want to be able to toggle/flag new functionality, so we can safely build/deploy and test out new features
