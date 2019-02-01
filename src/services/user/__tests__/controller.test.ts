@@ -133,9 +133,68 @@ describe("User", () => {
 
   describe("POST /users", () => {
     const testData = {
-      age: 35,
+      age: 30,
+      avatar: "http://example.com/me/1234567.jpg",
+      country: "US",
       email: "test@example.com",
       firstName: "Testy",
+      ip: "FE80:0000:0000:0000:0202:B3FF:FE1E:8329", // V6
+      language: "en_US",
+      lastName: "McTestface",
+      password: "changeme",
+      timeZone: "America/Mountain",
+    };
+    const testDataWithTooShortCountry = {
+      country: "E",
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "changeme",
+    };
+    const testDataWithTooLongCountry = {
+      country: "America",
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "changeme",
+    };
+    const testDataWithInvalidAvatarURL = {
+      avatar: "file\\mike/smil \.jpg",
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "changeme",
+    };
+    const testDataWithBadIPAddress = {
+      email: "test@example.com",
+      firstName: "Testy",
+      ip: "555.555.555.55",
+      lastName: "McTestface",
+      password: "changeme",
+    };
+    const testDataWithTooShortPassword = {
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "oops",
+    };
+    const testDataWithPasswordWithSpaces = {
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "change me please",
+    };
+    const testDataWithTooLongPassword = {
+      email: "test@example.com",
+      firstName: "Testy",
+      lastName: "McTestface",
+      password: "thequickbrownfoxjumpsoverthelazydogthequickbrownfoxjumpsoverthelazydog",
+    };
+    const testDataWithInvalidLanguage = {
+      email: "test@example.com",
+      firstName: "Testy",
+      ip: "555.555.555.55",
+      language: "english",
       lastName: "McTestface",
       password: "changeme",
     };
@@ -159,6 +218,94 @@ describe("User", () => {
       expect(result.status).toEqual(400);
     });
 
+    it("throws if invalid avatar URL", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithInvalidAvatarURL)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if bad IP address", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithBadIPAddress)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if country code too short", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithTooShortCountry)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if country code too long", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithTooLongCountry)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if langage invalid (en_US)", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithInvalidLanguage)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if password too short", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithTooShortPassword)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if password too long", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithTooLongPassword)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("throws if password has spaces", async () => {
+      const result = await request(app)
+        .post("/users")
+        .send(testDataWithPasswordWithSpaces)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newUserId = result.body.id;
+
+      expect(result.status).toEqual(400);
+    });
+
     it("allows admin role to create new users", async () => {
       const result = await request(app)
         .post("/users")
@@ -173,11 +320,11 @@ describe("User", () => {
 
   describe("PUT /users/:id", () => {
     const testData = {
-      age: 36,
       email: "test@example.com",
       firstName: "Testy",
+      ip: "FE80::0202:B3FF:FE1E:8329", // collapsed IPV6 format
       lastName: "McTestface",
-      password: "changeme",
+      password: "thanks4changingMe",
     };
 
     it("denies user role ability to update users", async () => {

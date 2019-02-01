@@ -316,11 +316,16 @@ const createTestData = async (connection: Connection) => {
 
   const adminUser: User = connection.manager.create(User, {
     age: 30,
+    avatar: "http://example.com/me/1234567.jpg",
+    country: "US",
     email: "admin@example.com",
     firstName: "Admin",
+    ip: "FE80:0000:0000:0000:0202:B3FF:FE1E:8329", // V6
+    language: "en_US",
     lastName: "User",
     password: await hashPassword("changeme"),
     roles: [userRole, adminRole],
+    timeZone: "America/Mountain",
   });
   await connection.manager.save(adminUser);
 

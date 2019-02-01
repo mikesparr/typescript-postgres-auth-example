@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
 import { Role } from "../role/role.entity";
 
 /**
@@ -16,14 +16,29 @@ export class User {
   @Column()
   public lastName: string;
 
-  @Column({ nullable: true })
-  public age: number;
-
   @Column()
   public email: string;
 
   @Column({ nullable: true })
   public password: string;
+
+  @Column({ nullable: true })
+  public avatar: string;
+
+  @Column({ nullable: true })
+  public country: string;
+
+  @Column({ nullable: true })
+  public timeZone: string;
+
+  @Column({ nullable: true })
+  public language: string;
+
+  @Column({ nullable: true })
+  public ip: string;
+
+  @Column({ nullable: true })
+  public age: number;
 
   @ManyToMany((type) => Role, (role) => role.users)
   @JoinTable()

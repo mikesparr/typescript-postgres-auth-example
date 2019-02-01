@@ -179,7 +179,7 @@ describe("Authentication", () => {
     it("throws authentication error if invalid password", async () => {
       const testData = {
         email: "sally@example.com",
-        password: "iforgot",
+        password: "iForgotMyPassword",
       };
 
       const result = await request(app)

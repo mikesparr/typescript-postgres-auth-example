@@ -15,7 +15,7 @@ class CreateGoalDto {
 
   @IsString()
   @IsDefined()
-  @NotContains(" ", { message: "No spaces allowed (i.e. my-goal-key)"} )
+  @NotContains(" ", { message: "No spaces allowed (i.e. my-goal-key)" } )
   public key: string;
 
   @IsString()
