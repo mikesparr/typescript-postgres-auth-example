@@ -6,6 +6,7 @@ import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { getFlagsForUser } from "../../utils/flag.helper";
 
 import {
   addAllUserTokensToDenyList,
@@ -175,6 +176,38 @@ class UserDao implements Dao {
         });
 
         return userTokens;
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
+    }
+  }
+
+  public getUserFlags = async (user: User, flagUserId: string | number): Promise<string[] | Error> => {
+    const record = await this.userRepository.findOne(flagUserId);
+
+    const isOwnerOrMember: boolean = String(user.id) === String(flagUserId);
+    const action: string = methodActions.GET;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+
+    if (permission.granted) {
+      logger.info(`User ${user.id} viewing tokens for user ${flagUserId}`);
+
+      if (!record) {
+        throw new RecordNotFoundException(flagUserId);
+      } else {
+        const userFlags: string[] = await getFlagsForUser(record);
+
+        // log event to central handler
+        event.emit("read-user-flags", {
+          action,
+          actor: user,
+          object: userFlags,
+          resource: this.resource,
+          timestamp: Date.now(),
+          verb: "read-user-flags",
+        });
+
+        return userFlags;
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.tokenResource);

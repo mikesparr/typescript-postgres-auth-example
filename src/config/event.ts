@@ -25,6 +25,7 @@ event.on("lost-password", handleEvent);
 event.on("login", handleEvent);
 event.on("logout", handleEvent);
 event.on("read-tokens", handleEvent);
+event.on("read-user-flags", handleEvent);
 event.on("read-all", handleEvent);
 event.on("read-one", handleEvent);
 event.on("save", handleEvent);

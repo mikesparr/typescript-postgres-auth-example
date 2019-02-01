@@ -201,6 +201,11 @@ const createTestData = async (connection: Connection) => {
   });
 
   // flag
+  const userFlagViewPermission = connection.manager.create(Permission, {
+    action: "read:own",
+    attributes: "key, name, description",
+    resource: "flag",
+  });
   const adminFlagViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
@@ -239,6 +244,7 @@ const createTestData = async (connection: Connection) => {
       userUserUpdatePermission,
       userRoleViewPermission,
       userUserViewTokens,
+      userFlagViewPermission,
     ],
   });
   const adminRole = connection.manager.create(Role, {
@@ -320,7 +326,7 @@ const createTestData = async (connection: Connection) => {
     country: "US",
     email: "admin@example.com",
     firstName: "Admin",
-    ip: "FE80:0000:0000:0000:0202:B3FF:FE1E:8329", // V6
+    ip: "FE80:0000:0000:0000:0202:B3FF:FE1E:8329", // IPV6
     language: "en_US",
     lastName: "User",
     password: await hashPassword("changeme"),

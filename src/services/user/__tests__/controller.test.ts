@@ -131,6 +131,35 @@ describe("User", () => {
     });
   }); // GET /users/:id/tokens
 
+  describe("GET /users/:id/flags", () => {
+    it("does not allow user to view other users flags", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to view their own flags", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin role to view other user flags", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/flags
+
   describe("POST /users", () => {
     const testData = {
       age: 30,
