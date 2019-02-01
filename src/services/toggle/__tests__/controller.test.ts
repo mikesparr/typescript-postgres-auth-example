@@ -62,7 +62,6 @@ describe("Toggle", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeUndefined();
     });
 
     it("allows admin toggle access with permissions", async () => {
@@ -72,36 +71,33 @@ describe("Toggle", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeDefined();
     });
   }); // GET /toggles
 
   describe("GET /toggles/:id", () => {
     it("allows user toggle access without permissions", async () => {
       const result = await request(app)
-        .get("/toggles/guest")
+        .get("/toggles/user.login")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeUndefined();
     });
 
     it("allows admin toggle access with permissions", async () => {
       const result = await request(app)
-        .get("/toggles/guest")
+        .get("/toggles/user.login")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeDefined();
     });
   }); // GET /toggles:id
 
   describe("POST /toggles", () => {
     const testData = {
-      description: "Test toggle from automated tests",
       id: "test",
+      name: "Test toggle",
     };
 
     it("denies user toggle ability to create new permissions", async () => {
@@ -137,8 +133,8 @@ describe("Toggle", () => {
 
   describe("PUT /toggles/:id", () => {
     const testData = {
-      description: "Test toggle from automated tests (updated)",
       id: "test",
+      name: "Test toggle (updated)",
     };
 
     it("denies user toggle ability to update permissions", async () => {

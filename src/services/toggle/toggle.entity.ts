@@ -14,14 +14,13 @@ enum ToggleType {
 export class Toggle {
 
   @PrimaryColumn()
-  @Index({ unique: true })
   public id: string;
 
   @Column()
   public name: string;
 
-  @Column({ enum: ToggleType })
-  public type: ToggleType;
+  @Column()
+  public type: string;
 
   @Column({ nullable: true })
   public product: string;

@@ -62,7 +62,6 @@ describe("Rule", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeUndefined();
     });
 
     it("allows admin rule access with permissions", async () => {
@@ -72,7 +71,6 @@ describe("Rule", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeDefined();
     });
   }); // GET /rules
 
@@ -84,7 +82,6 @@ describe("Rule", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeUndefined();
     });
 
     it("allows admin rule access with permissions", async () => {
@@ -94,14 +91,13 @@ describe("Rule", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeDefined();
     });
   }); // GET /rules:id
 
   describe("POST /rules", () => {
     const testData = {
-      description: "Test rule from automated tests",
       id: "test",
+      name: "Test rule",
     };
 
     it("denies user rule ability to create new permissions", async () => {
@@ -137,8 +133,8 @@ describe("Rule", () => {
 
   describe("PUT /rules/:id", () => {
     const testData = {
-      description: "Test rule from automated tests (updated)",
       id: "test",
+      name: "Test rule (updated)",
     };
 
     it("denies user rule ability to update permissions", async () => {

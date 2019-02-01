@@ -62,7 +62,6 @@ describe("Goal", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeUndefined();
     });
 
     it("allows admin goal access with permissions", async () => {
@@ -72,7 +71,6 @@ describe("Goal", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeDefined();
     });
   }); // GET /goals
 
@@ -84,7 +82,6 @@ describe("Goal", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeUndefined();
     });
 
     it("allows admin goal access with permissions", async () => {
@@ -94,14 +91,13 @@ describe("Goal", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeDefined();
     });
   }); // GET /goals:id
 
   describe("POST /goals", () => {
     const testData = {
-      description: "Test goal from automated tests",
       id: "test",
+      name: "Test goal",
     };
 
     it("denies user goal ability to create new permissions", async () => {
@@ -137,8 +133,8 @@ describe("Goal", () => {
 
   describe("PUT /goals/:id", () => {
     const testData = {
-      description: "Test goal from automated tests (updated)",
       id: "test",
+      name: "Test goal (updated)",
     };
 
     it("denies user goal ability to update permissions", async () => {

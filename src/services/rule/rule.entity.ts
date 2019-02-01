@@ -5,11 +5,9 @@ import { Toggle } from "../toggle/toggle.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-@Index({ unique: true })
 export class Rule {
 
   @PrimaryColumn()
-  @Index({ unique: true })
   public id: string;
 
   @Column()
@@ -18,10 +16,10 @@ export class Rule {
   @Column()
   public owner: string;
 
-  @Column({ type: "json", nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   public included: any;
 
-  @Column({ type: "json", nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   public excluded: any;
 
   @Column({ default: false })
