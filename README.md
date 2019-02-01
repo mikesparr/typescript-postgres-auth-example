@@ -64,6 +64,7 @@ as much as possible so we could change out solutions in future without modifying
  * As a `product owner`, I want all features of the app automatically tested using TDD, so we can keep customers happy with stability
  * As a `product owner`, I want to allow external authentication providers (IdP), so we can offload effort or meet compliance guidelines
  * As a `product owner`, I want to test new features on a subset of users or geographies, so we can measure impact, refine, or revert as needed
+ * As a `product owner`, I want to be able to track usage of toggle/flag features, so we can fine-tune before global deployment (or omit)
 
 ### Architect
  * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
@@ -106,6 +107,9 @@ as much as possible so we could change out solutions in future without modifying
  * As a `sysadmin`, I want the app to log all events, so that I can optionally add alerts if acceptable thresholds are exceeded
  * As a `sysadmin`, I want to be able to deny protected access to any user or individual token, so I can prevent unauthorized access
  * As a `sysadmin`, I want to be able to disable client features that may have issues, so I can maintain app stability
+
+### Developer
+ * As a `developer`, I want to be able to toggle/flag new functionality, so we can safely build/deploy and test out new features
 
 # TODO
 ## Add support for group permissions
