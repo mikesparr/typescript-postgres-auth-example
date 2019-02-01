@@ -4,16 +4,16 @@ import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
 
-import RuleDao from "./rule.dao";
-import CreateRuleDto from "./rule.dto";
+import SegmentDao from "./segment.dao";
+import CreateSegmentDto from "./segment.dto";
 
 /**
- * Handles Rule routes for RESTful interface
+ * Handles Segment routes for RESTful interface
  */
-class RuleController implements Controller {
-  public path: string = "/rules";
+class SegmentController implements Controller {
+  public path: string = "/segments";
   public router: Router = Router();
-  private ruleDao: RuleDao = new RuleDao();
+  private segmentDao: SegmentDao = new SegmentDao();
 
   constructor() {
     this.initializeRoutes();
@@ -24,14 +24,14 @@ class RuleController implements Controller {
     this.router.get(`${this.path}/:id`, authenticationMiddleware, this.one);
     this.router
       .all(`${this.path}/*`, authenticationMiddleware)
-      .post(this.path, authenticationMiddleware, validationMiddleware(CreateRuleDto), this.save)
-      .put(`${this.path}/:id`, validationMiddleware(CreateRuleDto, true), this.save)
+      .post(this.path, authenticationMiddleware, validationMiddleware(CreateSegmentDto), this.save)
+      .put(`${this.path}/:id`, validationMiddleware(CreateSegmentDto, true), this.save)
       .delete(`${this.path}/:id`, this.remove);
   }
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.ruleDao.getAll(request.user));
+      response.send(await this.segmentDao.getAll(request.user));
     } catch (error) {
       next(error);
     }
@@ -41,17 +41,17 @@ class RuleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.ruleDao.getOne(request.user, id));
+      response.send(await this.segmentDao.getOne(request.user, id));
     } catch (error) {
       next(error);
     }
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const newRecord: CreateRuleDto = request.body;
+    const newRecord: CreateSegmentDto = request.body;
 
     try {
-      response.send(await this.ruleDao.save(request.user, newRecord));
+      response.send(await this.segmentDao.save(request.user, newRecord));
     } catch (error) {
       next(error);
     }
@@ -61,7 +61,7 @@ class RuleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.ruleDao.remove(request.user, id));
+      response.send(await this.segmentDao.remove(request.user, id));
     } catch (error) {
       next(error);
     }
@@ -69,4 +69,4 @@ class RuleController implements Controller {
 
 }
 
-export default RuleController;
+export default SegmentController;

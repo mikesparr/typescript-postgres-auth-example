@@ -4,14 +4,14 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { Rule } from "../../rule/rule.entity";
+import { Segment } from "../../segment/segment.entity";
 
 let app: Application;
 let userId: number | string;
 let userToken: string;
 let adminId: number | string;
 let adminToken: string;
-let newRuleId: number | string;
+let newSegmentId: number | string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -45,65 +45,65 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const ruleToRemove: Rule = await connection.manager.findOne(Rule, newRuleId);
+  const segmentToRemove: Segment = await connection.manager.findOne(Segment, newSegmentId);
 
-  // only remove new rules if a test failed and they exist
-  if (ruleToRemove && ruleToRemove.id !== 1) {
-    ruleToRemove.deleted = true;
-    await connection.manager.save(Rule, ruleToRemove);
+  // only remove new segments if a test failed and they exist
+  if (segmentToRemove && segmentToRemove.id !== 1) {
+    segmentToRemove.deleted = true;
+    await connection.manager.save(Segment, segmentToRemove);
   }
 });
 
-describe("Rule", () => {
-  describe("GET /rules", () => {
-    it("denies user rule access", async () => {
+describe("Segment", () => {
+  describe("GET /segments", () => {
+    it("denies user segment access", async () => {
       const result = await request(app)
-        .get("/rules")
+        .get("/segments")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin rule access with toggles", async () => {
+    it("allows admin segment access with toggles", async () => {
       const result = await request(app)
-        .get("/rules")
+        .get("/segments")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /rules
+  }); // GET /segments
 
-  describe("GET /rules/:id", () => {
-    it("denies user rule access", async () => {
+  describe("GET /segments/:id", () => {
+    it("denies user segment access", async () => {
       const result = await request(app)
-        .get("/rules/1")
+        .get("/segments/1")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin rule access with toggles", async () => {
+    it("allows admin segment access with toggles", async () => {
       const result = await request(app)
-        .get("/rules/1")
+        .get("/segments/1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /rules:id
+  }); // GET /segments:id
 
-  describe("POST /rules", () => {
+  describe("POST /segments", () => {
     const testData = {
       key: "test",
-      name: "Test rule",
+      name: "Test segment",
     };
 
-    it("denies user ability to create new rules", async () => {
+    it("denies user ability to create new segments", async () => {
       const result = await request(app)
-        .post("/rules")
+        .post("/segments")
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -113,34 +113,34 @@ describe("Rule", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .post("/rules")
+        .post("/segments")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to create new rules", async () => {
+    it("allows admin to create new segments", async () => {
       const result = await request(app)
-        .post("/rules")
+        .post("/segments")
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newRuleId = result.body.id;
+      newSegmentId = result.body.id;
 
       expect(result.status).toEqual(200);
     });
-  }); // POST /rules
+  }); // POST /segments
 
-  describe("PUT /rules/:id", () => {
+  describe("PUT /segments/:id", () => {
     const testData = {
       key: "test",
-      name: "Test rule (updated)",
+      name: "Test segment (updated)",
     };
 
-    it("denies user ability to update rules", async () => {
+    it("denies user ability to update segments", async () => {
       const result = await request(app)
-        .put(`/rules/${newRuleId}`)
+        .put(`/segments/${newSegmentId}`)
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -150,28 +150,28 @@ describe("Rule", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .put(`/rules/${newRuleId}`)
+        .put(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to update existing rules", async () => {
+    it("allows admin to update existing segments", async () => {
       const result = await request(app)
-        .put(`/rules/${newRuleId}`)
+        .put(`/segments/${newSegmentId}`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // PUT /rules
+  }); // PUT /segments
 
-  describe("DELETE /rules/:id", () => {
-    it("denies user ability to delete rules", async () => {
+  describe("DELETE /segments/:id", () => {
+    it("denies user ability to delete segments", async () => {
       const result = await request(app)
-        .delete(`/rules/${newRuleId}`)
+        .delete(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -180,21 +180,21 @@ describe("Rule", () => {
 
     it("throws no record found if missing id", async () => {
       const result = await request(app)
-        .delete(`/rules`)
+        .delete(`/segments`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin to delete existing rules", async () => {
+    it("allows admin to delete existing segments", async () => {
       const result = await request(app)
-        .delete(`/rules/${newRuleId}`)
+        .delete(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // DELETE /rules/:id
+  }); // DELETE /segments/:id
 
 });

@@ -1,6 +1,6 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, JoinTable, ManyToMany } from "typeorm";
 import { Goal } from "../goal/goal.entity";
-import { Rule } from "../rule/rule.entity";
+import { Segment } from "../segment/segment.entity";
 
 enum ToggleType {
   PRODUCT = "product",
@@ -47,8 +47,8 @@ export class Toggle {
   @JoinTable()
   public goals: Goal[];
 
-  @ManyToMany((type) => Rule, (rule) => rule.toggles)
+  @ManyToMany((type) => Segment, (segment) => segment.toggles)
   @JoinTable()
-  public rules: Rule[];
+  public segments: Segment[];
 
 }

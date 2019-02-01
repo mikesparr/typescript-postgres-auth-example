@@ -8,24 +8,24 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
 import { User } from "../../services/user/user.entity";
-import { Rule } from "./rule.entity";
-import CreateRuleDto from "./rule.dto";
+import { Segment } from "./segment.entity";
+import CreateSegmentDto from "./segment.dto";
 
 /**
- * Handles CRUD operations on Rule data in database
+ * Handles CRUD operations on Segment data in database
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
-class RuleDao implements Dao {
-  private resource: string = "rule"; // matches defined rule rule "resource"
-  private ruleRepository: Repository<Rule> = getRepository(Rule);
+class SegmentDao implements Dao {
+  private resource: string = "segment"; // matches defined segment segment "resource"
+  private segmentRepository: Repository<Segment> = getRepository(Segment);
 
   constructor() {
     // nothing
   }
 
   public getAll = async (user: User, params?: {[key: string]: any}):
-            Promise<Rule[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.ruleRepository.find({ relations: ["toggles"] });
+            Promise<Segment[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+    const records = await this.segmentRepository.find({ relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -53,9 +53,9 @@ class RuleDao implements Dao {
   }
 
   public getOne = async (user: User, id: string | number):
-            Promise<Rule | RecordNotFoundException | UserNotAuthorizedException> => {
+            Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.ruleRepository.findOne(id, { relations: ["toggles"] });
+    const record = await this.segmentRepository.findOne(id, { relations: ["toggles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -83,16 +83,16 @@ class RuleDao implements Dao {
   }
 
   public save = async (user: User, data: any):
-            Promise<Rule | RecordNotFoundException | UserNotAuthorizedException> => {
-    const newRecord: CreateRuleDto = data;
+            Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
+    const newRecord: CreateSegmentDto = data;
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.POST;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: Rule = permission.filter(newRecord);
-      await this.ruleRepository.save(filteredData);
+      const filteredData: Segment = permission.filter(newRecord);
+      await this.segmentRepository.save(filteredData);
 
       // log event to central handler
       event.emit("save", {
@@ -113,7 +113,7 @@ class RuleDao implements Dao {
 
   public remove = async (user: User, id: string | number):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
-    const recordToRemove = await this.ruleRepository.findOne(id);
+    const recordToRemove = await this.segmentRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.DELETE;
@@ -122,7 +122,7 @@ class RuleDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         recordToRemove.deleted = true;
-        await this.ruleRepository.save(recordToRemove);
+        await this.segmentRepository.save(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {
@@ -146,4 +146,4 @@ class RuleDao implements Dao {
 
 }
 
-export default RuleDao;
+export default SegmentDao;

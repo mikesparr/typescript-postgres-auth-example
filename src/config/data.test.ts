@@ -6,10 +6,11 @@ import { Permission } from "../services/permission/permission.entity";
 import { Role } from "../services/role/role.entity";
 import { User } from "../services/user/user.entity";
 import { Goal } from "../services/goal/goal.entity";
-import { Rule } from "../services/rule/rule.entity";
+import { Segment } from "../services/segment/segment.entity";
 import { Toggle } from "../services/toggle/toggle.entity";
 import { hashPassword } from "../utils/authentication.helper";
 import logger from "./logger";
+import cache from "./cache";
 
 // truncate entity tables in database
 const clearDb = async (connection: Connection) => {
@@ -21,10 +22,17 @@ const clearDb = async (connection: Connection) => {
   }
 };
 
+const resetUserPermissionCache = async () => {
+  await cache.del("authorization:grants");
+};
+
 const createTestData = async (connection: Connection) => {
   // clear database first
   // await clearDb(connection);
   // logger.info(`Dropped database tables, now creating test data ...`);
+
+  await resetUserPermissionCache();
+  logger.info("Reset user permission cache");
 
   // logout
   const logoutPermission = connection.manager.create(Permission, {
@@ -170,26 +178,26 @@ const createTestData = async (connection: Connection) => {
     resource: "goal",
   });
 
-  // rule
-  const adminRuleViewPermission = connection.manager.create(Permission, {
+  // segment
+  const adminSegmentViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
-    resource: "rule",
+    resource: "segment",
   });
-  const adminRuleCreatePermission = connection.manager.create(Permission, {
+  const adminSegmentCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
-    resource: "rule",
+    resource: "segment",
   });
-  const adminRuleUpdatePermission = connection.manager.create(Permission, {
+  const adminSegmentUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
-    resource: "rule",
+    resource: "segment",
   });
-  const adminRuleDeletePermission = connection.manager.create(Permission, {
+  const adminSegmentDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
-    resource: "rule",
+    resource: "segment",
   });
 
   // toggle
@@ -256,10 +264,10 @@ const createTestData = async (connection: Connection) => {
       adminGoalCreatePermission,
       adminGoalUpdatePermission,
       adminGoalDeletePermission,
-      adminRuleCreatePermission,
-      adminRuleViewPermission,
-      adminRuleUpdatePermission,
-      adminRuleDeletePermission,
+      adminSegmentCreatePermission,
+      adminSegmentViewPermission,
+      adminSegmentUpdatePermission,
+      adminSegmentDeletePermission,
       adminToggleViewPermission,
       adminToggleCreatePermission,
       adminToggleUpdatePermission,
@@ -333,17 +341,16 @@ const createTestData = async (connection: Connection) => {
   });
   await connection.manager.save(usageGoal);
 
-  // rule
+  // segment
   const rules: any = [
     { type: "field", expression: "country == 'US' || country == 'CA'" },
   ];
-  const rulesJson: string = JSON.stringify(rules);
-  const northAmericaRule = connection.manager.create(Rule, {
-    included: undefined,
+  const northAmericaSegment = connection.manager.create(Segment, {
+    included: rules,
     key: "north-america-beta-users",
     name: "Users in US and Canada",
   });
-  await connection.manager.save(northAmericaRule);
+  await connection.manager.save(northAmericaSegment);
 
   // toggle
   const userLoginToggle = connection.manager.create(Toggle, {
@@ -351,7 +358,7 @@ const createTestData = async (connection: Connection) => {
     key: "user.login",
     name: "Login form for users",
     owner: userUser.id,
-    rules: [northAmericaRule],
+    segments: [northAmericaSegment],
     type: "user",
   });
   await connection.manager.save(userLoginToggle);

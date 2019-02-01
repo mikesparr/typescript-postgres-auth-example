@@ -5,7 +5,7 @@ import { Toggle } from "../toggle/toggle.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-export class Rule {
+export class Segment {
 
   @PrimaryGeneratedColumn()
   public id: number;
@@ -25,7 +25,7 @@ export class Rule {
   @Column({ default: false })
   public deleted: boolean;
 
-  @ManyToMany((type) => Toggle, (toggle) => toggle.rules)
+  @ManyToMany((type) => Toggle, (toggle) => toggle.segments)
   public toggles: Toggle[];
 
 }
