@@ -25,7 +25,7 @@ class GoalDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Goal[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.goalRepository.find({ relations: ["toggles"] });
+    const records = await this.goalRepository.find({ relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -55,7 +55,7 @@ class GoalDao implements Dao {
   public getOne = async (user: User, id: string | number):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.goalRepository.findOne(id, { relations: ["toggles"] });
+    const record = await this.goalRepository.findOne(id, { relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;

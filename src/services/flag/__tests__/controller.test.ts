@@ -4,14 +4,14 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { Toggle } from "../../toggle/toggle.entity";
+import { Flag } from "../../flag/flag.entity";
 
 let app: Application;
 let userId: number | string;
 let userToken: string;
 let adminId: number | string;
 let adminToken: string;
-let newToggleId: number | string;
+let newFlagId: number | string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -45,65 +45,65 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const toggleToRemove: Toggle = await connection.manager.findOne(Toggle, newToggleId);
+  const flagToRemove: Flag = await connection.manager.findOne(Flag, newFlagId);
 
-  // only remove new toggles if a test failed and they exist
-  if (toggleToRemove && toggleToRemove.id !== 1) {
-    await connection.manager.delete(Toggle, toggleToRemove);
+  // only remove new flags if a test failed and they exist
+  if (flagToRemove && flagToRemove.id !== 1) {
+    await connection.manager.delete(Flag, flagToRemove);
   }
 });
 
-describe("Toggle", () => {
-  describe("GET /toggles", () => {
-    it("denies user toggle access", async () => {
+describe("Flag", () => {
+  describe("GET /flags", () => {
+    it("denies user flag access", async () => {
       const result = await request(app)
-        .get("/toggles")
+        .get("/flags")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin toggle access with rules and goals", async () => {
+    it("allows admin flag access with rules and goals", async () => {
       const result = await request(app)
-        .get("/toggles")
+        .get("/flags")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /toggles
+  }); // GET /flags
 
-  describe("GET /toggles/:id", () => {
-    it("denies user toggle access", async () => {
+  describe("GET /flags/:id", () => {
+    it("denies user flag access", async () => {
       const result = await request(app)
-        .get("/toggles/1")
+        .get("/flags/1")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin toggle access with rules and goals", async () => {
+    it("allows admin flag access with rules and goals", async () => {
       const result = await request(app)
-        .get("/toggles/1")
+        .get("/flags/1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /toggles:id
+  }); // GET /flags:id
 
-  describe("POST /toggles", () => {
+  describe("POST /flags", () => {
     const testData = {
       key: "test",
-      name: "Test toggle",
+      name: "Test flag",
       type: "user",
     };
 
-    it("denies user ability to create new toggles", async () => {
+    it("denies user ability to create new flags", async () => {
       const result = await request(app)
-        .post("/toggles")
+        .post("/flags")
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -113,35 +113,35 @@ describe("Toggle", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .post("/toggles")
+        .post("/flags")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to create new toggles", async () => {
+    it("allows admin to create new flags", async () => {
       const result = await request(app)
-        .post("/toggles")
+        .post("/flags")
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newToggleId = result.body.id;
+      newFlagId = result.body.id;
 
       expect(result.status).toEqual(200);
     });
-  }); // POST /toggles
+  }); // POST /flags
 
-  describe("PUT /toggles/:id", () => {
+  describe("PUT /flags/:id", () => {
     const testData = {
       key: "test",
-      name: "Test toggle (updated)",
+      name: "Test flag (updated)",
       type: "user",
     };
 
-    it("denies user ability to update toggles", async () => {
+    it("denies user ability to update flags", async () => {
       const result = await request(app)
-        .put(`/toggles/${newToggleId}`)
+        .put(`/flags/${newFlagId}`)
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -151,28 +151,28 @@ describe("Toggle", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .put(`/toggles/${newToggleId}`)
+        .put(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to update existing toggles", async () => {
+    it("allows admin to update existing flags", async () => {
       const result = await request(app)
-        .put(`/toggles/${newToggleId}`)
+        .put(`/flags/${newFlagId}`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // PUT /toggles
+  }); // PUT /flags
 
-  describe("DELETE /toggles/:id", () => {
-    it("denies user ability to delete toggles", async () => {
+  describe("DELETE /flags/:id", () => {
+    it("denies user ability to delete flags", async () => {
       const result = await request(app)
-        .delete(`/toggles/${newToggleId}`)
+        .delete(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -181,21 +181,21 @@ describe("Toggle", () => {
 
     it("throws no record found if missing id", async () => {
       const result = await request(app)
-        .delete(`/toggles`)
+        .delete(`/flags`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin to delete existing toggles", async () => {
+    it("allows admin to delete existing flags", async () => {
       const result = await request(app)
-        .delete(`/toggles/${newToggleId}`)
+        .delete(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // DELETE /toggles/:id
+  }); // DELETE /flags/:id
 
 });

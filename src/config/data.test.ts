@@ -7,7 +7,7 @@ import { Role } from "../services/role/role.entity";
 import { User } from "../services/user/user.entity";
 import { Goal } from "../services/goal/goal.entity";
 import { Segment } from "../services/segment/segment.entity";
-import { Toggle } from "../services/toggle/toggle.entity";
+import { Flag } from "../services/flag/flag.entity";
 import { hashPassword } from "../utils/authentication.helper";
 import logger from "./logger";
 import cache from "./cache";
@@ -200,26 +200,26 @@ const createTestData = async (connection: Connection) => {
     resource: "segment",
   });
 
-  // toggle
-  const adminToggleViewPermission = connection.manager.create(Permission, {
+  // flag
+  const adminFlagViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
-    resource: "toggle",
+    resource: "flag",
   });
-  const adminToggleCreatePermission = connection.manager.create(Permission, {
+  const adminFlagCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
-    resource: "toggle",
+    resource: "flag",
   });
-  const adminToggleUpdatePermission = connection.manager.create(Permission, {
+  const adminFlagUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
-    resource: "toggle",
+    resource: "flag",
   });
-  const adminToggleDeletePermission = connection.manager.create(Permission, {
+  const adminFlagDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
-    resource: "toggle",
+    resource: "flag",
   });
 
   const guestRole = connection.manager.create(Role, {
@@ -268,10 +268,10 @@ const createTestData = async (connection: Connection) => {
       adminSegmentViewPermission,
       adminSegmentUpdatePermission,
       adminSegmentDeletePermission,
-      adminToggleViewPermission,
-      adminToggleCreatePermission,
-      adminToggleUpdatePermission,
-      adminToggleDeletePermission,
+      adminFlagViewPermission,
+      adminFlagCreatePermission,
+      adminFlagUpdatePermission,
+      adminFlagDeletePermission,
     ],
   });
   const sysadminRole = connection.manager.create(Role, {
@@ -346,24 +346,24 @@ const createTestData = async (connection: Connection) => {
     { type: "field", expression: "country == 'US' || country == 'CA'" },
   ];
   const northAmericaSegment = connection.manager.create(Segment, {
-    excluded: [4],
-    included: [2, 3],
+    excluded: [ 4 ],
+    included: [ 2, 3 ],
     key: "north-america-beta-users",
     name: "Users in US and Canada",
     rules,
   });
   await connection.manager.save(northAmericaSegment);
 
-  // toggle
-  const userLoginToggle = connection.manager.create(Toggle, {
-    goals: [usageGoal],
+  // flag
+  const userLoginFlag = connection.manager.create(Flag, {
+    goals: [ usageGoal ],
     key: "user.login",
     name: "Login form for users",
     owner: userUser.id,
-    segments: [northAmericaSegment],
+    segments: [ northAmericaSegment ],
     type: "user",
   });
-  await connection.manager.save(userLoginToggle);
+  await connection.manager.save(userLoginFlag);
 };
 
 export default createTestData;

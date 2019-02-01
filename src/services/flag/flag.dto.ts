@@ -1,9 +1,9 @@
 import { IsString, IsNumber, IsBoolean, IsDefined } from "class-validator";
 
 /**
- * Data transfer object (DTO) with expected fields for creating toggles
+ * Data transfer object (DTO) with expected fields for creating flags
  */
-class CreateToggleDto {
+class CreateFlagDto {
 
   @IsString()
   @IsDefined()
@@ -17,4 +17,4 @@ class CreateToggleDto {
 
 }
 
-export default CreateToggleDto;
+export default CreateFlagDto;

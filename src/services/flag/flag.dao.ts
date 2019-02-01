@@ -7,25 +7,25 @@ import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException"
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
-import { User } from "../../services/user/user.entity";
-import { Toggle } from "./toggle.entity";
-import CreateToggleDto from "./toggle.dto";
+import { User } from "../user/user.entity";
+import { Flag } from "./flag.entity";
+import CreateFlagDto from "./flag.dto";
 
 /**
- * Handles CRUD operations on Toggle data in database
+ * Handles CRUD operations on Flag data in database
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
-class ToggleDao implements Dao {
-  private resource: string = "toggle"; // matches defined toggle toggle "resource"
-  private toggleRepository: Repository<Toggle> = getRepository(Toggle);
+class FlagDao implements Dao {
+  private resource: string = "flag"; // matches defined flag flag "resource"
+  private flagRepository: Repository<Flag> = getRepository(Flag);
 
   constructor() {
     // nothing
   }
 
   public getAll = async (user: User, params?: {[key: string]: any}):
-            Promise<Toggle[] | RecordsNotFoundException | UserNotAuthorizedException> => {
-    const records = await this.toggleRepository.find({ relations: ["segments", "goals"] });
+            Promise<Flag[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+    const records = await this.flagRepository.find({ relations: ["segments", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -53,9 +53,9 @@ class ToggleDao implements Dao {
   }
 
   public getOne = async (user: User, id: string | number):
-            Promise<Toggle | RecordNotFoundException | UserNotAuthorizedException> => {
+            Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.toggleRepository.findOne(id, { relations: ["segments", "goals"] });
+    const record = await this.flagRepository.findOne(id, { relations: ["segments", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -83,16 +83,16 @@ class ToggleDao implements Dao {
   }
 
   public save = async (user: User, data: any):
-            Promise<Toggle | RecordNotFoundException | UserNotAuthorizedException> => {
-    const newRecord: CreateToggleDto = data;
+            Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
+    const newRecord: CreateFlagDto = data;
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.POST;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: Toggle = permission.filter(newRecord);
-      await this.toggleRepository.save(filteredData);
+      const filteredData: Flag = permission.filter(newRecord);
+      await this.flagRepository.save(filteredData);
 
       // log event to central handler
       event.emit("save", {
@@ -113,7 +113,7 @@ class ToggleDao implements Dao {
 
   public remove = async (user: User, id: string | number):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
-    const recordToRemove = await this.toggleRepository.findOne(id);
+    const recordToRemove = await this.flagRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.DELETE;
@@ -121,7 +121,7 @@ class ToggleDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.toggleRepository.remove(recordToRemove);
+        await this.flagRepository.remove(recordToRemove);
 
         // log event to central handler
         event.emit("remove", {
@@ -145,4 +145,4 @@ class ToggleDao implements Dao {
 
 }
 
-export default ToggleDao;
+export default FlagDao;

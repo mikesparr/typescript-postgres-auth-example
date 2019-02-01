@@ -7,7 +7,7 @@ import PermissionController from "./permission/permission.controller";
 import RoleController from "./role/role.controller";
 import SegmentController from "./segment/segment.controller";
 import SearchController from "./search/search.controller";
-import ToggleController from "./toggle/toggle.controller";
+import FlagController from "./flag/flag.controller";
 import UserController from "./user/user.controller";
 
 export default [
@@ -17,6 +17,6 @@ export default [
   RoleController,
   SegmentController,
   SearchController,
-  ToggleController,
+  FlagController,
   UserController,
 ];

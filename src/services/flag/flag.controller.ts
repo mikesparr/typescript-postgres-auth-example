@@ -4,16 +4,16 @@ import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
 
-import ToggleDao from "./toggle.dao";
-import CreateToggleDto from "./toggle.dto";
+import FlagDao from "./flag.dao";
+import CreateFlagDto from "./flag.dto";
 
 /**
- * Handles Toggle routes for RESTful interface
+ * Handles Flag routes for RESTful interface
  */
-class ToggleController implements Controller {
-  public path: string = "/toggles";
+class FlagController implements Controller {
+  public path: string = "/flags";
   public router: Router = Router();
-  private toggleDao: ToggleDao = new ToggleDao();
+  private flagDao: FlagDao = new FlagDao();
 
   constructor() {
     this.initializeRoutes();
@@ -24,14 +24,14 @@ class ToggleController implements Controller {
     this.router.get(`${this.path}/:id`, authenticationMiddleware, this.one);
     this.router
       .all(`${this.path}/*`, authenticationMiddleware)
-      .post(this.path, authenticationMiddleware, validationMiddleware(CreateToggleDto), this.save)
-      .put(`${this.path}/:id`, validationMiddleware(CreateToggleDto, true), this.save)
+      .post(this.path, authenticationMiddleware, validationMiddleware(CreateFlagDto), this.save)
+      .put(`${this.path}/:id`, validationMiddleware(CreateFlagDto, true), this.save)
       .delete(`${this.path}/:id`, this.remove);
   }
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.toggleDao.getAll(request.user));
+      response.send(await this.flagDao.getAll(request.user));
     } catch (error) {
       next(error);
     }
@@ -41,17 +41,17 @@ class ToggleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.toggleDao.getOne(request.user, id));
+      response.send(await this.flagDao.getOne(request.user, id));
     } catch (error) {
       next(error);
     }
   }
 
   private save = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const newRecord: CreateToggleDto = request.body;
+    const newRecord: CreateFlagDto = request.body;
 
     try {
-      response.send(await this.toggleDao.save(request.user, newRecord));
+      response.send(await this.flagDao.save(request.user, newRecord));
     } catch (error) {
       next(error);
     }
@@ -61,7 +61,7 @@ class ToggleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.toggleDao.remove(request.user, id));
+      response.send(await this.flagDao.remove(request.user, id));
     } catch (error) {
       next(error);
     }
@@ -69,4 +69,4 @@ class ToggleController implements Controller {
 
 }
 
-export default ToggleController;
+export default FlagController;

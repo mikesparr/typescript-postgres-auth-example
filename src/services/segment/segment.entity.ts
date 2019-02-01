@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
-import { Toggle } from "../toggle/toggle.entity";
+import { Flag } from "../flag/flag.entity";
 
 /**
  * Data object with annotations to configure database in ORM
@@ -28,7 +28,7 @@ export class Segment {
   @Column({ default: false })
   public deleted: boolean;
 
-  @ManyToMany((type) => Toggle, (toggle) => toggle.segments)
-  public toggles: Toggle[];
+  @ManyToMany((type) => Flag, (flag) => flag.segments)
+  public flags: Flag[];
 
 }

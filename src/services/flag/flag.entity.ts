@@ -2,7 +2,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn, JoinTable, ManyToMany } 
 import { Goal } from "../goal/goal.entity";
 import { Segment } from "../segment/segment.entity";
 
-enum ToggleType {
+enum FlagType {
   PRODUCT = "product",
   USER = "user",
 }
@@ -11,7 +11,7 @@ enum ToggleType {
  * Data object with annotations to configure database in ORM
  */
 @Entity()
-export class Toggle {
+export class Flag {
 
   @PrimaryGeneratedColumn()
   public id: number;
@@ -43,11 +43,11 @@ export class Toggle {
   @Column({ default: false })
   public deleted: boolean;
 
-  @ManyToMany((type) => Goal, (goal) => goal.toggles)
+  @ManyToMany((type) => Goal, (goal) => goal.flags)
   @JoinTable()
   public goals: Goal[];
 
-  @ManyToMany((type) => Segment, (segment) => segment.toggles)
+  @ManyToMany((type) => Segment, (segment) => segment.flags)
   @JoinTable()
   public segments: Segment[];
 
