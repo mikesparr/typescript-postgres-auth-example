@@ -18,6 +18,44 @@ const FEATURE_FLAGS_KEY = "feature:flags";
 const USER_FLAGS_KEY = (userId: number | string) => `user:${userId}:flags`;
 
 /**
+ * Convenience functions for processing user rule lookup
+ */
+const doAllRulesPass = async (user: User, rules: Array<{[key: string]: any}>): Promise<boolean> => {
+  const testResults: boolean[] = [];
+
+  for (const rule of rules) {
+    logger.info(`Processing rule ${rule.type}`);
+    const result: boolean = await jexl.eval(rule.expression, user);
+    testResults.push(result);
+  }
+
+  const allPass: boolean = testResults.every((val) => val === true);
+
+  logger.info(`Returning result ${allPass}`);
+  return allPass;
+};
+
+const inArray = (arr: any[], target: any): boolean => {
+  return true;
+};
+
+const evaluateRules = async (expressions: string[], context: {[key: string]: any}): Promise<{[key: string]: any}> => {
+  return {};
+};
+
+const chooseWeightedValue = (variants: {[key: string]: any}): any => {
+  return "foo";
+};
+
+const getVariantKeyAndGoalIds = (variants: {[key: string]: any}): {[key: string]: any} => {
+  return {};
+};
+
+const getMergedGoalIds = (flagGoals: Goal[], variantGoalIds: any[]): any[] => {
+  return [];
+};
+
+/**
  * Returns list of feature flags that apply to given user
  *
  * @param user
@@ -99,21 +137,11 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
   return userFlags;
 };
 
-const doAllRulesPass = async (user: User, rules: Array<{[key: string]: any}>): Promise<boolean> => {
-  const testResults: boolean[] = [];
-
-  for (const rule of rules) {
-    logger.info(`Processing rule ${rule.type}`);
-    const result: boolean = await jexl.eval(rule.expression, user);
-    testResults.push(result);
-  }
-
-  const allPass: boolean = testResults.every((val) => val === true);
-
-  logger.info(`Returning result ${allPass}`);
-  return allPass;
-};
-
 export {
+  inArray,
+  evaluateRules,
+  chooseWeightedValue,
+  getVariantKeyAndGoalIds,
+  getMergedGoalIds,
   getFlagsForUser,
 };
