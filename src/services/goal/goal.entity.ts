@@ -17,27 +17,27 @@ export class Goal {
   public name: string;
 
   @Column({ type: "bigint", default: 0 })
-  public hits: number;
+  public hits?: number;
 
   @Column({ type: "bigint", default: 0 })
-  public uniqueUsers: number;
+  public uniqueUsers?: number;
 
   @Column({ type: "bigint", default: 0 })
-  public targetHits: number;
+  public targetHits?: number;
 
   @Column({ type: "bigint", default: 0 })
-  public targetUniqueUsers: number;
+  public targetUniqueUsers?: number;
 
   @Column({ nullable: true })
-  public start: Date;
+  public start?: Date;
 
   @Column({ nullable: true })
-  public stop: Date;
+  public stop?: Date;
 
   @Column({ default: false })
-  public enabled: boolean;
+  public enabled?: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.goals)
-  public flags: Flag[];
+  public flags?: Flag[];
 
 }
