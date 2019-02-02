@@ -351,13 +351,23 @@ const createTestData = async (connection: Connection) => {
     name: "Application usage",
   });
   await connection.manager.save(usageGoal);
+  const greenButtonGoal = connection.manager.create(Goal, {
+    key: "button-goal-green",
+    name: "Green button views",
+  });
+  await connection.manager.save(greenButtonGoal);
+  const redButtonGoal = connection.manager.create(Goal, {
+    key: "button-goal-red",
+    name: "Red button views",
+  });
+  await connection.manager.save(redButtonGoal);
 
   // segment
   const rules: any = [
     { type: "field", expression: "country == 'US' || country == 'CA'" },
   ];
   const northAmericaSegment = connection.manager.create(Segment, {
-    excluded: [ 4 ],
+    excluded: [ 1, 4 ],
     included: [ 2, 3 ],
     key: "north-america-beta-users",
     name: "Users in US and Canada",
@@ -370,11 +380,22 @@ const createTestData = async (connection: Connection) => {
     goals: [ usageGoal ],
     key: "user.login",
     name: "Login form for users",
-    owner: userUser.id,
+    segments: [ northAmericaSegment ],
+    type: "user",
+    variants: {
+      ["user.login.green"]: { name: "Green button", weight: 50, goalIds: [ "button-goal-green" ] },
+      ["user.login.red"]: { name: "Red button", weight: 50, goalIds: [ "button-goal-red" ] },
+    },
+  });
+  await connection.manager.save(userLoginFlag);
+  const seasonGreetingFlag = connection.manager.create(Flag, {
+    goals: [ usageGoal ],
+    key: "greeting.season",
+    name: "Seasonal welcome greeting",
     segments: [ northAmericaSegment ],
     type: "user",
   });
-  await connection.manager.save(userLoginFlag);
+  await connection.manager.save(seasonGreetingFlag);
 };
 
 export default createTestData;

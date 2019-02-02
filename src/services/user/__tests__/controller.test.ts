@@ -134,7 +134,7 @@ describe("User", () => {
   describe("GET /users/:id/flags", () => {
     it("does not allow user to view other users flags", async () => {
       const result = await request(app)
-        .get(`/users/${adminId}/tokens`)
+        .get(`/users/${adminId}/flags`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -143,7 +143,7 @@ describe("User", () => {
 
     it("allows user role to view their own flags", async () => {
       const result = await request(app)
-        .get(`/users/${userId}/tokens`)
+        .get(`/users/${userId}/flags`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -152,7 +152,7 @@ describe("User", () => {
 
     it("allows admin role to view other user flags", async () => {
       const result = await request(app)
-        .get(`/users/${userId}/tokens`)
+        .get(`/users/${userId}/flags`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

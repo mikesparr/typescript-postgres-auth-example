@@ -23,6 +23,7 @@ import { add } from "winston";
  */
 class UserDao implements Dao {
   private resource: string = "user"; // matches defined user user "resource"
+  private flagResource: string = "flag";
   private tokenResource: string = "token";
   private userRepository: Repository<User> = getRepository(User);
 
@@ -182,12 +183,13 @@ class UserDao implements Dao {
     }
   }
 
-  public getUserFlags = async (user: User, flagUserId: string | number): Promise<string[] | Error> => {
+  public getUserFlags = async (
+          user: User, flagUserId: string | number): Promise<Array<{[key: string]: any}> | Error> => {
     const record = await this.userRepository.findOne(flagUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(flagUserId);
     const action: string = methodActions.GET;
-    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.flagResource);
 
     if (permission.granted) {
       logger.info(`User ${user.id} viewing tokens for user ${flagUserId}`);
@@ -195,7 +197,7 @@ class UserDao implements Dao {
       if (!record) {
         throw new RecordNotFoundException(flagUserId);
       } else {
-        const userFlags: string[] = await getFlagsForUser(record);
+        const userFlags: Array<{[key: string]: any}> = await getFlagsForUser(record);
 
         // log event to central handler
         event.emit("read-user-flags", {
@@ -210,7 +212,7 @@ class UserDao implements Dao {
         return userFlags;
       }
     } else {
-      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
+      throw new UserNotAuthorizedException(user.id, action, this.flagResource);
     }
   }
 

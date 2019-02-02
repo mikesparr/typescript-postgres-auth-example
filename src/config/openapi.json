@@ -868,7 +868,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/UserFlag"
                   }
                 }
               }
@@ -1690,6 +1690,20 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "UserFlag": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "goalIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

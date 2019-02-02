@@ -20,7 +20,7 @@ export class Segment {
   public included: number[] | string[];
 
   @Column({ type: "simple-array", nullable: true })
-  public excluded: number[] | string[];
+  public excluded: number[];
 
   @Column({ type: "jsonb", nullable: true })
   public rules: any;
