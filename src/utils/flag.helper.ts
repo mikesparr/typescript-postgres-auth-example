@@ -39,6 +39,9 @@ const getFlagsForUser = async (user: User): Promise<string[]> => {
         // if all conditions are true - set addFlag = true
 
     if (addFlag) {
+      // if variants, then loop through them
+      // add weights of ids to array and randomly select one in range (weighted round robin)
+      // add goalIds to array along with variant key (override) so user served up variant
       userFlags.push(flag.key);
     }
   });
