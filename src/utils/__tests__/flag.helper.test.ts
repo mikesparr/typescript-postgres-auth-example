@@ -85,7 +85,7 @@ describe("flag.helper", () => {
     it("returns only flag goal Ids if no variant ones", () => {
       const testGoals: Goal[] = [testGoal1, testGoal5];
       const testIds: string[] = null;
-      const expected: string[] = ["goal-one", "goal-two"];
+      const expected: string[] = ["goal-one", "goal-five"];
       const result: any[] = getMergedGoalIds(testGoals, testIds);
       expect(result).toEqual(expected);
     });

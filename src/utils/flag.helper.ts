@@ -63,8 +63,31 @@ const getVariantKeyAndGoalIds = (variants: {[key: string]: any}): {[key: string]
   return {};
 };
 
-const getMergedGoalIds = (flagGoals: Goal[], variantGoalIds: any[]): any[] => {
-  return [];
+/**
+ * Merges the user-readable `keys` from goal array and variant array
+ * @param flagGoals
+ * @param variantGoalIds
+ */
+const getMergedGoalIds = (flagGoals: Goal[], variantGoalIds: any[]): string[] => {
+  if (!flagGoals && !variantGoalIds) {
+    return [];
+  }
+
+  // use object to de-duplicate (Set)
+  const mergedIds: {[key: string]: any} = {};
+
+  if (flagGoals) {
+    for (const goal of flagGoals) {
+      mergedIds[goal.key] = true;
+    }
+  }
+  if (variantGoalIds) {
+    for (const goalId of variantGoalIds) {
+      mergedIds[goalId] = true;
+    }
+  }
+
+  return Object.keys(mergedIds);
 };
 
 /**
