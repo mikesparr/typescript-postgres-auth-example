@@ -81,7 +81,7 @@ const evaluateSegments = async (user: User, segments: Segment[]): Promise<boolea
           }
         }
       }
-      testSegmentString = await testSegmentString + await segment.key; // forcing serial
+      testSegmentString = testSegmentString + segment.key; // forcing serial
     }
   }
 
@@ -161,11 +161,11 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
       }
 
       if (addFlag) {
-        const chosenVariant: {[key: string]: any} = getVariantKeyAndGoalIds(flag.variants);
+        const chosenVariant: {[key: string]: any} = await getVariantKeyAndGoalIds(flag.variants);
         logger.info(`Chosen variant: ${JSON.stringify(chosenVariant)}`);
         flagKey = (chosenVariant && chosenVariant.key) ? chosenVariant.key : flag.key;
         const variantGoalIds: string[] = (chosenVariant && chosenVariant.goalIds) ? chosenVariant.goalIds : [];
-        const goalIds: string[] = getMergedGoalIds(flag.goals, variantGoalIds);
+        const goalIds: string[] = await getMergedGoalIds(flag.goals, variantGoalIds);
         userFlags.push({key: flagKey, goalIds}); // add to userFlags list
       }
     }
