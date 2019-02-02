@@ -82,10 +82,34 @@ describe("flag.helper", () => {
   }); // getVariantKeyAndGoalIds
 
   describe("getMergedGoalIds", () => {
+    it("returns empty array if no goals or variant Ids", () => {
+      const testGoals: Goal[] = [];
+      const testIds: string[] = null;
+      const expected: string[] = [];
+      const result: any[] = getMergedGoalIds(testGoals, testIds);
+      expect(result).toEqual(expected);
+    });
+
     it("returns only flag goal Ids if no variant ones", () => {
       const testGoals: Goal[] = [testGoal1, testGoal5];
       const testIds: string[] = null;
       const expected: string[] = ["goal-one", "goal-five"];
+      const result: any[] = getMergedGoalIds(testGoals, testIds);
+      expect(result).toEqual(expected);
+    });
+
+    it("returns only variant Ids if not goal ones", () => {
+      const testGoals: Goal[] = null;
+      const testIds: string[] = ["button-click-goal"];
+      const expected: string[] = ["button-click-goal"];
+      const result: any[] = getMergedGoalIds(testGoals, testIds);
+      expect(result).toEqual(expected);
+    });
+
+    it("returns both goal and variant Ids", () => {
+      const testGoals: Goal[] = [testGoal2, testGoal4];
+      const testIds: string[] = ["button-click-goal"];
+      const expected: string[] = ["goal-two", "goal-four", "button-click-goal"];
       const result: any[] = getMergedGoalIds(testGoals, testIds);
       expect(result).toEqual(expected);
     });
