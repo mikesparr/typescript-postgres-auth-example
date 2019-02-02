@@ -19,7 +19,7 @@ const USER_FLAGS_KEY = (userId: number | string) => `user:${userId}:flags`;
 
 /**
  * Returns list of feature flags that apply to given user
- * TODO: potentially return {key, goalIds: []} instead of just the key strings
+ *
  * @param user
  */
 const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>> => {
@@ -30,7 +30,7 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
 
   // TODO: consider breaking up into multiple functions after all working
   logger.info("Looping through flags");
-  flags.forEach((flag: Flag) => {
+  flags.forEach(async (flag: Flag) => {
     // check if flag applies to user
     let addFlag: boolean = false;
 
@@ -38,7 +38,7 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
     if (flag.enabled && !flag.archived) {
       addFlag = true;
     } else if (flag.segments.length > 0) {
-      flag.segments.forEach((segment: Segment) => {
+      flag.segments.forEach(async (segment: Segment) => {
         logger.info(`Checking segment ${segment.name}`);
         // check if user.id in excluded; if so - skip record immediately
         if (segment.excluded.indexOf(user.id) === -1) {
@@ -49,19 +49,8 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
             addFlag = true;
           } else if (segment.rules && segment.rules.length > 0) {
             // if addFlag still false, loop through rules
-            const testResults: boolean[] = [];
-            // TODO: factor and make sure serial
-            segment.rules.forEach(async (rule: {[key: string]: any}) => {
-              // TODO: handle non-field types (i.e. localDate | localTime)
-              testResults.push( await jexl.eval(rule.expression, user) );
-              logger.info("Processed rule"); // TODO: change to debug
-            });
-
-            // if all conditions are true - set addFlag = true
-            logger.info("Checking if all rule conditions are met"); // TODO: change to debug
-            if ( testResults.every((val) => val === true) ) {
-              addFlag = true;
-            }
+            // addFlag = await doAllRulesPass(user, segment.rules);
+            addFlag = true;
           } // end if segment has rules
         } // end if user not excluded
       }); // end segments forEach
@@ -108,6 +97,21 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
   }); // forEach flag
 
   return userFlags;
+};
+
+const doAllRulesPass = async (user: User, rules: Array<{[key: string]: any}>): Promise<boolean> => {
+  const testResults: boolean[] = [];
+
+  for (const rule of rules) {
+    logger.info(`Processing rule ${rule.type}`);
+    const result: boolean = await jexl.eval(rule.expression, user);
+    testResults.push(result);
+  }
+
+  const allPass: boolean = testResults.every((val) => val === true);
+
+  logger.info(`Returning result ${allPass}`);
+  return allPass;
 };
 
 export {
