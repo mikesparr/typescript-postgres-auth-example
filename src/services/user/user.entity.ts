@@ -20,28 +20,28 @@ export class User {
   public email: string;
 
   @Column({ nullable: true })
-  public password: string;
+  public password?: string;
 
   @Column({ nullable: true })
-  public avatar: string;
+  public avatar?: string;
 
   @Column({ nullable: true })
-  public country: string;
+  public country?: string;
 
   @Column({ nullable: true })
-  public timeZone: string;
+  public timeZone?: string;
 
   @Column({ nullable: true })
-  public language: string;
+  public language?: string;
 
   @Column({ nullable: true })
-  public ip: string;
+  public ip?: string;
 
   @Column({ nullable: true })
-  public age: number;
+  public age?: number;
 
   @ManyToMany((type) => Role, (role) => role.users)
   @JoinTable()
-  public roles: Role[];
+  public roles?: Role[];
 
 }

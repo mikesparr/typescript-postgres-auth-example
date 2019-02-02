@@ -6,7 +6,6 @@ import { Segment } from "../../services/segment/segment.entity";
 import {
   inArray,
   evaluateRules,
-  chooseWeightedValue,
   getVariantKeyAndGoalIds,
   getMergedGoalIds,
   getFlagsForUser,
@@ -18,6 +17,12 @@ describe("flag.helper", () => {
   const testGoal3: Goal = {id: 3, key: "goal-three", name: "Goal Three"};
   const testGoal4: Goal = {id: 4, key: "goal-four", name: "Goal Four"};
   const testGoal5: Goal = {id: 5, key: "goal-five", name: "Goal Five"};
+  const testVariant1: {[key: string]: any} = {name: "Red button", weight: 30, goalIds: ["goal-one"]};
+  const testVariant2: {[key: string]: any} = {name: "Green button", weight: 70, goalIds: ["goal-two"]};
+  const testVariants: {[key: string]: any} = {
+    ["red.button"]: testVariant1,
+    ["green.button"]: testVariant2,
+  };
 
   describe("inArray", () => {
     it("returns true if number found in number array", () => {
@@ -64,20 +69,68 @@ describe("flag.helper", () => {
   }); // inArray
 
   describe("evaluateRules", () => {
-    it("fails", () => {
-      expect(true).toBeTruthy();
+    it("returns allTrue if tests pass", async () => {
+      const testRules: Array<{[key: string]: any}> = [
+        {type: "field", expression: "country == 'US'"},
+        {type: "field", expression: "language == 'en_US'"},
+      ];
+      const testUser: User = {
+        country: "US",
+        email: "test@example.com",
+        firstName: "Test",
+        id: 1,
+        language: "en_US",
+        lastName: "User",
+      };
+      const expected: {[key: string]: any} = {allTrue: true, anyTrue: true};
+      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      expect(result).toEqual(expected);
+    });
+
+    it("returns someTrue if only one test passes", async () => {
+      const testRules: Array<{[key: string]: any}> = [
+        {type: "field", expression: "country == 'US'"},
+        {type: "field", expression: "language == 'en_US'"},
+      ];
+      const testUser: User = {
+        country: "US",
+        email: "test@example.com",
+        firstName: "Test",
+        id: 1,
+        language: "en_UK",
+        lastName: "User",
+      };
+      const expected: {[key: string]: any} = {allTrue: false, anyTrue: true};
+      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      expect(result).toEqual(expected);
+    });
+
+    it("returns untrue if only no tests passes", async () => {
+      const testRules: Array<{[key: string]: any}> = [
+        {type: "field", expression: "country == 'CA'"},
+        {type: "field", expression: "language == 'fr_CA'"},
+      ];
+      const testUser: User = {
+        country: "US",
+        email: "test@example.com",
+        firstName: "Test",
+        id: 1,
+        language: "en_US",
+        lastName: "User",
+      };
+      const expected: {[key: string]: any} = {allTrue: false, anyTrue: false};
+      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      expect(result).toEqual(expected);
     });
   }); // evaluateRules
 
-  describe("chooseWeightedValue", () => {
-    it("fails", () => {
-      expect(true).toBeTruthy();
-    });
-  }); // chooseWeightedValue
-
   describe("getVariantKeyAndGoalIds", () => {
-    it("fails", () => {
-      expect(true).toBeTruthy();
+    it("returns variant based on weighted round robin", () => {
+      const expectedPool: string[] = ["goal-one", "goal-two"];
+      const result: {[key: string]: any} = getVariantKeyAndGoalIds(testVariants);
+      expect(result.name).toBeDefined();
+      expect(result.goalIds.length).toEqual(1);
+      expect(inArray(expectedPool, result.goalIds[0])).toBeTruthy();
     });
   }); // getVariantKeyAndGoalIds
 

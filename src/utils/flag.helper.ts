@@ -51,16 +51,46 @@ const inArray = (arr: any[], target: any): boolean => {
   return itemFound;
 };
 
-const evaluateRules = async (expressions: string[], context: {[key: string]: any}): Promise<{[key: string]: any}> => {
-  return {};
-};
+const evaluateRules = async (
+        rules: Array<{[key: string]: any}>,
+        context: {[key: string]: any}): Promise<{[key: string]: any}> => {
 
-const chooseWeightedValue = (variants: {[key: string]: any}): any => {
-  return "foo";
+  const testResult: {[key: string]: any} = {allTrue: false, anyTrue: false};
+  let testResultString: string = "";
+
+  if (rules) {
+    const resultList: boolean[] = [];
+    for (const rule of rules) {
+      const test: boolean = await jexl.eval(rule.expression, context);
+      resultList.push(test);
+      testResultString = await testResultString + await String(test); // forcing serial
+    }
+
+    if (testResultString.length > 0) {
+      testResult.allTrue = resultList.every((val) => val === true);
+      testResult.anyTrue = resultList.some((val) => val === true);
+    }
+  }
+
+  return testResult;
 };
 
 const getVariantKeyAndGoalIds = (variants: {[key: string]: any}): {[key: string]: any} => {
-  return {};
+  if (!variants) {
+    return null;
+  }
+
+  const variantPool: string[] = [];
+  Object.keys(variants).map((key) => {
+    const variant: {[key: string]: any} = variants[key];
+    for (let i = 0; i < variant.weight; i++) {
+      variantPool.push(key);
+    }
+  });
+  const chosenIndex: number = Math.floor(Math.random() * (variantPool.length - 1));
+  const chosenVariant: any = variants[variantPool[chosenIndex]];
+
+  return chosenVariant;
 };
 
 /**
@@ -175,7 +205,6 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
 export {
   inArray,
   evaluateRules,
-  chooseWeightedValue,
   getVariantKeyAndGoalIds,
   getMergedGoalIds,
   getFlagsForUser,
