@@ -56,29 +56,29 @@ describe("flag.helper", () => {
     it("fails", () => {
       expect(true).toBeTruthy();
     });
-  });
+  }); // evaluateRules
 
   describe("chooseWeightedValue", () => {
     it("fails", () => {
       expect(true).toBeTruthy();
     });
-  });
+  }); // chooseWeightedValue
 
   describe("getVariantKeyAndGoalIds", () => {
     it("fails", () => {
       expect(true).toBeTruthy();
     });
-  });
+  }); // getVariantKeyAndGoalIds
 
   describe("getMergedGoalIds", () => {
     it("fails", () => {
       expect(true).toBeTruthy();
     });
-  });
+  }); // getMergedGoalIds
 
   describe("getFlagsForUser", () => {
     it("fails", () => {
       expect(true).toBeTruthy();
     });
-  });
+  }); // getFlagsForUser
 });

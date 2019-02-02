@@ -36,7 +36,19 @@ const doAllRulesPass = async (user: User, rules: Array<{[key: string]: any}>): P
 };
 
 const inArray = (arr: any[], target: any): boolean => {
-  return true;
+  if (!arr || !target) {
+    return false;
+  }
+
+  let itemFound: boolean = false;
+
+  for (const val of arr) {
+    if (String(target) === String(val)) {
+      itemFound = true;
+    }
+  }
+
+  return itemFound;
 };
 
 const evaluateRules = async (expressions: string[], context: {[key: string]: any}): Promise<{[key: string]: any}> => {
