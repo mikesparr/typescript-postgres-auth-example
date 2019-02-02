@@ -16,19 +16,21 @@ export class Segment {
   @Column()
   public name: string;
 
+  // email addresses of user
   @Column({ type: "simple-array", nullable: true })
-  public included: number[] | string[];
+  public included?: string[];
 
+  // email addresses of user
   @Column({ type: "simple-array", nullable: true })
-  public excluded: number[];
+  public excluded?: string[];
 
   @Column({ type: "jsonb", nullable: true })
-  public rules: any;
+  public rules?: any;
 
   @Column({ default: false })
-  public deleted: boolean;
+  public deleted?: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.segments)
-  public flags: Flag[];
+  public flags?: Flag[];
 
 }

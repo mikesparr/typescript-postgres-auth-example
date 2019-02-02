@@ -23,31 +23,31 @@ export class Flag {
   public name: string;
 
   @Column({ enum: FlagType, default: FlagType.USER })
-  public type: FlagType;
+  public type?: FlagType;
 
   @Column({ nullable: true })
-  public description: string;
+  public description?: string;
 
   @Column({ nullable: true })
-  public product: string;
+  public product?: string;
 
   @Column({ nullable: true })
-  public story: string;
+  public story?: string;
 
   @Column({ nullable: true })
-  public squad: string;
+  public squad?: string;
 
   @Column({ default: true })
-  public trackable: boolean;
+  public trackable?: boolean;
 
   @Column({ default: false })
-  public enabled: boolean;
+  public enabled?: boolean;
 
   @Column({ default: true })
-  public temporary: boolean;
+  public temporary?: boolean;
 
   @Column({ default: false })
-  public archived: boolean;
+  public archived?: boolean;
 
   /**
    * Add optional weights to variant distribution and goalIds
@@ -70,15 +70,15 @@ export class Flag {
    * }
    */
   @Column({ type: "jsonb", nullable: true })
-  public variants: any;
+  public variants?: any;
 
   // these are global to the flag hits, but we may also log variant-defined goal hits
   @ManyToMany((type) => Goal, (goal) => goal.flags)
   @JoinTable()
-  public goals: Goal[];
+  public goals?: Goal[];
 
   @ManyToMany((type) => Segment, (segment) => segment.flags)
   @JoinTable()
-  public segments: Segment[];
+  public segments?: Segment[];
 
 }

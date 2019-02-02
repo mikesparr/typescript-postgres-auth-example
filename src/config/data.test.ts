@@ -367,8 +367,8 @@ const createTestData = async (connection: Connection) => {
     { type: "field", expression: "country == 'US' || country == 'CA'" },
   ];
   const northAmericaSegment = connection.manager.create(Segment, {
-    excluded: [ 1, 4 ],
-    included: [ 2, 3 ],
+    excluded: [ "guest@example.com", "sysadmin@example.com" ],
+    included: [ "user@example.com", "admin@example.com" ],
     key: "north-america-beta-users",
     name: "Users in US and Canada",
     rules,
@@ -383,8 +383,18 @@ const createTestData = async (connection: Connection) => {
     segments: [ northAmericaSegment ],
     type: "user",
     variants: {
-      ["user.login.green"]: { name: "Green button", weight: 50, goalIds: [ "button-goal-green" ] },
-      ["user.login.red"]: { name: "Red button", weight: 50, goalIds: [ "button-goal-red" ] },
+      ["user.login.green"]: {
+        goalIds: [ "button-goal-green" ],
+        key: "user.login.green",
+        name: "Green button",
+        weight: 50,
+      },
+      ["user.login.red"]: {
+        goalIds: [ "button-goal-red" ],
+        key: "user.login.red",
+        name: "Red button",
+        weight: 50,
+      },
     },
   });
   await connection.manager.save(userLoginFlag);

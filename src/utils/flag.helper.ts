@@ -20,21 +20,6 @@ const USER_FLAGS_KEY = (userId: number | string) => `user:${userId}:flags`;
 /**
  * Convenience functions for processing user flag lookup
  */
-const doAllRulesPass = async (user: User, rules: Array<{[key: string]: any}>): Promise<boolean> => {
-  const testResults: boolean[] = [];
-
-  for (const rule of rules) {
-    logger.debug(`Processing rule ${rule.type}`);
-    const result: boolean = await jexl.eval(rule.expression, user);
-    testResults.push(result);
-  }
-
-  const allPass: boolean = testResults.every((val) => val === true);
-
-  logger.debug(`Returning result ${allPass}`);
-  return allPass;
-};
-
 const inArray = (arr: any[], target: any): boolean => {
   if (!arr || !target) {
     return false;
@@ -61,8 +46,11 @@ const evaluateRules = async (
   if (rules) {
     const resultList: boolean[] = [];
     for (const rule of rules) {
-      const test: boolean = await jexl.eval(rule.expression, context);
-      resultList.push(test);
+      if (rule && rule.expression && context) {
+        const test: boolean = await jexl.eval(rule.expression, context);
+        logger.debug(`Logging ${test} as result for ${rule.expression}`);
+        resultList.push(test);
+      }
       testResultString = await testResultString + await String(test); // forcing serial
     }
 
@@ -73,6 +61,31 @@ const evaluateRules = async (
   }
 
   return testResult;
+};
+
+const evaluateSegments = async (user: User, segments: Segment[]): Promise<boolean> => {
+  let userInSegments: boolean = false;
+  let testSegmentString: string = "";
+
+  if (segments) {
+    for (const segment of segments) {
+      if (!inArray(segment.excluded, user.email)) {
+        if (inArray(segment.included, user.email)) {
+          userInSegments = true;
+        } else if (segment.rules) {
+          logger.debug(`Rules ${JSON.stringify(segment.rules)}`);
+          const testResult: {[key: string]: any} = await evaluateRules(segment.rules, user);
+          logger.debug(`Segment ${segment.name} result: ${JSON.stringify(testResult)}`);
+          if (testResult.allTrue) {
+            userInSegments = true;
+          }
+        }
+      }
+      testSegmentString = await testSegmentString + await segment.key; // forcing serial
+    }
+  }
+
+  return userInSegments;
 };
 
 const getVariantKeyAndGoalIds = (variants: {[key: string]: any}): {[key: string]: any} => {
@@ -125,79 +138,38 @@ const getMergedGoalIds = (flagGoals: Goal[], variantGoalIds: any[]): string[] =>
  *
  * @param user
  */
-const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>> => {
+const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key: string]: any}>> => {
   const userFlags: Array<{[key: string]: any}> = [];
 
-  const flagRepository: Repository<Flag> = getRepository(Flag);
-  const flags: Flag[] = await flagRepository.find({ relations: ["goals", "segments"] });
+  // get flags from database if not provided
+  if (!flags) {
+    const flagRepository: Repository<Flag> = getRepository(Flag);
+    flags = await flagRepository.find({ relations: ["goals", "segments"] });
+  }
 
-  // TODO: consider breaking up into multiple functions after all working
-  logger.debug("Looping through flags");
-  flags.forEach(async (flag: Flag) => {
-    // check if flag applies to user
-    let addFlag: boolean = false;
+  if (flags) {
+    logger.debug("Looping through flags");
+    for (const flag of flags) {
+      let addFlag: boolean = false;
+      let flagKey: string;
 
-    logger.debug(`Checking flag ${flag.name}`);
-    if (flag.enabled && !flag.archived) {
-      addFlag = true;
-    } else if (flag.segments.length > 0) {
-      flag.segments.forEach(async (segment: Segment) => {
-        logger.debug(`Checking segment ${segment.name}`);
-        // check if user.id in excluded; if so - skip record immediately
-        if (segment.excluded.indexOf(user.id) === -1) {
-          logger.debug(`User ${user.id} is not in excluded`);
-          // check if user.id in included; if so - set addFlag = true
-          if (user.id in segment.included) {
-            logger.debug(`User ${user.id} is in included`);
-            addFlag = true;
-          } else if (segment.rules && segment.rules.length > 0) {
-            // if addFlag still false, loop through rules
-            // addFlag = await doAllRulesPass(user, segment.rules);
-            addFlag = true;
-          } // end if segment has rules
-        } // end if user not excluded
-      }); // end segments forEach
-    } // end if flag has segments
-
-    if (addFlag) {
-      let variantGoalIds: any[] = [];
-      let flagKey: string = flag.key;
-
-      // if variants, then loop through them
-      if (flag.variants && Object.keys(flag.variants).length > 0) {
-        logger.debug("Handling variants");
-        logger.debug(JSON.stringify(flag.variants));
-        // add weights of ids to array and randomly select one in range (weighted round robin)
-        const variantPool: string[] = [];
-        Object.keys(flag.variants).map((key) => {
-          const variant: {[key: string]: any} = flag.variants[key];
-          for (let i = 0; i < variant.weight; i++) {
-            variantPool.push(key);
-          }
-        });
-        const chosenIndex: number = Math.floor(Math.random() * (variantPool.length - 1));
-        const chosenVariant: any = flag.variants[variantPool[chosenIndex]];
-
-        // add goalIds to array along with variant key (override) so user served up variant
-        flagKey = variantPool[chosenIndex];
-        logger.debug(JSON.stringify({chosenIndex, chosenVariant, flagKey}));
-        variantGoalIds = variantGoalIds.concat(chosenVariant.goalIds);
-      } // end if variants
-
-      // combine goalIds from flag with those from variants
-      let flagGoalIds: string[] = [];
-      if (flag.goals.length > 0) {
-        flag.goals.forEach((goal) => flagGoalIds.push(goal.key)); // USING key, not int id
-      }
-      if (variantGoalIds.length > 0) {
-        logger.debug(`Adding variantGoalIds: ${JSON.stringify(variantGoalIds)}`);
-        flagGoalIds = flagGoalIds.concat(variantGoalIds);
+      if (!flag.archived && flag.segments && flag.segments.length > 0) {
+        const userInSegments: boolean = await evaluateSegments(user, flag.segments);
+        if (userInSegments) {
+          addFlag = true;
+        }
       }
 
-      logger.debug(`Pushing flag ${flag.id} to flags list`);
-      userFlags.push({key: flagKey, goalIds: flagGoalIds});
-    } // end if addFlag is true
-  }); // forEach flag
+      if (addFlag) {
+        const chosenVariant: {[key: string]: any} = getVariantKeyAndGoalIds(flag.variants);
+        logger.info(`Chosen variant: ${JSON.stringify(chosenVariant)}`);
+        flagKey = (chosenVariant && chosenVariant.key) ? chosenVariant.key : flag.key;
+        const variantGoalIds: string[] = (chosenVariant && chosenVariant.goalIds) ? chosenVariant.goalIds : [];
+        const goalIds: string[] = getMergedGoalIds(flag.goals, variantGoalIds);
+        userFlags.push({key: flagKey, goalIds}); // add to userFlags list
+      }
+    }
+  }
 
   return userFlags;
 };
@@ -205,6 +177,7 @@ const getFlagsForUser = async (user: User): Promise<Array<{[key: string]: any}>>
 export {
   inArray,
   evaluateRules,
+  evaluateSegments,
   getVariantKeyAndGoalIds,
   getMergedGoalIds,
   getFlagsForUser,

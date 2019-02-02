@@ -6,6 +6,7 @@ import { Segment } from "../../services/segment/segment.entity";
 import {
   inArray,
   evaluateRules,
+  evaluateSegments,
   getVariantKeyAndGoalIds,
   getMergedGoalIds,
   getFlagsForUser,
@@ -17,12 +18,98 @@ describe("flag.helper", () => {
   const testGoal3: Goal = {id: 3, key: "goal-three", name: "Goal Three"};
   const testGoal4: Goal = {id: 4, key: "goal-four", name: "Goal Four"};
   const testGoal5: Goal = {id: 5, key: "goal-five", name: "Goal Five"};
-  const testVariant1: {[key: string]: any} = {name: "Red button", weight: 30, goalIds: ["goal-one"]};
-  const testVariant2: {[key: string]: any} = {name: "Green button", weight: 70, goalIds: ["goal-two"]};
+
+  const testVariant1: {[key: string]: any} = {
+    goalIds: ["goal-one"],
+    key: "red.button",
+    name: "Red button",
+    weight: 30,
+  };
+  const testVariant2: {[key: string]: any} = {
+    goalIds: ["goal-two"],
+    key: "green.button",
+    name: "Green button",
+    weight: 70,
+  };
   const testVariants: {[key: string]: any} = {
     ["red.button"]: testVariant1,
     ["green.button"]: testVariant2,
   };
+
+  const testRule1: Array<{[key: string]: any}> = [
+    {type: "field", expression: 'country == "US"'},
+    {type: "field", expression: 'language == "en_US"'},
+  ];
+  const testRule2: Array<{[key: string]: any}> = [
+    {type: "field", expression: 'country == "US"'},
+    {type: "field", expression: 'language == "en_UK"'},
+  ];
+  const testRule3: Array<{[key: string]: any}> = [
+    {type: "field", expression: 'country == "CA"'},
+    {type: "field", expression: 'language == "fr_CA"'},
+  ];
+
+  const testSegment1: Segment = {
+    id: 1,
+    included: ["test@example.com"],
+    key: "us-users",
+    name: "US Users",
+    rules: testRule1,
+  };
+  const testSegment2: Segment = {
+    excluded: ["test@example.com"],
+    id: 2,
+    key: "canada-users",
+    name: "French Canada Users",
+    rules: testRule3,
+  };
+
+  const testUser: User = {
+    country: "US",
+    email: "test@example.com",
+    firstName: "Test",
+    id: 1,
+    language: "en_US",
+    lastName: "User",
+  };
+  const testUser2: User = {
+    country: "US",
+    email: "test2@example.com",
+    firstName: "Test",
+    id: 1,
+    language: "en_US",
+    lastName: "User",
+  };
+  const testUser3: User = {
+    country: "CA",
+    email: "test3@example.com",
+    firstName: "Test",
+    id: 1,
+    language: "fr_CA",
+    lastName: "User",
+  };
+
+  const testFlag1: Flag = {
+    archived: false,
+    enabled: false,
+    id: 1,
+    key: "greeting",
+    name: "User greeting",
+    segments: [testSegment1],
+    temporary: true,
+    variants: testVariants,
+  };
+  const testFlag2: Flag = {
+    archived: false,
+    enabled: false,
+    id: 1,
+    key: "holiday.greeting",
+    name: "Holiday greeting",
+    segments: [testSegment2],
+    temporary: true,
+    variants: null,
+  };
+  const testFlags: Flag[] = [testFlag1, testFlag2];
 
   describe("inArray", () => {
     it("returns true if number found in number array", () => {
@@ -70,59 +157,45 @@ describe("flag.helper", () => {
 
   describe("evaluateRules", () => {
     it("returns allTrue if tests pass", async () => {
-      const testRules: Array<{[key: string]: any}> = [
-        {type: "field", expression: "country == 'US'"},
-        {type: "field", expression: "language == 'en_US'"},
-      ];
-      const testUser: User = {
-        country: "US",
-        email: "test@example.com",
-        firstName: "Test",
-        id: 1,
-        language: "en_US",
-        lastName: "User",
-      };
       const expected: {[key: string]: any} = {allTrue: true, anyTrue: true};
-      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      const result: {[key: string]: any} = await evaluateRules(testRule1, testUser);
       expect(result).toEqual(expected);
     });
 
     it("returns someTrue if only one test passes", async () => {
-      const testRules: Array<{[key: string]: any}> = [
-        {type: "field", expression: "country == 'US'"},
-        {type: "field", expression: "language == 'en_US'"},
-      ];
-      const testUser: User = {
-        country: "US",
-        email: "test@example.com",
-        firstName: "Test",
-        id: 1,
-        language: "en_UK",
-        lastName: "User",
-      };
       const expected: {[key: string]: any} = {allTrue: false, anyTrue: true};
-      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      const result: {[key: string]: any} = await evaluateRules(testRule2, testUser);
       expect(result).toEqual(expected);
     });
 
     it("returns untrue if only no tests passes", async () => {
-      const testRules: Array<{[key: string]: any}> = [
-        {type: "field", expression: "country == 'CA'"},
-        {type: "field", expression: "language == 'fr_CA'"},
-      ];
-      const testUser: User = {
-        country: "US",
-        email: "test@example.com",
-        firstName: "Test",
-        id: 1,
-        language: "en_US",
-        lastName: "User",
-      };
       const expected: {[key: string]: any} = {allTrue: false, anyTrue: false};
-      const result: {[key: string]: any} = await evaluateRules(testRules, testUser);
+      const result: {[key: string]: any} = await evaluateRules(testRule3, testUser);
       expect(result).toEqual(expected);
     });
   }); // evaluateRules
+
+  describe("evaluateSegments", () => {
+    it("returns true if user fits in segments (included)", async () => {
+      const result: boolean = await evaluateSegments(testUser, [testSegment1]);
+      expect(result).toBeTruthy();
+    });
+
+    it("returns false if user not in segments (excluded)", async () => {
+      const result: boolean = await evaluateSegments(testUser, [testSegment2]);
+      expect(result).toBeFalsy();
+    });
+
+    it("returns true if user in segments (rules)", async () => {
+      const result: boolean = await evaluateSegments(testUser2, [testSegment1]);
+      expect(result).toBeTruthy();
+    });
+
+    it("returns false if user not in segments (rules)", async () => {
+      const result: boolean = await evaluateSegments(testUser2, [testSegment2]);
+      expect(result).toBeFalsy();
+    });
+  }); // evaluateSegments
 
   describe("getVariantKeyAndGoalIds", () => {
     it("returns variant based on weighted round robin", () => {
@@ -169,8 +242,17 @@ describe("flag.helper", () => {
   }); // getMergedGoalIds
 
   describe("getFlagsForUser", () => {
-    it("fails", () => {
-      expect(true).toBeTruthy();
+    it("returns list of feature flag objects (user1)", async () => {
+      const keyPool: string[] = ["red.button", "green.button"];
+      const results: Array<{[key: string]: any}> = await getFlagsForUser(testUser, testFlags);
+      expect(results.length).toEqual(1); // just just be flag 1 in segment 1
+      expect(inArray(keyPool, results[0].key)).toBeTruthy(); // will be one of variant keys
+    });
+
+    it("returns list of feature flag objects (user3)", async () => {
+      const results: Array<{[key: string]: any}> = await getFlagsForUser(testUser3, testFlags);
+      expect(results.length).toEqual(1); // just just be flag 2 in segment 2
+      expect(results[0].key).toEqual("holiday.greeting");
     });
   }); // getFlagsForUser
 });
