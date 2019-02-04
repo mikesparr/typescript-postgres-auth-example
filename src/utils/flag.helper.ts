@@ -162,7 +162,7 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
 
       if (addFlag) {
         const chosenVariant: {[key: string]: any} = await getVariantKeyAndGoalIds(flag.variants);
-        logger.info(`Chosen variant: ${JSON.stringify(chosenVariant)}`);
+        logger.debug(`Chosen variant: ${JSON.stringify(chosenVariant)}`);
         flagKey = (chosenVariant && chosenVariant.key) ? chosenVariant.key : flag.key;
         const variantGoalIds: string[] = (chosenVariant && chosenVariant.goalIds) ? chosenVariant.goalIds : [];
         const goalIds: string[] = await getMergedGoalIds(flag.goals, variantGoalIds);
