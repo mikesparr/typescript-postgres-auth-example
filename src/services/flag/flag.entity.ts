@@ -1,6 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, JoinTable, ManyToMany } from "typeorm";
 import { Goal } from "../goal/goal.entity";
 import { Segment } from "../segment/segment.entity";
+import Variant from "../../interfaces/variant.interface";
 
 export enum FlagType {
   PRODUCT = "product",
@@ -70,7 +71,7 @@ export class Flag {
    * }
    */
   @Column({ type: "jsonb", nullable: true })
-  public variants?: any;
+  public variants?: {[key: string]: Variant};
 
   // these are global to the flag hits, but we may also log variant-defined goal hits
   @ManyToMany((type) => Goal, (goal) => goal.flags)

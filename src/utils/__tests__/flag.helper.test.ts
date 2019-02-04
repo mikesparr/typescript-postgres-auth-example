@@ -2,6 +2,8 @@ import { User } from "../../services/user/user.entity";
 import { Flag } from "../../services/flag/flag.entity";
 import { Goal } from "../../services/goal/goal.entity";
 import { Segment } from "../../services/segment/segment.entity";
+import { Rule, RuleType } from "../../interfaces/rule.interface";
+import IVariant from "../../interfaces/variant.interface";
 
 import {
   inArray,
@@ -36,17 +38,17 @@ describe("flag.helper", () => {
     ["green.button"]: testVariant2,
   };
 
-  const testRule1: Array<{[key: string]: any}> = [
-    {type: "field", expression: 'country == "US"'},
-    {type: "field", expression: 'language == "en_US"'},
+  const testRule1: Rule[] = [
+    {type: RuleType.FIELD, expression: 'country == "US"'},
+    {type: RuleType.FIELD, expression: 'language == "en_US"'},
   ];
-  const testRule2: Array<{[key: string]: any}> = [
-    {type: "field", expression: 'country == "US"'},
-    {type: "field", expression: 'language == "en_UK"'},
+  const testRule2: Rule[] = [
+    {type: RuleType.FIELD, expression: 'country == "US"'},
+    {type: RuleType.FIELD, expression: 'language == "en_UK"'},
   ];
-  const testRule3: Array<{[key: string]: any}> = [
-    {type: "field", expression: 'country == "CA"'},
-    {type: "field", expression: 'language == "fr_CA"'},
+  const testRule3: Rule[] = [
+    {type: RuleType.FIELD, expression: 'country == "CA"'},
+    {type: RuleType.FIELD, expression: 'language == "fr_CA"'},
   ];
 
   const testSegment1: Segment = {
