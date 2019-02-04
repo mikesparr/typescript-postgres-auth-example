@@ -71,6 +71,7 @@ as much as possible so we could change out solutions in future without modifying
  * As a `user`, I want to be able to **view** a list of `roles` (*without permissions*) so I know what roles are available
  * As a `user`, I want to be able to `logout`, so that my authentication session cannot be used by others
  * As a `user`, I want to be informed if attempts to gain access to my account occur, so I can help prevent unauthorized access
+ * As a `user`, I want to be able to disable one or more devices (tokens), so I can prevent unauthorized access
 
 ### Admin
  * As an `admin`, I want to be able to `search` by city name, so I can view geo data about the city
@@ -86,6 +87,7 @@ as much as possible so we could change out solutions in future without modifying
  * As an `admin`, I want to be able to **create** any `permission` record, so I can manage permissions in the system
  * As an `admin`, I want to be able to **edit** any `permission` record, so I can manage permissions in the system
  * As an `admin`, I want to be able to **delete** any `permission` record, so I can manage permissions and keep the system current
+ * As an `admin`, I want to be able to deny any user or user device token, so I can manage user and device access
 
 ### Systems Administrator
  * As a `sysadmin`, I want to be able to automatically check app health, so I can automate scaling and recovery
