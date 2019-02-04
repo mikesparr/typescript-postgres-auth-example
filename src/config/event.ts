@@ -32,5 +32,7 @@ event.on("save", handleEvent);
 event.on("remove", handleEvent);
 event.on("search", handleEvent);
 event.on("send-email", handleEvent);
+event.on("remove-token", handleEvent);
+event.on("remove-user-tokens", handleEvent);
 
 export default event;

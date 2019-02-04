@@ -425,10 +425,10 @@ describe("User", () => {
     });
   });
 
-  describe("DELETE /users/:id/tokens/:id", () => {
+  describe("DELETE /users/:id/tokens/:tokenId", () => {
     it("denies user role to delete another user token", async () => {
       const result = await request(app)
-        .delete(`/users/${newUserId}/tokens`)
+        .delete(`/users/${adminId}/tokens/${adminToken}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -436,39 +436,17 @@ describe("User", () => {
     });
 
     it("allows user role to delete their own token (device)", async () => {
-      const testUserData = {
-        email: "test@example.com",
-        password: "changeme",
-      };
-      const testLoginResult = await request(app)
-        .post("/login")
-        .send(testUserData)
-        .set("Accept", "application/json");
-      const testUserToken: string = testLoginResult.body.token;
-      const testUserId: number = testLoginResult.body.user.id;
-
       const result = await request(app)
-        .delete(`/users/${testUserId}/tokens/:id`)
-        .set("Authorization", `Bearer ${testUserToken}`)
+        .delete(`/users/${userId}/tokens/${userToken}`)
+        .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
 
     it("allows admin to delete token by id and add them to deny list", async () => {
-      const testUserData = {
-        email: "test@example.com",
-        password: "changeme",
-      };
-      const testLoginResult = await request(app)
-        .post("/login")
-        .send(testUserData)
-        .set("Accept", "application/json");
-      const testUserToken: string = testLoginResult.body.token;
-      const testUserId: number = testLoginResult.body.user.id;
-
       const result = await request(app)
-        .delete(`/users/${testUserId}/tokens/:id`)
+        .delete(`/users/${userId}/tokens/${userToken}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

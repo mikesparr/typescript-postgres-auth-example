@@ -26,7 +26,9 @@ class UserController implements Controller {
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateUserDto), this.save)
       .put(`${this.path}/:id`, validationMiddleware(CreateUserDto, true), this.save)
-      .delete(`${this.path}/:id`, this.remove);
+      .delete(`${this.path}/:id`, this.remove)
+      .delete(`${this.path}/:id/tokens`, this.removeAllTokens)
+      .delete(`${this.path}/:id/tokens/:tokenId`, this.removeToken);
     this.router.get(`${this.path}/:id/flags`, authenticationMiddleware, this.getFlags);
     this.router.get(`${this.path}/:id/tokens`, authenticationMiddleware, this.getTokens);
   }
@@ -84,6 +86,26 @@ class UserController implements Controller {
 
     try {
       response.send(await this.userDao.getUserTokens(request.user, id));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private removeToken = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id, tokenId } = request.params;
+
+    try {
+      response.send(await this.userDao.removeToken(request.user, id, tokenId));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private removeAllTokens = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
+
+    try {
+      response.send(await this.userDao.removeAllTokens(request.user, id));
     } catch (error) {
       next(error);
     }

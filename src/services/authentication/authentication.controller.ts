@@ -32,6 +32,7 @@ class AuthenticationController implements Controller {
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
     this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), addUserAgent, this.register);
     this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), this.lostPassword);
+    this.router.delete(`${this.path}/tokens/:id`, authenticationMiddleware, this.removeToken);
   }
 
   /**
@@ -96,6 +97,16 @@ class AuthenticationController implements Controller {
 
     try {
       response.send(await this.authenticationDao.lostPassword(userData, request.userAgent));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private removeToken = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
+
+    try {
+      response.send(await this.authenticationDao.removeToken(request.user, id));
     } catch (error) {
       next(error);
     }

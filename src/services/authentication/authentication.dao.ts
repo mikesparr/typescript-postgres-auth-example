@@ -46,6 +46,7 @@ enum NotificationType {
  */
 class AuthenticationDao implements Dao {
   private resource: string = "authentication"; // matches defined user user 'resource'
+  private tokenResource: string = "token";
   private userRepository: Repository<User> = getRepository(User);
   private roleRepository: Repository<Role> = getRepository(Role);
   private email: Email;
@@ -210,6 +211,38 @@ class AuthenticationDao implements Dao {
       message: "If valid user then an email was sent to address on file. Please check your email.",
       status: 200,
     };
+  }
+
+  public removeToken = async (user: User, id: string):
+            Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const recordToRemove = await decodeToken(id);
+
+    const isOwnerOrMember: boolean = String(user.id) === String(recordToRemove.id);
+    const action: string = methodActions.DELETE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+
+    if (permission.granted) {
+      if (recordToRemove) {
+        await removeTokenFromCache(id);
+
+        // log event to central handler
+        event.emit("remove-token", {
+          action,
+          actor: user,
+          object: id,
+          resource: this.tokenResource,
+          timestamp: Date.now(),
+          verb: "remove-token",
+        });
+
+        logger.info(`Removed ${this.tokenResource} with ID ${id} from the cache`);
+        return true;
+      } else {
+        throw new RecordNotFoundException(id);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
+    }
   }
 
   /**

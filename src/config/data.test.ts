@@ -244,6 +244,7 @@ const createTestData = async (connection: Connection) => {
       userUserUpdatePermission,
       userRoleViewPermission,
       userUserViewTokens,
+      userUserDeleteTokens,
       userFlagViewPermission,
     ],
   });

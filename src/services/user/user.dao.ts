@@ -11,6 +11,9 @@ import { getFlagsForUser } from "../../utils/flag.helper";
 import {
   addAllUserTokensToDenyList,
   getTokensFromUserTokensList,
+  decodeToken,
+  removeTokenFromCache,
+  removeAllUserTokensFromCache,
 } from "../../utils/authentication.helper";
 
 import { User } from "./user.entity";
@@ -213,6 +216,70 @@ class UserDao implements Dao {
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.flagResource);
+    }
+  }
+
+  public removeToken = async (user: User, id: number | string, tokenId: string):
+            Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const recordToRemove = await decodeToken(tokenId);
+
+    const isOwnerOrMember: boolean = String(user.id) === String(id);
+    const action: string = methodActions.DELETE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+
+    if (permission.granted) {
+      if (recordToRemove) {
+        await removeTokenFromCache(tokenId);
+
+        // log event to central handler
+        event.emit("remove-token", {
+          action,
+          actor: user,
+          object: tokenId,
+          resource: this.tokenResource,
+          timestamp: Date.now(),
+          verb: "remove-token",
+        });
+
+        logger.info(`Removed ${this.tokenResource} with ID ${tokenId} from the cache`);
+        return true;
+      } else {
+        throw new RecordNotFoundException(tokenId);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
+    }
+  }
+
+  public removeAllTokens = async (user: User, id: number | string):
+            Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const record = await this.userRepository.findOne(id);
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.DELETE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
+
+    if (permission.granted) {
+      if (record) {
+        await removeAllUserTokensFromCache(record);
+
+        // log event to central handler
+        event.emit("remove-user-tokens", {
+          action,
+          actor: user,
+          object: record,
+          resource: this.tokenResource,
+          timestamp: Date.now(),
+          verb: "remove-user-tokens",
+        });
+
+        logger.info(`Removed all ${this.tokenResource}s for user ${id} from the cache`);
+        return true;
+      } else {
+        throw new RecordNotFoundException(id);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
     }
   }
 

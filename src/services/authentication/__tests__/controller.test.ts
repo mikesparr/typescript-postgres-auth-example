@@ -9,10 +9,38 @@ import UserEmailDto from "../email.dto";
 
 let app: Application;
 let testAuthToken: string;
+let userId: number | string;
+let userToken: string;
+let adminId: number | string;
+let adminToken: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
   app = new App(controllers.map((controller) => new controller())).app;
+
+  // log in test users and store tokens for testing
+  const testUserData = {
+    email: "user@example.com",
+    password: "changeme",
+  };
+  const testAdminData = {
+    email: "admin@example.com",
+    password: "changeme",
+  };
+
+  const userLoginResult = await request(app)
+    .post("/login")
+    .send(testUserData)
+    .set("Accept", "application/json");
+  userToken = userLoginResult.body.token;
+  userId = userLoginResult.body.user.id;
+
+  const adminLoginResult = await request(app)
+    .post("/login")
+    .send(testAdminData)
+    .set("Accept", "application/json");
+  adminToken = adminLoginResult.body.token;
+  adminId = adminLoginResult.body.user.id;
 });
 
 afterAll(async () => {
@@ -218,4 +246,34 @@ describe("Authentication", () => {
       expect(result.status).toEqual(200);
     });
   }); // POST /logout
+
+  describe("DELETE /tokens/:tokenId", () => {
+    it("denies user role to delete another user token", async () => {
+      const result = await request(app)
+        .delete(`/tokens/${adminToken}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to delete their own token (device)", async () => {
+      const result = await request(app)
+        .delete(`/tokens/${userToken}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin to delete token by id and add them to deny list", async () => {
+      const result = await request(app)
+        .delete(`/tokens/${userToken}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      // TODO: check cache to confirm token added to deny list
+    });
+  });
 });
