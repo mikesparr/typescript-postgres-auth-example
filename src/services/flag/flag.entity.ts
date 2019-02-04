@@ -1,6 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, JoinTable, ManyToMany } from "typeorm";
 import { Goal } from "../goal/goal.entity";
 import { Segment } from "../segment/segment.entity";
+import { Environment, EnvironmentType } from "../../interfaces/environment.interface";
 import Variant from "../../interfaces/variant.interface";
 
 export enum FlagType {
@@ -49,6 +50,22 @@ export class Flag {
 
   @Column({ default: false })
   public archived?: boolean;
+
+  /**
+   * Optionally target specific users in addition to any
+   * defined segments. If Environments found, however, it will
+   * override globally-specified targets and segments
+   */
+  @Column({ type: "simple-array", nullable: true })
+  public targetEmails?: string[];
+
+  /**
+   * Optionally override segments and targets by environment
+   * If exists and environment detectable, find appropriate env
+   * and override flag.targets and flag.segments accordingly
+   */
+  @Column({ type: "jsonb", nullable: true })
+  public environments?: {[key: string]: Environment};
 
   /**
    * Add optional weights to variant distribution and goalIds

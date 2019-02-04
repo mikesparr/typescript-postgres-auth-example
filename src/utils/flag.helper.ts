@@ -153,6 +153,9 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
       let addFlag: boolean = false;
       let flagKey: string;
 
+      // TODO: filterFlagForEnvironment
+      // (if exists, will only include segments, targetEmails, variants for env)
+
       if (!flag.archived && flag.segments && flag.segments.length > 0) {
         const userInSegments: boolean = await evaluateSegments(user, flag.segments);
         if (userInSegments) {

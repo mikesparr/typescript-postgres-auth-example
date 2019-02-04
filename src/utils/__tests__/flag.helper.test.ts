@@ -256,5 +256,10 @@ describe("flag.helper", () => {
       expect(results.length).toEqual(1); // just just be flag 2 in segment 2
       expect(results[0].key).toEqual("holiday.greeting");
     });
+
+    // TODO: add tests for targetEmails
+
+    // TODO: add tests for environments
+
   }); // getFlagsForUser
 });

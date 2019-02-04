@@ -1828,6 +1828,48 @@
           "archived": {
             "type": "boolean"
           },
+          "targetIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environments": {
+            "type": "object",
+            "minimum": 1,
+            "properties": {
+              "development": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "test": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "staging": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "performance": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "production": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              }
+            }
+          },
           "variants": {
             "type": "array",
             "items": {
@@ -1884,6 +1926,48 @@
           },
           "archived": {
             "type": "boolean"
+          },
+          "targetIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environments": {
+            "type": "object",
+            "minimum": 1,
+            "properties": {
+              "development": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "test": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "staging": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "performance": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              },
+              "production": {
+                "type": "object",
+                "schema": {
+                  "$ref": "#/components/schemas/Environment"
+                }
+              }
+            }
           },
           "variants": {
             "type": "array",
@@ -1965,6 +2049,35 @@
           },
           "expression": {
             "type": "string"
+          }
+        }
+      },
+      "Environment": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "targetEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "segmentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "variantIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
