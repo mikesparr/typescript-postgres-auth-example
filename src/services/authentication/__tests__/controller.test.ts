@@ -182,6 +182,35 @@ describe("Authentication", () => {
     });
   }); // POST /register
 
+  describe("POST /impersonate/:id", () => {
+    it("throws if missing data", async () => {
+      const result = await request(app)
+        .post(`/impersonate/`)
+        .set("Authorization", `Bearer ${testAuthToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(404);
+    });
+
+    it("denies user role ability to login as someone", async () => {
+      const result = await request(app)
+        .post(`/impersonate/${adminId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin role ability to login as someone", async () => {
+      const result = await request(app)
+        .post(`/impersonate/${userId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  });
+
   describe("POST /login", () => {
     it("throws if missing data", async () => {
       const result = await request(app)

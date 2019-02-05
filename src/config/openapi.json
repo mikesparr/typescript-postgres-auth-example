@@ -148,6 +148,53 @@
         }
       }
     },
+    "/impersonate/:id": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Authenticates as surrogate user and generates new JWT auth token",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user to impersonate",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User record and JWT auth token that expires in 1 hour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/logout": {
       "post": {
         "tags": ["authentication"],
