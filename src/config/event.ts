@@ -23,16 +23,22 @@ event.on("verify", handleEvent);
 event.on("reissue", handleEvent);
 event.on("lost-password", handleEvent);
 event.on("login", handleEvent);
+// TODO: add failed-login for future monitoring/alerting
 event.on("logout", handleEvent);
 event.on("read-tokens", handleEvent);
 event.on("read-user-flags", handleEvent);
+event.on("remove-token", handleEvent);
+event.on("remove-user-tokens", handleEvent);
+event.on("add-user-role", handleEvent);
+event.on("add-role-permission", handleEvent);
+event.on("remove-user-role", handleEvent);
+event.on("remove-role-permission", handleEvent);
+// global CRUD
 event.on("read-all", handleEvent);
 event.on("read-one", handleEvent);
 event.on("save", handleEvent);
 event.on("remove", handleEvent);
 event.on("search", handleEvent);
 event.on("send-email", handleEvent);
-event.on("remove-token", handleEvent);
-event.on("remove-user-tokens", handleEvent);
 
 export default event;

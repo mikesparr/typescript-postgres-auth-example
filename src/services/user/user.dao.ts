@@ -17,8 +17,9 @@ import {
 } from "../../utils/authentication.helper";
 
 import { User } from "./user.entity";
+import { Role } from "../role/role.entity";
 import CreateUserDto from "./user.dto";
-import { add } from "winston";
+import AddRoleDto from "../role/addrole.dto";
 
 /**
  * Handles CRUD operations on User data in database
@@ -28,7 +29,9 @@ class UserDao implements Dao {
   private resource: string = "user"; // matches defined user user "resource"
   private flagResource: string = "flag";
   private tokenResource: string = "token";
+  private userRoleResource: string = "userrole";
   private userRepository: Repository<User> = getRepository(User);
+  private roleRepository: Repository<Role> = getRepository(Role);
 
   constructor() {
     // nothing
@@ -154,7 +157,7 @@ class UserDao implements Dao {
     }
   }
 
-  public getUserTokens = async (user: User, tokenUserId: string | number): Promise<object | Error> => {
+  public getTokens = async (user: User, tokenUserId: string | number): Promise<object | Error> => {
     const record = await this.userRepository.findOne(tokenUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(tokenUserId);
@@ -186,7 +189,7 @@ class UserDao implements Dao {
     }
   }
 
-  public getUserFlags = async (
+  public getFlags = async (
           user: User, flagUserId: string | number): Promise<Array<{[key: string]: any}> | Error> => {
     const record = await this.userRepository.findOne(flagUserId);
 
@@ -280,6 +283,125 @@ class UserDao implements Dao {
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.tokenResource);
+    }
+  }
+
+  public getRoles = async (user: User, id: string | number):
+            Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const record = await this.userRepository.findOne(id, { relations: ["roles"] });
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.GET;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.userRoleResource);
+
+    if (permission.granted) {
+      if (!record) {
+        throw new RecordNotFoundException(id);
+      } else {
+        // log event to central handler
+        event.emit("read-all", {
+          action,
+          actor: user,
+          object: record.roles,
+          resource: this.userRoleResource,
+          target: record,
+          timestamp: Date.now(),
+          verb: "read-all",
+        });
+
+        return permission.filter(record.roles);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.userRoleResource);
+    }
+  }
+
+  public addRole = async (user: User, id: number, data: any):
+            Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const newRecord: AddRoleDto = data;
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.POST;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.userRoleResource);
+
+    if (permission.granted) {
+      const relationToAdd = await this.roleRepository.findOne(newRecord.id, { relations: ["permissions"] });
+      const recordToUpdate = await this.userRepository.findOne(id, { relations: ["roles"] });
+
+      if (relationToAdd && recordToUpdate) {
+        const filteredData: User = permission.filter(recordToUpdate);
+
+        try {
+          await this.userRepository
+          .createQueryBuilder()
+          .relation(User, "roles")
+          .of([{ id: recordToUpdate.id }])
+          .add([{ id: relationToAdd.id }]);
+        } catch (relationError) {
+          // catch duplicate key error just in case but confirm
+          logger.error(relationError.message);
+        }
+
+        // log event to central handler
+        event.emit("add-user-role", {
+          action,
+          actor: user,
+          object: relationToAdd,
+          resource: this.userRoleResource,
+          target: recordToUpdate,
+          timestamp: Date.now(),
+          verb: "add-user-role",
+        });
+
+        logger.info(`Added ${this.userRoleResource} with ID ${newRecord.id} to user ${recordToUpdate.id}`);
+        return filteredData;
+      } else {
+        logger.warn(`Could not find user ${id} or role ${newRecord.id} to create relation`);
+        throw new RecordNotFoundException(newRecord.id);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.userRoleResource);
+    }
+  }
+
+  public removeRole = async (user: User, id: number, roleId: string):
+            Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.DELETE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.userRoleResource);
+
+    if (permission.granted) {
+      const recordToUpdate = await this.userRepository.findOne(id, { relations: ["roles"] });
+
+      if (recordToUpdate) {
+        await this.userRepository
+          .createQueryBuilder()
+          .relation(User, "roles")
+          .of([recordToUpdate])
+          .remove({ id: roleId });
+
+        const filteredData: User = permission.filter(recordToUpdate);
+        await this.userRepository.save(recordToUpdate);
+
+        // log event to central handler
+        event.emit("remove-user-role", {
+          action,
+          actor: user,
+          object: { id: roleId },
+          resource: this.userRoleResource,
+          target: recordToUpdate,
+          timestamp: Date.now(),
+          verb: "remove-user-role",
+        });
+
+        logger.info(`Removed ${this.userRoleResource} with ID ${roleId} from user ${id}`);
+        return filteredData;
+      } else {
+        throw new RecordNotFoundException(id);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.userRoleResource);
     }
   }
 

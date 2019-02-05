@@ -107,6 +107,23 @@ const createTestData = async (connection: Connection) => {
     resource: "token",
   });
 
+  // user roles
+  const adminUserViewUserRoles = connection.manager.create(Permission, {
+    action: "read:any",
+    attributes: "*, !password",
+    resource: "userrole",
+  });
+  const adminUserAddUserRole = connection.manager.create(Permission, {
+    action: "create:any",
+    attributes: "*, !password",
+    resource: "userrole",
+  });
+  const adminUserDeleteUserRole = connection.manager.create(Permission, {
+    action: "delete:any",
+    attributes: "*, !password",
+    resource: "userrole",
+  });
+
   // role
   const userRoleViewPermission = connection.manager.create(Permission, {
     action: "read:any",
@@ -132,6 +149,23 @@ const createTestData = async (connection: Connection) => {
     action: "delete:any",
     attributes: "*",
     resource: "role",
+  });
+
+  // role permissions
+  const adminRoleViewRolePermissions = connection.manager.create(Permission, {
+    action: "read:any",
+    attributes: "*",
+    resource: "rolepermission",
+  });
+  const adminRoleAddRolePermission = connection.manager.create(Permission, {
+    action: "create:any",
+    attributes: "*",
+    resource: "rolepermission",
+  });
+  const adminRoleDeleteRolePermission = connection.manager.create(Permission, {
+    action: "delete:any",
+    attributes: "*",
+    resource: "rolepermission",
   });
 
   // permission
@@ -279,6 +313,12 @@ const createTestData = async (connection: Connection) => {
       adminFlagCreatePermission,
       adminFlagUpdatePermission,
       adminFlagDeletePermission,
+      adminUserViewUserRoles,
+      adminUserAddUserRole,
+      adminUserDeleteUserRole,
+      adminRoleViewRolePermissions,
+      adminRoleAddRolePermission,
+      adminRoleDeleteRolePermission,
     ],
   });
   const sysadminRole = connection.manager.create(Role, {

@@ -476,6 +476,17 @@
         "security": [
           {"bearerAuth": []}
         ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of role record that permission will be added",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Permission data",
           "content": {
@@ -1010,12 +1021,23 @@
         "security": [
           {"bearerAuth": []}
         ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user record that needs role added",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Role data",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RoleInput"
+                "$ref": "#/components/schemas/RoleAddInput"
               }
             }
           }
@@ -1926,6 +1948,14 @@
             "type": "string"
           },
           "description": {
+            "type": "string"
+          }
+        }
+      },
+      "RoleAddInput": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string"
           }
         }

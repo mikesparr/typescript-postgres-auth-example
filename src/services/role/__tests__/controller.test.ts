@@ -12,6 +12,7 @@ let userToken: string;
 let adminId: number | string;
 let adminToken: string;
 let newRoleId: number | string;
+let newPermissionId: number | string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -193,7 +194,10 @@ describe("Role", () => {
 
   describe("POST /roles/:id/permissions", () => {
     const testData = {
-      id: 1,
+      action: "read: any",
+      attributes: "*",
+      resource: "user",
+      role: newRoleId,
     };
 
     it("throws if missing data", async () => {
@@ -205,12 +209,13 @@ describe("Role", () => {
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin role to update user roles", async () => {
+    it("allows admin role to update role permissions", async () => {
       const result = await request(app)
         .post(`/roles/${newRoleId}/permissions`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
+      newPermissionId = result.body.id;
 
       expect(result.status).toEqual(200);
       // TODO: query to confirm role has expected permission
@@ -220,7 +225,7 @@ describe("Role", () => {
   describe("DELETE /roles/:id/permissions/:permissionId", () => {
     it("denies user role to delete a role permission", async () => {
       const result = await request(app)
-        .delete(`/roles/${newRoleId}/permissions/1`)
+        .delete(`/roles/${newRoleId}/permissions/${newPermissionId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -229,7 +234,7 @@ describe("Role", () => {
 
     it("allows admin to delete a role permission", async () => {
       const result = await request(app)
-        .delete(`/roles/${newRoleId}/permissions/1`)
+        .delete(`/roles/${newRoleId}/permissions/${newPermissionId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

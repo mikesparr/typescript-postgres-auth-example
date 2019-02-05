@@ -112,15 +112,6 @@ describe("User", () => {
       expect(result.status).toEqual(403);
     });
 
-    it("allows user role to view their own roles", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/roles`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-
     it("allows admin role to view other user roles", async () => {
       const result = await request(app)
         .get(`/users/${userId}/roles`)

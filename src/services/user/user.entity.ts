@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 import { Role } from "../role/role.entity";
 
 /**
@@ -41,7 +41,6 @@ export class User {
   public age?: number;
 
   @ManyToMany((type) => Role, (role) => role.users)
-  @JoinTable()
   public roles?: Role[];
 
 }
