@@ -46,6 +46,7 @@ enum NotificationType {
  */
 class AuthenticationDao implements Dao {
   private resource: string = "authentication"; // matches defined user user 'resource'
+  private surrogateResource: string = "surrogate";
   private tokenResource: string = "token";
   private userRepository: Repository<User> = getRepository(User);
   private roleRepository: Repository<Role> = getRepository(Role);
@@ -67,6 +68,26 @@ class AuthenticationDao implements Dao {
       }
     } else {
       throw new WrongCredentialsException();
+    }
+  }
+
+  public impersonate = async (user: User, surrogateUserId: number, userAgent: object): Promise<object | Error> => {
+    const foundUser: User = await this.userRepository.findOne(surrogateUserId, { relations: ["roles"] });
+    if (foundUser) {
+      const isOwnerOrMember: boolean = false; // TODO: consider logic if manager in group
+      const action: string = methodActions.POST;
+      const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.surrogateResource);
+
+      if (permission.granted) {
+        foundUser.password = undefined;
+        foundUser.surrogateEnabled = true;
+        foundUser.surrogatePrincipal = user;
+        return this.logUserIn(foundUser, userAgent);
+      } else {
+        throw new UserNotAuthorizedException(user.id, action, this.surrogateResource);
+      }
+    } else {
+      throw new RecordNotFoundException(surrogateUserId);
     }
   }
 
@@ -277,17 +298,25 @@ class AuthenticationDao implements Dao {
   private logUserIn = async (user: User, userAgent: object): Promise<{[key: string]: any}> => {
     const tokenData = await createUserToken(user, userAgent);
 
+    const isSurrogate: boolean = (user.surrogateEnabled && user.surrogatePrincipal) ? true : false;
+
     // log event to central handler
-    event.emit("login", {
+    event.emit(isSurrogate ? "impersonate" : "login", {
       action: "create",
-      actor: user,
+      actor: user.surrogatePrincipal,
       object: user,
-      resource: this.resource,
+      resource: isSurrogate ? this.surrogateResource : this.resource,
       timestamp: Date.now(),
-      verb: "login",
+      verb: isSurrogate ? "impersonate" : "login",
     });
 
-    logger.info(`User with email ${user.email} just logged in`);
+    let message: string;
+    if (isSurrogate) {
+      message = `User with email ${user.surrogatePrincipal.email} just logged in as ${user.email}`;
+    } else {
+      message = `User with email ${user.email} just logged in`;
+    }
+    logger.info(message);
     return {user, token: tokenData};
   }
 

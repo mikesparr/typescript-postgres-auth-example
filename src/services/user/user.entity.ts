@@ -40,6 +40,10 @@ export class User {
   @Column({ nullable: true })
   public age?: number;
 
+  public surrogateEnabled?: boolean;
+
+  public surrogatePrincipal?: User;
+
   @ManyToMany((type) => Role, (role) => role.users)
   public roles?: Role[];
 

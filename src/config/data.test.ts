@@ -48,6 +48,13 @@ const createTestData = async (connection: Connection) => {
     resource: "search",
   });
 
+  // surrogate "login as user"
+  const adminSurrogate = connection.manager.create(Permission, {
+    action: "create:any",
+    attributes: "*",
+    resource: "surrogate",
+  });
+
   // user
   const userUserViewPermission = connection.manager.create(Permission, {
     action: "read:any",
@@ -286,6 +293,7 @@ const createTestData = async (connection: Connection) => {
     description: "Administrative user with all privileges",
     id: "admin",
     permissions: [
+      adminSurrogate,
       adminUserViewPermission,
       adminUserViewTokens,
       adminUserUpdateTokens,

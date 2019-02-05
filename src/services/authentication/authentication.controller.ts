@@ -29,6 +29,7 @@ class AuthenticationController implements Controller {
     this.router.get(`${this.path}/healthz`, this.healthCheck);
     this.router.get(`${this.path}/verify/:token`, addUserAgent, this.verify);
     this.router.post(`${this.path}/login`, validationMiddleware(UserLoginDto), addUserAgent, this.login);
+    this.router.post(`${this.path}/impersonate/:id`, authenticationMiddleware, addUserAgent, this.impersonate);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
     this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), addUserAgent, this.register);
     this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), this.lostPassword);
@@ -43,6 +44,19 @@ class AuthenticationController implements Controller {
 
     try {
       response.send(await this.authenticationDao.login(loginData, request.userAgent));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Returns valid token if allowed to impersonate another valid user
+   */
+  private impersonate = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const { id } = request.params;
+
+    try {
+      response.send(await this.authenticationDao.impersonate(request.user, id, request.userAgent));
     } catch (error) {
       next(error);
     }
