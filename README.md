@@ -73,7 +73,7 @@ as much as possible so we could change out solutions in future without modifying
  * As a `user`, I want to be informed if attempts to gain access to my account occur, so I can help prevent unauthorized access
  * As a `user`, I want to be able to disable one or more devices (tokens), so I can prevent unauthorized access
 
-### Admin
+### Admin (User + Admin)
  * As an `admin`, I want to be able to `search` by city name, so I can view geo data about the city
  * As an `admin`, I want to be able to **view** `users` (*with age but no password*), so I know users of the system and their age
  * As an `admin`, I want to be able to **create** any `user` record, so I can manage users in the system
@@ -94,6 +94,17 @@ as much as possible so we could change out solutions in future without modifying
  * As a `sysadmin`, I want the app to log all events, so that I can optionally add alerts if acceptable thresholds are exceeded
  * As a `sysadmin`, I want to be able to deny protected access to any user or individual token, so I can prevent unauthorized access
  * As a `sysadmin`, I want to be able to disable client features that may have issues, so I can maintain app stability
+ * As a `sysadmin`, I want to identify actions a support user performs on behalf of users, so I can audit and explain data
+
+### Customer Support (Tier 1)
+ * As a `support user`, I want to be able to initiate a lost password request for a user, so I can take care of them in real time
+ * As a `support user`, I want to be able to assume a users identity without password, so I can use the app as they would and help identify issues
+ * As a `support user`, I want to be able to search for and view all users, so I can take care of them in real time
+ * As a `support user`, I want to be able to edit a limited set of user data, so I can take care of them in real time
+
+### Technical Support (Tier 1 + Tier 2)
+ * As a `tech support`, I want to view and filter user activity logs in real time, so I can troubleshoot issues before escalation
+ * As a `tech support`, I want to be able to edit a limited set of user data, so I can test different configurations during troubleshooting
 
 ### Product Owner
  * As a `product owner`, I want an API that supports various authorization levels, so we can support future revenue and feature models
@@ -101,6 +112,7 @@ as much as possible so we could change out solutions in future without modifying
  * As a `product owner`, I want to allow external authentication providers (IdP), so we can offload effort or meet compliance guidelines
  * As a `product owner`, I want to test new features on a subset of users or geographies, so we can measure impact, refine, or revert as needed
  * As a `product owner`, I want to be able to track usage of toggle/flag features, so we can fine-tune before global deployment (or omit)
+ * As a `product owner`, I want to ignore metrics performed by support users on behalf of users, so we can accurately measure metrics
 
 ### Architect
  * As an `architect`, I want to centralize events/activity stream, so that I can easily add stream pipeline, queue, or bus to implment CQRS-ES
