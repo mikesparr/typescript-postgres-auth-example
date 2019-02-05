@@ -98,6 +98,26 @@ describe("Role", () => {
     });
   }); // GET /roles:id
 
+  describe("GET /roles/:id/permissions", () => {
+    it("does not allow user role to view role permissions", async () => {
+      const result = await request(app)
+        .get(`/roles/user/permissions`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin role to view role permissions", async () => {
+      const result = await request(app)
+        .get(`/roles/user/permissions`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/roles
+
   describe("POST /roles", () => {
     const testData = {
       description: "Test role from automated tests",
@@ -170,6 +190,53 @@ describe("Role", () => {
       expect(result.status).toEqual(200);
     });
   }); // PUT /roles
+
+  describe("POST /roles/:id/permissions", () => {
+    const testData = {
+      id: 1,
+    };
+
+    it("throws if missing data", async () => {
+      const result = await request(app)
+        .post(`/roles/${newRoleId}/permissions`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("allows admin role to update user roles", async () => {
+      const result = await request(app)
+        .post(`/roles/${newRoleId}/permissions`)
+        .send(testData)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      // TODO: query to confirm role has expected permission
+    });
+  }); // POST /roles/:id/permissions
+
+  describe("DELETE /roles/:id/permissions/:permissionId", () => {
+    it("denies user role to delete a role permission", async () => {
+      const result = await request(app)
+        .delete(`/roles/${newRoleId}/permissions/1`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin to delete a role permission", async () => {
+      const result = await request(app)
+        .delete(`/roles/${newRoleId}/permissions/1`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      // TODO: check database to confirm role removed
+    });
+  });
 
   describe("DELETE /roles/:id", () => {
     it("denies user role ability to delete roles", async () => {

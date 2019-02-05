@@ -102,6 +102,35 @@ describe("User", () => {
     });
   }); // GET /users/:id
 
+  describe("GET /users/:id/roles", () => {
+    it("does not allow user role to view other users roles", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/roles`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to view their own roles", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/roles`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin role to view other user roles", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/roles`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/roles
+
   describe("GET /users/:id/tokens", () => {
     it("does not allow user role to view other users tokens", async () => {
       const result = await request(app)
@@ -347,6 +376,32 @@ describe("User", () => {
     });
   }); // POST /users
 
+  describe("POST /users/:id/roles", () => {
+    const testData = {
+      id: "user",
+    };
+
+    it("throws if missing data", async () => {
+      const result = await request(app)
+        .post(`/users/${newUserId}/roles`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("allows admin role to update user roles", async () => {
+      const result = await request(app)
+        .post(`/users/${newUserId}/roles`)
+        .send(testData)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      // TODO: query to confirm user has expected role
+    });
+  }); // POST /users/:id/roles
+
   describe("PUT /users/:id", () => {
     const testData = {
       email: "test@example.com",
@@ -422,6 +477,27 @@ describe("User", () => {
 
       expect(result.status).toEqual(200);
       // TODO: check cache to confirm token added to deny list
+    });
+  });
+
+  describe("DELETE /users/:id/roles/:roleId", () => {
+    it("denies user role to delete another user role", async () => {
+      const result = await request(app)
+        .delete(`/users/${adminId}/roles/1`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin to delete another user role", async () => {
+      const result = await request(app)
+        .delete(`/users/${userId}/roles/1`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      // TODO: check database to confirm role removed
     });
   });
 
