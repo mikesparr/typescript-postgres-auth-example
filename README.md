@@ -83,10 +83,12 @@ as much as possible so we could change out solutions in future without modifying
  * As an `admin`, I want to be able to **create** any `role` record, so I can manage roles in the system
  * As an `admin`, I want to be able to **edit** any `role` record, so I can manage roles in the system
  * As an `admin`, I want to be able to **delete** any `role` record, so I can manage roles and keep the system current
- * As an `admin`, I want to be able to **view** `permissions`, so I know permissions of the system and their permissions
- * As an `admin`, I want to be able to **create** any `permission` record, so I can manage permissions in the system
- * As an `admin`, I want to be able to **edit** any `permission` record, so I can manage permissions in the system
- * As an `admin`, I want to be able to **delete** any `permission` record, so I can manage permissions and keep the system current
+ * As an `admin`, I want to be able to **view** `roles` for any user, so I know users of the system and their roles
+ * As an `admin`, I want to be able to **add** any `role` record to any user, so I can manage users and their roles in the system
+ * As an `admin`, I want to be able to **remove** any `role` record from any user, so I can manage users and keep the system current
+ * As an `admin`, I want to be able to **view** `permissions` for any role, so I know permissions of the system and their permissions
+ * As an `admin`, I want to be able to **add** any `permission` record to any role, so I can manage permissions in the system
+ * As an `admin`, I want to be able to **remove** any `permission` record from any role, so I can manage permissions and keep the system current
  * As an `admin`, I want to be able to deny any user or user device token, so I can manage user and device access
 
 ### Systems Administrator
