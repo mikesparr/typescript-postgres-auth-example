@@ -71,7 +71,10 @@ class AuthenticationDao implements Dao {
     }
   }
 
-  public impersonate = async (user: User, surrogateUserId: number, userAgent: object): Promise<object | Error> => {
+  public impersonate = async (
+          user: User,
+          surrogateUserId: string | number,
+          userAgent: object): Promise<object | Error> => {
     const foundUser: User = await this.userRepository.findOne(surrogateUserId, { relations: ["roles"] });
     if (foundUser) {
       const isOwnerOrMember: boolean = false; // TODO: consider logic if manager in group

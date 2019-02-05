@@ -16,6 +16,7 @@ import { User } from "../services/user/user.entity";
  */
 const authenticationMiddleware = async (request: RequestWithUser, response: Response, next: NextFunction) => {
   const token = parseToken(request);
+  logger.debug(`Authentication: ${token}`);
 
   if (token) {
     const userRepository = getRepository(User);

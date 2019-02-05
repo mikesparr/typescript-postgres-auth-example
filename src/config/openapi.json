@@ -148,10 +148,13 @@
         }
       }
     },
-    "/impersonate/:id": {
+    "/impersonate/{id}": {
       "post": {
         "tags": ["authentication"],
         "summary": "Authenticates as surrogate user and generates new JWT auth token",
+        "security": [
+          {"bearerAuth": []}
+        ],
         "parameters": [
           {
             "name": "id",
