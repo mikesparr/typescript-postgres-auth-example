@@ -20,6 +20,8 @@ POSTGRES_PASSWORD=admin
 POSTGRES_DB=auth_example
 REDIS_URL=localhost
 SENDGRID_API_KEY={Add Your Key Here}
+ES_HOST=http://localhost:9200
+ES_LOG_LEVEL=info
 END
 
 echo "Creating test docker.env file ..."

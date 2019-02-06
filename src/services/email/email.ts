@@ -28,7 +28,7 @@ class Email {
         // log event to central handler
         event.emit("send-email", {
           action: "create",
-          actor: "System",
+          actor: {id: "System"},
           object: message,
           resource: this.resource,
           timestamp: Date.now(),

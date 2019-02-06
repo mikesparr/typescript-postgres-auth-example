@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 import logger from "./logger";
 
+import { save } from "../utils/document.helper";
+
 /**
  * Event emitter that can allow handling of application events
  * (i.e. - audit logging, CQRS-ES architecture, etc)
@@ -14,8 +16,15 @@ const event = new EventEmitter();
  * and publish to a queue for async processing. Could also flag whether to
  * save or update data in local DB.
  */
-const handleEvent = (data: {[key: string]: any}) => {
+const handleEvent = async (data: {[key: string]: any}) => {
   logger.debug(JSON.stringify(data));
+
+  // log events in document database (optionally filter by verb or whatever)
+  try {
+    await save(data, "events");
+  } catch (error) {
+    logger.error(error.message);
+  }
 };
 
 event.on("register", handleEvent);
@@ -33,12 +42,12 @@ event.on("add-user-role", handleEvent);
 event.on("add-role-permission", handleEvent);
 event.on("remove-user-role", handleEvent);
 event.on("remove-role-permission", handleEvent);
+event.on("search", handleEvent);
+event.on("send-email", handleEvent);
 // global CRUD
 event.on("read-all", handleEvent);
 event.on("read-one", handleEvent);
 event.on("save", handleEvent);
 event.on("remove", handleEvent);
-event.on("search", handleEvent);
-event.on("send-email", handleEvent);
 
 export default event;
