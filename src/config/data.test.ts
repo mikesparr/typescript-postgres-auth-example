@@ -51,7 +51,7 @@ const createTestData = async (connection: Connection) => {
   // surrogate "login as user"
   const adminSurrogate = connection.manager.create(Permission, {
     action: "create:any",
-    attributes: "*, !password, !surrogatePrincipal.password",
+    attributes: "*, !password, !ip, !surrogatePrincipal.ip, !surrogatePrincipal.password",
     resource: "surrogate",
   });
 

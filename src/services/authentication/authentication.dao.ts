@@ -62,7 +62,7 @@ class AuthenticationDao implements Dao {
       const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
         user.password = undefined;
-        return this.logUserIn(user, userAgent);
+        return await this.logUserIn(user, userAgent);
       } else {
         throw new WrongCredentialsException();
       }
@@ -75,17 +75,18 @@ class AuthenticationDao implements Dao {
           user: User,
           surrogateUserId: string | number,
           userAgent: object): Promise<object | Error> => {
-    const foundUser: User = await this.userRepository.findOne(surrogateUserId, { relations: ["roles"] });
+    const foundUser: User = await this.userRepository.findOne(surrogateUserId);
     if (foundUser) {
       const isOwnerOrMember: boolean = false; // TODO: consider logic if manager in group
       const action: string = methodActions.POST;
       const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.surrogateResource);
 
       if (permission.granted) {
-        foundUser.password = undefined;
         foundUser.surrogateEnabled = true;
         foundUser.surrogatePrincipal = user;
-        return this.logUserIn(foundUser, userAgent);
+        const loginUser: User = permission.filter(foundUser);
+
+        return await this.logUserIn(loginUser, userAgent);
       } else {
         throw new UserNotAuthorizedException(user.id, action, this.surrogateResource);
       }
