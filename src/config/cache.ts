@@ -19,7 +19,7 @@ client.on("connect", () => {
 });
 
 /**
- * Error handler for Redis cach
+ * Error handler for Redis cache
  */
 client.on("error", (cacheError) => {
   if (cacheConnectionAttempts >= MAX_CACHE_RETRY_ATTEMPTS) {
