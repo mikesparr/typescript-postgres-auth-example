@@ -16,11 +16,11 @@ import {
 } from "../flag.helper";
 
 describe("flag.helper", () => {
-  const testGoal1: Goal = {id: 1, key: "goal-one", name: "Goal One"};
-  const testGoal2: Goal = {id: 2, key: "goal-two", name: "Goal Two"};
-  const testGoal3: Goal = {id: 3, key: "goal-three", name: "Goal Three"};
-  const testGoal4: Goal = {id: 4, key: "goal-four", name: "Goal Four"};
-  const testGoal5: Goal = {id: 5, key: "goal-five", name: "Goal Five"};
+  const testGoal1: Goal = {id: "goal1", key: "goal-one", name: "Goal One"};
+  const testGoal2: Goal = {id: "goal2", key: "goal-two", name: "Goal Two"};
+  const testGoal3: Goal = {id: "goal3", key: "goal-three", name: "Goal Three"};
+  const testGoal4: Goal = {id: "goal4", key: "goal-four", name: "Goal Four"};
+  const testGoal5: Goal = {id: "goal5", key: "goal-five", name: "Goal Five"};
 
   const testVariant1: {[key: string]: any} = {
     goalIds: ["goal-one"],
@@ -53,7 +53,7 @@ describe("flag.helper", () => {
   ];
 
   const testSegment1: Segment = {
-    id: 1,
+    id: "segment1",
     included: ["test@example.com"],
     key: "us-users",
     name: "US Users",
@@ -61,7 +61,7 @@ describe("flag.helper", () => {
   };
   const testSegment2: Segment = {
     excluded: ["test@example.com"],
-    id: 2,
+    id: "segment2",
     key: "canada-users",
     name: "French Canada Users",
     rules: testRule3,
@@ -71,7 +71,7 @@ describe("flag.helper", () => {
     country: "US",
     email: "test@example.com",
     firstName: "Test",
-    id: 1,
+    id: "user1",
     language: "en_US",
     lastName: "User",
   };
@@ -79,7 +79,7 @@ describe("flag.helper", () => {
     country: "US",
     email: "test2@example.com",
     firstName: "Test",
-    id: 1,
+    id: "user2",
     language: "en_US",
     lastName: "User",
   };
@@ -87,7 +87,7 @@ describe("flag.helper", () => {
     country: "CA",
     email: "test3@example.com",
     firstName: "Test",
-    id: 1,
+    id: "user3",
     language: "fr_CA",
     lastName: "User",
   };
@@ -95,7 +95,7 @@ describe("flag.helper", () => {
   const testFlag1: Flag = {
     archived: false,
     enabled: false,
-    id: 1,
+    id: "flag1",
     key: "greeting",
     name: "User greeting",
     segments: [testSegment1],
@@ -105,7 +105,7 @@ describe("flag.helper", () => {
   const testFlag2: Flag = {
     archived: false,
     enabled: false,
-    id: 2,
+    id: "flag2",
     key: "holiday.greeting",
     name: "Holiday greeting",
     segments: [testSegment2],
@@ -115,7 +115,7 @@ describe("flag.helper", () => {
   const testFlag3: Flag = {
     archived: false,
     enabled: false,
-    id: 3,
+    id: "flag3",
     key: "holiday.greeting",
     name: "Holiday greeting",
     segments: [testSegment2],
@@ -132,7 +132,7 @@ describe("flag.helper", () => {
         type: EnvironmentType.TEST,
       } as Environment,
     },
-    id: 3,
+    id: "flag4",
     key: "holiday.greeting",
     name: "Holiday greeting",
     segments: [testSegment2],
