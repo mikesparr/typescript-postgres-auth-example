@@ -73,7 +73,7 @@ class AuthenticationDao implements Dao {
 
   public impersonate = async (
           user: User,
-          surrogateUserId: string | number,
+          surrogateUserId: string,
           userAgent: object): Promise<object | Error> => {
     const foundUser: User = await this.userRepository.findOne(surrogateUserId);
     if (foundUser) {
@@ -277,7 +277,7 @@ class AuthenticationDao implements Dao {
             Promise<NotImplementedException> => {
     throw new NotImplementedException("getAll");
   }
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("getOne");
   }
@@ -285,7 +285,7 @@ class AuthenticationDao implements Dao {
             Promise<NotImplementedException> => {
     throw new NotImplementedException("save");
   }
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("remove");
   }

@@ -5,7 +5,7 @@ import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
 
 beforeAll(async () => {

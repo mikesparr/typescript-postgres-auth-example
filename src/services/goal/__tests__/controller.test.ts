@@ -7,11 +7,11 @@ import App from "../../../app";
 import { Goal } from "../../goal/goal.entity";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
-let newGoalId: number | string;
+let newGoalId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -48,52 +48,12 @@ afterAll(async () => {
   const goalToRemove: Goal = await connection.manager.findOne(Goal, newGoalId);
 
   // only remove new goals if a test failed and they exist
-  if (goalToRemove && goalToRemove.id !== 1) {
+  if (goalToRemove) {
     await connection.manager.delete(Goal, goalToRemove);
   }
 });
 
 describe("Goal", () => {
-  describe("GET /goals", () => {
-    it("denies user goal access", async () => {
-      const result = await request(app)
-        .get("/goals")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin goal access with toggles", async () => {
-      const result = await request(app)
-        .get("/goals")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /goals
-
-  describe("GET /goals/:id", () => {
-    it("denies user goal access", async () => {
-      const result = await request(app)
-        .get("/goals/1")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin goal access with toggles", async () => {
-      const result = await request(app)
-        .get("/goals/1")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /goals:id
-
   describe("POST /goals", () => {
     const testData = {
       key: "test",
@@ -145,6 +105,46 @@ describe("Goal", () => {
       expect(result.status).toEqual(200);
     });
   }); // POST /goals
+
+  describe("GET /goals", () => {
+    it("denies user goal access", async () => {
+      const result = await request(app)
+        .get("/goals")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin goal access with toggles", async () => {
+      const result = await request(app)
+        .get("/goals")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /goals
+
+  describe("GET /goals/:id", () => {
+    it("denies user goal access", async () => {
+      const result = await request(app)
+        .get(`/goals/${newGoalId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin goal access with toggles", async () => {
+      const result = await request(app)
+        .get(`/goals/${newGoalId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /goals:id
 
   describe("PUT /goals/:id", () => {
     const testData = {

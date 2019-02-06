@@ -7,11 +7,11 @@ import App from "../../../app";
 import { User } from "../../user/user.entity";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
-let newUserId: number | string;
+let newUserId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -48,138 +48,12 @@ afterAll(async () => {
   const recordToRemove: User = await connection.manager.findOne(User, newUserId);
 
   // only remove new user if a test failed and they exist
-  if (recordToRemove && recordToRemove.id > 3) {
+  if (recordToRemove) {
     await connection.manager.delete(User, recordToRemove);
   }
 });
 
 describe("User", () => {
-  describe("GET /users", () => {
-    it("allows user role access but without age or password", async () => {
-      const result = await request(app)
-        .get("/users")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body[0].age).toBeUndefined();
-      expect(result.body[0].password).toBeUndefined();
-    });
-
-    it("allows admin role access with age but no password", async () => {
-      const result = await request(app)
-        .get("/users")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body[0].age).toBeDefined();
-      expect(result.body[0].password).toBeUndefined();
-    });
-  }); // GET /users
-
-  describe("GET /users/:id", () => {
-    it("allows user role access without age or password", async () => {
-      const result = await request(app)
-        .get("/users/1")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.age).toBeUndefined();
-      expect(result.body.password).toBeUndefined();
-    });
-
-    it("allows admin role access with with age but no password", async () => {
-      const result = await request(app)
-        .get("/users/1")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.age).toBeDefined();
-      expect(result.body.password).toBeUndefined();
-    });
-  }); // GET /users/:id
-
-  describe("GET /users/:id/roles", () => {
-    it("does not allow user role to view other users roles", async () => {
-      const result = await request(app)
-        .get(`/users/${adminId}/roles`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin role to view other user roles", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/roles`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /users/:id/roles
-
-  describe("GET /users/:id/tokens", () => {
-    it("does not allow user role to view other users tokens", async () => {
-      const result = await request(app)
-        .get(`/users/${adminId}/tokens`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows user role to view their own tokens", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/tokens`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-
-    it("allows admin role to view other user tokens", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/tokens`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /users/:id/tokens
-
-  describe("GET /users/:id/flags", () => {
-    it("does not allow user to view other users flags", async () => {
-      const result = await request(app)
-        .get(`/users/${adminId}/flags`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows user role to view their own flags", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/flags`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-
-    it("allows admin role to view other user flags", async () => {
-      const result = await request(app)
-        .get(`/users/${userId}/flags`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /users/:id/flags
-
   describe("POST /users", () => {
     const testData = {
       age: 30,
@@ -392,6 +266,132 @@ describe("User", () => {
       // TODO: query to confirm user has expected role
     });
   }); // POST /users/:id/roles
+
+  describe("GET /users", () => {
+    it("allows user role access but without age or password", async () => {
+      const result = await request(app)
+        .get("/users")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body[0].age).toBeUndefined();
+      expect(result.body[0].password).toBeUndefined();
+    });
+
+    it("allows admin role access with age but no password", async () => {
+      const result = await request(app)
+        .get("/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body[0].age).toBeDefined();
+      expect(result.body[0].password).toBeUndefined();
+    });
+  }); // GET /users
+
+  describe("GET /users/:id", () => {
+    it("allows user role access without age or password", async () => {
+      const result = await request(app)
+        .get(`/users/${newUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.age).toBeUndefined();
+      expect(result.body.password).toBeUndefined();
+    });
+
+    it("allows admin role access with with age but no password", async () => {
+      const result = await request(app)
+        .get(`/users/${newUserId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.age).toBeDefined();
+      expect(result.body.password).toBeUndefined();
+    });
+  }); // GET /users/:id
+
+  describe("GET /users/:id/roles", () => {
+    it("does not allow user role to view other users roles", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/roles`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin role to view other user roles", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/roles`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/roles
+
+  describe("GET /users/:id/tokens", () => {
+    it("does not allow user role to view other users tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to view their own tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin role to view other user tokens", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/tokens`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/tokens
+
+  describe("GET /users/:id/flags", () => {
+    it("does not allow user to view other users flags", async () => {
+      const result = await request(app)
+        .get(`/users/${adminId}/flags`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows user role to view their own flags", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/flags`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+
+    it("allows admin role to view other user flags", async () => {
+      const result = await request(app)
+        .get(`/users/${userId}/flags`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/flags
 
   describe("PUT /users/:id", () => {
     const testData = {

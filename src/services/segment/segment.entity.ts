@@ -8,8 +8,8 @@ import { Rule, RuleType } from "../../interfaces/rule.interface";
 @Entity()
 export class Segment {
 
-  @PrimaryGeneratedColumn()
-  public id: number;
+  @PrimaryGeneratedColumn("uuid")
+  public id: string;
 
   @Column()
   public key: string;

@@ -52,7 +52,7 @@ class SegmentDao implements Dao {
     }
   }
 
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
     const record = await this.segmentRepository.findOne(id, { relations: ["flags"] });
@@ -111,7 +111,7 @@ class SegmentDao implements Dao {
     }
   }
 
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.segmentRepository.findOne(id);
 

@@ -59,7 +59,7 @@ class SearchDao implements Dao {
     throw new NotImplementedException("getAll");
   }
 
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("getOne");
   }
@@ -69,7 +69,7 @@ class SearchDao implements Dao {
     throw new NotImplementedException("save");
   }
 
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("remove");
   }

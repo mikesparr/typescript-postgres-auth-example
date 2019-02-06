@@ -13,7 +13,7 @@ import { User } from "../services/user/user.entity";
  * Keys for cache
  */
 const DENYLIST_KEY: string = "token:denylist";
-const USER_TOKENS_KEY = (userId: number | string): string => `user:${userId}:tokens`;
+const USER_TOKENS_KEY = (userId: string): string => `user:${userId}:tokens`;
 
 /**
  * Token Types

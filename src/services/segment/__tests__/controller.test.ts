@@ -7,11 +7,11 @@ import App from "../../../app";
 import { Segment } from "../../segment/segment.entity";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
-let newSegmentId: number | string;
+let newSegmentId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -48,53 +48,13 @@ afterAll(async () => {
   const segmentToRemove: Segment = await connection.manager.findOne(Segment, newSegmentId);
 
   // only remove new segments if a test failed and they exist
-  if (segmentToRemove && segmentToRemove.id !== 1) {
+  if (segmentToRemove) {
     segmentToRemove.deleted = true;
     await connection.manager.save(Segment, segmentToRemove);
   }
 });
 
 describe("Segment", () => {
-  describe("GET /segments", () => {
-    it("denies user segment access", async () => {
-      const result = await request(app)
-        .get("/segments")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin segment access with toggles", async () => {
-      const result = await request(app)
-        .get("/segments")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /segments
-
-  describe("GET /segments/:id", () => {
-    it("denies user segment access", async () => {
-      const result = await request(app)
-        .get("/segments/1")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin segment access with toggles", async () => {
-      const result = await request(app)
-        .get("/segments/1")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /segments:id
-
   describe("POST /segments", () => {
     const testData = {
       key: "test",
@@ -146,6 +106,46 @@ describe("Segment", () => {
       expect(result.status).toEqual(200);
     });
   }); // POST /segments
+
+  describe("GET /segments", () => {
+    it("denies user segment access", async () => {
+      const result = await request(app)
+        .get("/segments")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin segment access with toggles", async () => {
+      const result = await request(app)
+        .get("/segments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /segments
+
+  describe("GET /segments/:id", () => {
+    it("denies user segment access", async () => {
+      const result = await request(app)
+        .get(`/segments/${newSegmentId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin segment access with toggles", async () => {
+      const result = await request(app)
+        .get(`/segments/${newSegmentId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /segments:id
 
   describe("PUT /segments/:id", () => {
     const testData = {

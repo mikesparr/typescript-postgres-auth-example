@@ -16,7 +16,7 @@ import { Environment } from "../interfaces/environment.interface";
  * Keys for cache
  */
 const FEATURE_FLAGS_KEY = "feature:flags";
-const USER_FLAGS_KEY = (userId: number | string) => `user:${userId}:flags`;
+const USER_FLAGS_KEY = (userId: string) => `user:${userId}:flags`;
 
 /**
  * Convenience functions for processing user flag lookup

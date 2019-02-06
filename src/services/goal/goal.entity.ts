@@ -7,8 +7,8 @@ import { Flag } from "../flag/flag.entity";
 @Entity()
 export class Goal {
 
-  @PrimaryGeneratedColumn()
-  public id: number;
+  @PrimaryGeneratedColumn("uuid")
+  public id: string;
 
   @Column()
   public key: string;

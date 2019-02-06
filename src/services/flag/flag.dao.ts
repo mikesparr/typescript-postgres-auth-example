@@ -52,7 +52,7 @@ class FlagDao implements Dao {
     }
   }
 
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
     const record = await this.flagRepository.findOne(id, { relations: ["segments", "goals"] });
@@ -111,7 +111,7 @@ class FlagDao implements Dao {
     }
   }
 
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.flagRepository.findOne(id);
 

@@ -15,8 +15,8 @@ export enum FlagType {
 @Entity()
 export class Flag {
 
-  @PrimaryGeneratedColumn()
-  public id: number;
+  @PrimaryGeneratedColumn("uuid")
+  public id: string;
 
   @Column()
   public key: string;

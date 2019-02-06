@@ -9,9 +9,9 @@ import UserEmailDto from "../email.dto";
 
 let app: Application;
 let testAuthToken: string;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
 
 beforeAll(async () => {

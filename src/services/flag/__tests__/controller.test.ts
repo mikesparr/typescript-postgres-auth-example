@@ -7,11 +7,11 @@ import App from "../../../app";
 import { Flag } from "../../flag/flag.entity";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
-let newFlagId: number | string;
+let newFlagId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -48,52 +48,12 @@ afterAll(async () => {
   const flagToRemove: Flag = await connection.manager.findOne(Flag, newFlagId);
 
   // only remove new flags if a test failed and they exist
-  if (flagToRemove && flagToRemove.id !== 1) {
+  if (flagToRemove) {
     await connection.manager.delete(Flag, flagToRemove);
   }
 });
 
 describe("Flag", () => {
-  describe("GET /flags", () => {
-    it("denies user flag access", async () => {
-      const result = await request(app)
-        .get("/flags")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin flag access with rules and goals", async () => {
-      const result = await request(app)
-        .get("/flags")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /flags
-
-  describe("GET /flags/:id", () => {
-    it("denies user flag access", async () => {
-      const result = await request(app)
-        .get("/flags/1")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin flag access with rules and goals", async () => {
-      const result = await request(app)
-        .get("/flags/1")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /flags:id
-
   describe("POST /flags", () => {
     const testData = {
       key: "test",
@@ -163,6 +123,46 @@ describe("Flag", () => {
       expect(result.status).toEqual(200);
     });
   }); // POST /flags
+
+  describe("GET /flags", () => {
+    it("denies user flag access", async () => {
+      const result = await request(app)
+        .get("/flags")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin flag access with rules and goals", async () => {
+      const result = await request(app)
+        .get("/flags")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /flags
+
+  describe("GET /flags/:id", () => {
+    it("denies user flag access", async () => {
+      const result = await request(app)
+        .get(`/flags/${newFlagId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin flag access with rules and goals", async () => {
+      const result = await request(app)
+        .get(`/flags/${newFlagId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /flags:id
 
   describe("PUT /flags/:id", () => {
     const testData = {

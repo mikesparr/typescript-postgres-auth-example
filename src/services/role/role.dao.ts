@@ -56,7 +56,7 @@ class RoleDao implements Dao {
     }
   }
 
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
@@ -114,7 +114,7 @@ class RoleDao implements Dao {
     }
   }
 
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.roleRepository.findOne(id);
 
@@ -146,7 +146,7 @@ class RoleDao implements Dao {
     }
   }
 
-  public getPermissions = async (user: User, id: string | number):
+  public getPermissions = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
@@ -176,7 +176,7 @@ class RoleDao implements Dao {
     }
   }
 
-  public addPermission = async (user: User, id: number, data: any):
+  public addPermission = async (user: User, id: string, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const newRecord: Permission = data;
 
@@ -214,7 +214,7 @@ class RoleDao implements Dao {
     }
   }
 
-  public removePermission = async (user: User, id: number, permissionId: string):
+  public removePermission = async (user: User, id: string, permissionId: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
 
     const isOwnerOrMember: boolean = false;

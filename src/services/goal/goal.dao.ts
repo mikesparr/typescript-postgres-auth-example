@@ -52,7 +52,7 @@ class GoalDao implements Dao {
     }
   }
 
-  public getOne = async (user: User, id: string | number):
+  public getOne = async (user: User, id: string):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
     logger.info(`Fetching ${this.resource} with ID ${id}`);
     const record = await this.goalRepository.findOne(id, { relations: ["flags"] });
@@ -111,7 +111,7 @@ class GoalDao implements Dao {
     }
   }
 
-  public remove = async (user: User, id: string | number):
+  public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const recordToRemove = await this.goalRepository.findOne(id);
 

@@ -7,12 +7,12 @@ import App from "../../../app";
 import { Role } from "../../role/role.entity";
 
 let app: Application;
-let userId: number | string;
+let userId: string;
 let userToken: string;
-let adminId: number | string;
+let adminId: string;
 let adminToken: string;
-let newRoleId: number | string;
-let newPermissionId: number | string;
+let newRoleId: string;
+let newPermissionId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
