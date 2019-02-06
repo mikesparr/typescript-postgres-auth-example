@@ -50,18 +50,18 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-
-      - run:
-          name: Wait for Elasticsearch
-          command: dockerize -wait tcp://localhost:9200 -timeout 1m
-      
-      - run:
-          name: Wait for Postgres
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       
       - run:
           name: Wait for Redis
           command: dockerize -wait tcp://localhost:6379 -timeout 1m
+
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 2m
+
+      - run:
+          name: Wait for Elasticsearch
+          command: dockerize -wait tcp://localhost:9200 -timeout 3m
 
       # run tests!
       - run: 
