@@ -16,6 +16,7 @@ gather input from peers.
  4. Make note of generated files and change to your preferences
     * IMPORTANT: when deploying app, don't use the `.env` file, simply set vars in your CI provider or container manager
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
+    * IMPORTANT: run `./setup_es.sh` to create index mapping templates for Elasticsearch after startup
  This will spin up Postgres, PGAdmin, and Redis
  6. Start up app in developer mode to create database tables, then stop
     * `npm run dev`
@@ -24,17 +25,19 @@ gather input from peers.
     * `npm run test`
  8. Start up app in developer mode (will watch and recompile for changes)
     * `npm run dev`
- 9. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
+ 9. Open browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
  10. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
-    * click on "Servers" and then "Object > Create > Server"
-    * "General > Name" the connection "Test Server"
-    * click on "Connection" tab:
-      * Host: `postgres` (network exposed by docker-compose)
-      * Maintenance database: `auth_example` (or whatever you set in ENV vars)
-      * Password: `admin` (or whatever you set in ENV vars)
-    * click on "Save"
-    * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
-
+     * click on "Servers" and then "Object > Create > Server"
+     * "General > Name" the connection "Test Server"
+     * click on "Connection" tab:
+       * Host: `postgres` (network exposed by docker-compose)
+       * Maintenance database: `auth_example` (or whatever you set in ENV vars)
+       * Password: `admin` (or whatever you set in ENV vars)
+     * click on "Save"
+     * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
+ 11. Open browser tab to [Kibana](http://localhost:5601) for Elasticsearch Admin
+     * You will have to know a little about ES if you choose to use it
+     
 # Testing
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
  * `npm test` or `npm run coverage`

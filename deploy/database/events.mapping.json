@@ -1,0 +1,139 @@
+{
+	"index_patterns": "events*",
+	"settings": {
+		"index": {
+			"number_of_shards": 5,
+			"number_of_replicas": 1
+		},
+		"analysis": {
+			"char_filter": {
+				"digits_only": {
+					"type": "pattern_replace",
+					"pattern": "[^\\d]"
+				}
+			},
+			"filter": {
+				"autocomplete_filter": {
+					"type": "edge_ngram",
+					"min_gram": 2,
+					"max_gram": 20
+				},
+				"us_phone_number": {
+					"type": "pattern_capture",
+					"preserve_original": true,
+					"patterns": [
+						"1?(1)(\\d*)"
+					]
+				},
+				"ten_digits_min": {
+					"type": "length",
+					"min": 10
+				},
+				"not_empty": {
+					"type": "length",
+					"min": 1
+				}
+			},
+			"tokenizer": {
+				"whitespace": {
+					"type": "whitespace"
+				}
+			},
+			"normalizer": {
+				"lower_case": {
+					"type": "custom",
+					"char_filter": [],
+					"filter": ["lowercase", "asciifolding"]
+				}
+			},
+			"analyzer": {
+				"autocomplete": {
+					"type": "custom",
+					"tokenizer": "standard",
+					"filter": [
+						"lowercase",
+						"autocomplete_filter"
+					]
+				},
+				"fingerprint_en": {
+					"type": "fingerprint",
+					"stopwords": "_english_"
+				},
+				"urls-links-emails": {
+					"type": "custom",
+					"tokenizer": "uax_url_email"
+				},
+				"address": {
+					"type": "custom",
+					"tokenizer": "whitespace",
+					"filter": ["trim", "lowercase"]
+				},
+				"phone_number": {
+					"char_filter": "digits_only",
+					"tokenizer": "keyword",
+					"filter": [
+						"us_phone_number",
+						"ten_digits_min"
+					]
+				},
+				"phone_number_search": {
+					"char_filter": "digits_only",
+					"tokenizer": "keyword",
+					"filter": [
+						"not_empty"
+					]
+				}
+			}
+		}
+	},
+	"mappings": {
+		"_doc": {
+			"dynamic": false,
+			"properties": {
+        "action": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "actor": {
+          "type": "object",
+          "dynamic": true
+        },
+        "object": {
+          "type": "object",
+          "dynamic": true
+        },
+        "resource": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "target": {
+          "type": "object",
+          "dynamic": true
+        },
+        "timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "verb": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    }
+  }
+}

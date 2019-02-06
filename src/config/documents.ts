@@ -2,7 +2,7 @@ import { Client } from "elasticsearch";
 import logger from "./logger";
 
 const options: {[key: string]: any} = {
-  host: process.env.ES_HOST || "localhost:9200",
+  host: process.env.ES_HOST || "http://localhost:9200",
   log: process.env.ES_LOG_LEVEL || "debug",
 };
 
