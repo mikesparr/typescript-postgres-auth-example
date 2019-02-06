@@ -16,8 +16,8 @@ gather input from peers.
  4. Make note of generated files and change to your preferences
     * IMPORTANT: when deploying app, don't use the `.env` file, simply set vars in your CI provider or container manager
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
+    * This will spin up Postgres, PGAdmin, Elasticsearch, Kibana, and Redis
     * IMPORTANT: run `./setup_es.sh` to create index mapping templates for Elasticsearch after startup
- This will spin up Postgres, PGAdmin, and Redis
  6. Start up app in developer mode to create database tables, then stop
     * `npm run dev`
     * `CTRL + C`
@@ -37,7 +37,7 @@ gather input from peers.
      * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
  11. Open browser tab to [Kibana](http://localhost:5601) for Elasticsearch Admin
      * You will have to know a little about ES if you choose to use it
-     
+
 # Testing
 This app includes automated tests using **Supertest** and **Jest** to test routes, etc.
  * `npm test` or `npm run coverage`
