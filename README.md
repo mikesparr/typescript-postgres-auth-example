@@ -17,12 +17,15 @@ gather input from peers.
     * IMPORTANT: when deploying app, don't use the `.env` file, simply set vars in your CI provider or container manager
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
  This will spin up Postgres, PGAdmin, and Redis
- 6. Run tests (will create test data)
-    * `npm run test`
- 7. Start up app in developer mode (will watch and recompile for changes)
+ 6. Start up app in developer mode to create database tables, then stop
     * `npm run dev`
- 8. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
- 9. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
+    * `CTRL + C`
+ 7. Run tests (will load up test data in tables)
+    * `npm run test`
+ 8. Start up app in developer mode (will watch and recompile for changes)
+    * `npm run dev`
+ 9. Open another browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
+ 10. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
     * click on "Servers" and then "Object > Create > Server"
     * "General > Name" the connection "Test Server"
     * click on "Connection" tab:
