@@ -27,6 +27,9 @@ jobs:
           - network.host: 127.0.0.1
           - http.port: 9200
           - discovery.type: single-node
+          - bootstrap.memory_lock: true
+          - ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          - _JAVA_OPTIONS: "-Xms1024m -Xmx1024m"
 
     steps:
       - checkout
