@@ -10,6 +10,7 @@ import { User } from "../services/user/user.entity";
 import { Flag } from "../services/flag/flag.entity";
 import { Goal } from "../services/goal/goal.entity";
 import { Segment } from "../services/segment/segment.entity";
+import { Environment } from "../interfaces/environment.interface";
 
 /**
  * Keys for cache
@@ -153,13 +154,37 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
       let addFlag: boolean = false;
       let flagKey: string;
 
-      // TODO: filterFlagForEnvironment
-      // (if exists, will only include segments, targetEmails, variants for env)
+      // check for environment-specific config and override values
+      if (!flag.archived) {
+        if (flag.environments && flag.environments.hasOwnProperty(process.env.NODE_ENV)) {
+          const environmentConfig: Environment = flag.environments[process.env.NODE_ENV];
+          if (environmentConfig) {
+            logger.debug(`Overriding flag config for environment ${process.env.NODE_ENV}`);
+            flag.targetEmails = environmentConfig.targetEmails;
+            flag.goals = environmentConfig.goalIds ?
+              environmentConfig.goalIds.map((goalId) => ({ key: goalId })) as Goal[] : [];
+            flag.segments = environmentConfig.segmentKeys ?
+              environmentConfig.segmentKeys.map((key) => ({ key })) as Segment[] : [];
+            flag.enabled = environmentConfig.enabled;
+          }
+        }
 
-      if (!flag.archived && flag.segments && flag.segments.length > 0) {
-        const userInSegments: boolean = await evaluateSegments(user, flag.segments);
-        if (userInSegments) {
+        if (flag.enabled) {
+          logger.debug(`Flag was enabled so adding flag ${flag.key}`);
           addFlag = true;
+        }
+
+        if (flag.targetEmails && inArray(flag.targetEmails, user.email)) {
+          logger.debug(`Target email matched so adding flag ${flag.key}`);
+          addFlag = true;
+        }
+
+        if (flag.segments && flag.segments.length > 0) {
+          const userInSegments: boolean = await evaluateSegments(user, flag.segments);
+          if (userInSegments) {
+            logger.debug(`User was in segment so adding flag ${flag.key}`);
+            addFlag = true;
+          }
         }
       }
 

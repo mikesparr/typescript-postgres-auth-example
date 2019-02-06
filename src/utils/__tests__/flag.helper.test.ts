@@ -4,6 +4,7 @@ import { Goal } from "../../services/goal/goal.entity";
 import { Segment } from "../../services/segment/segment.entity";
 import { Rule, RuleType } from "../../interfaces/rule.interface";
 import IVariant from "../../interfaces/variant.interface";
+import { Environment, EnvironmentType } from "../../interfaces/environment.interface";
 
 import {
   inArray,
@@ -104,10 +105,38 @@ describe("flag.helper", () => {
   const testFlag2: Flag = {
     archived: false,
     enabled: false,
-    id: 1,
+    id: 2,
     key: "holiday.greeting",
     name: "Holiday greeting",
     segments: [testSegment2],
+    temporary: true,
+    variants: null,
+  };
+  const testFlag3: Flag = {
+    archived: false,
+    enabled: false,
+    id: 3,
+    key: "holiday.greeting",
+    name: "Holiday greeting",
+    segments: [testSegment2],
+    targetEmails: ["test2@example.com"],
+    temporary: true,
+    variants: null,
+  };
+  const testFlag4: Flag = {
+    archived: false,
+    enabled: false,
+    environments: {
+      test: {
+        targetEmails: ["test3@example.com"],
+        type: EnvironmentType.TEST,
+      } as Environment,
+    },
+    id: 3,
+    key: "holiday.greeting",
+    name: "Holiday greeting",
+    segments: [testSegment2],
+    targetEmails: ["test2@example.com"],
     temporary: true,
     variants: null,
   };
@@ -257,9 +286,17 @@ describe("flag.helper", () => {
       expect(results[0].key).toEqual("holiday.greeting");
     });
 
-    // TODO: add tests for targetEmails
+    it("returns list of feature flag objects (user2: targetEmails)", async () => {
+      const results: Array<{[key: string]: any}> = await getFlagsForUser(testUser2, [testFlag3]);
+      expect(results.length).toEqual(1); // just just be flag 3
+      expect(results[0].key).toEqual("holiday.greeting");
+    });
 
-    // TODO: add tests for environments
+    it("returns list of feature flag objects (user3: environments)", async () => {
+      const results: Array<{[key: string]: any}> = await getFlagsForUser(testUser3, [testFlag4]);
+      expect(results.length).toEqual(1); // just just be flag 3
+      expect(results[0].key).toEqual("holiday.greeting");
+    });
 
   }); // getFlagsForUser
 });
