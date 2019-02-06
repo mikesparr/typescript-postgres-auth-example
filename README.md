@@ -18,6 +18,7 @@ gather input from peers.
  5. `docker-compose up` (may need to edit the paths or permissions on your computer)
     * This will spin up Postgres, PGAdmin, Elasticsearch, Kibana, and Redis
     * IMPORTANT: run `./setup_es.sh` to create index mapping templates for Elasticsearch after startup
+    * To stop them, and remove local volumes: `docker-compose down -v`
  6. Start up app in developer mode to create database tables, then stop
     * `npm run dev`
     * `CTRL + C`
