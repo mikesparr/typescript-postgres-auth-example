@@ -165,6 +165,8 @@ same methods to keep the app DRY.
  * [Testing: Docker Compose](https://docs.docker.com/compose/)
  * [Testing: Postgres Admin](https://www.pgadmin.org/)
  * [Testing: Redis CLI](https://redis.io/topics/rediscli)
+ * [Formatting: MomentJS](https://www.npmjs.com/package/moment)
+ * [Formatting: Google Phonelib](https://www.npmjs.com/package/google-libphonenumber)
 
 # Inspiration / Credits
 As I wanted to piece together RBAC/ABAC using popular stack choices, I found several good examples online. I'd 
