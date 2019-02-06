@@ -31,6 +31,12 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -45,10 +51,22 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+      - run:
+          name: Wait for Elasticsearch
+          command: dockerize -wait tcp://localhost:9200 -timeout 1m
+
       # run tests!
-      - run: printenv
-      - run: ./setup_es.sh
-      - run: npm run lint && npm run test
+      - run: 
+          name: Check ENV vars set
+          command: printenv
+
+      - run: 
+          name: Setup Elasticsearch mapping templates
+          command: ./setup_es.sh
+
+      - run: 
+          name: Lint and test the app
+          command: npm run lint && npm run test
 
 workflows:
   version: 2
