@@ -122,15 +122,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "user": {
-                      "$ref": "#/components/schemas/UserResponse"
-                    },
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -207,7 +199,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Success flag"
+            "description": "Success flag",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
           },
           "default": {
             "description": "Unexpected error",
@@ -1827,14 +1826,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/Role"
-            }
+            "$ref": "#/components/schemas/Role"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -1903,14 +1899,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/Permission"
-            }
+            "$ref": "#/components/schemas/Permission"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2048,14 +2041,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/User"
-            }
+            "$ref": "#/components/schemas/User"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2086,14 +2076,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/UserFlag"
-            }
+            "$ref": "#/components/schemas/UserFlag"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2205,14 +2192,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/Goal"
-            }
+            "$ref": "#/components/schemas/Goal"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2286,34 +2270,19 @@
             "minimum": 1,
             "properties": {
               "development": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "test": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "staging": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "performance": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "production": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               }
             }
           },
@@ -2385,34 +2354,19 @@
             "minimum": 1,
             "properties": {
               "development": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "test": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "staging": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "performance": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               },
               "production": {
-                "type": "object",
-                "schema": {
-                  "$ref": "#/components/schemas/Environment"
-                }
+                "$ref": "#/components/schemas/Environment"
               }
             }
           },
@@ -2432,14 +2386,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/Flag"
-            }
+            "$ref": "#/components/schemas/Flag"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2463,32 +2414,35 @@
         }
       },
       "Segment": {
-        "id": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        },
-        "included": {
-          "type": "array",
-          "items": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string"
-          }
-        },
-        "excluded": {
-          "type": "array",
-          "items": {
+          },
+          "key": {
             "type": "string"
+          },
+          "included": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excluded": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rule"
+            }
+          },
+          "deleted": {
+            "type": "boolean"
           }
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "$ref": "#/components/schemas/Rule"
-          }
-        },
-        "deleted": {
-          "type": "boolean"
         }
       },
       "SegmentInput": {
@@ -2528,14 +2482,11 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "schema": {
-              "$ref": "#/components/schemas/Segment"
-            }
+            "$ref": "#/components/schemas/Segment"
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2628,7 +2579,7 @@
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2659,11 +2610,19 @@
         ],
         "properties": {
           "data": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/User"
+              },
+              "token": {
+                "type": "string"
+              }
+            }
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2698,7 +2657,7 @@
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2733,7 +2692,7 @@
           },
           "meta": {
             "type": "object",
-            "properites": {
+            "properties": {
               "length": {
                 "type": "integer"
               },
@@ -2774,39 +2733,7 @@
         }
       }
     },
-    "responses": {
-      "default": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object"
-          },
-          "meta": {
-            "type": "object",
-            "properites": {
-              "length": {
-                "type": "integer"
-              },
-              "took": {
-                "type": "integer"
-              },
-              "total": {
-                "type": "integer"
-              }
-            }
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ErrorModel"
-            }
-          },
-          "message": {
-            "type": "string"
-          } 
-        }
-      }
-    },
+    "responses": {},
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
