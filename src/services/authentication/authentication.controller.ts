@@ -4,6 +4,7 @@ import { parseToken } from "../../utils/authentication.helper";
 import addUserAgent from "../../middleware/ua.middleware";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import UserEmailDto from "./email.dto";
 import UserLoginDto from "./login.dto";
@@ -18,6 +19,7 @@ class AuthenticationController implements Controller {
   public path: string = "";
   public router: Router = Router();
 
+  private fmt: Formatter = new Formatter();
   private authenticationDao: AuthenticationDao = new AuthenticationDao();
 
   constructor() {
@@ -43,7 +45,8 @@ class AuthenticationController implements Controller {
     const loginData: UserLoginDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.login(loginData, request.userAgent));
+      const data: any = await this.authenticationDao.login(loginData, request.userAgent);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -56,7 +59,8 @@ class AuthenticationController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.authenticationDao.impersonate(request.user, id, request.userAgent));
+      const data: any = await this.authenticationDao.impersonate(request.user, id, request.userAgent);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -67,7 +71,8 @@ class AuthenticationController implements Controller {
    */
   private logout = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.authenticationDao.logout(request.user, parseToken(request)));
+      const data: any = await this.authenticationDao.logout(request.user, parseToken(request));
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -80,7 +85,8 @@ class AuthenticationController implements Controller {
     const userData: CreateUserDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.register(userData, request.userAgent));
+      const data: any = await this.authenticationDao.register(userData, request.userAgent);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -110,7 +116,8 @@ class AuthenticationController implements Controller {
     const userData: UserEmailDto = request.body;
 
     try {
-      response.send(await this.authenticationDao.lostPassword(userData, request.userAgent));
+      const data: any = await this.authenticationDao.lostPassword(userData, request.userAgent);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -120,7 +127,8 @@ class AuthenticationController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.authenticationDao.removeToken(request.user, id));
+      const data: any = await this.authenticationDao.removeToken(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -131,7 +139,7 @@ class AuthenticationController implements Controller {
    * orchestration or other load balancing tools
    */
   private healthCheck = async (request: Request, response: Response, next: NextFunction) => {
-    response.send("OK");
+    response.send(this.fmt.formatResponse({success: true}, 0, "OK"));
   }
 
 }

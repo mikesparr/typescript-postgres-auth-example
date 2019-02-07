@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import UserDao from "./user.dao";
 import CreateUserDto from "./user.dto";
@@ -14,6 +15,8 @@ import AddRoleDto from "../role/addrole.dto";
 class UserController implements Controller {
   public path: string = "/users";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private userDao: UserDao = new UserDao();
 
   constructor() {
@@ -39,7 +42,8 @@ class UserController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.userDao.getAll(request.user));
+      const data: any = await this.userDao.getAll(request.user);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -49,7 +53,8 @@ class UserController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.userDao.getOne(request.user, id));
+      const data: any = await this.userDao.getOne(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -59,7 +64,8 @@ class UserController implements Controller {
     const newRecord: CreateUserDto = request.body;
 
     try {
-      response.send(await this.userDao.save(request.user, newRecord));
+      const data: any = await this.userDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -69,7 +75,8 @@ class UserController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.userDao.remove(request.user, id));
+      const data: any = await this.userDao.remove(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -79,7 +86,8 @@ class UserController implements Controller {
     const { id } = request.params; // id of user to get flags for
 
     try {
-      response.send(await this.userDao.getFlags(request.user, id));
+      const data: any = await this.userDao.getFlags(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -89,7 +97,8 @@ class UserController implements Controller {
     const { id } = request.params; // id of user to get tokens for
 
     try {
-      response.send(await this.userDao.getTokens(request.user, id));
+      const data: any = await this.userDao.getTokens(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -99,7 +108,8 @@ class UserController implements Controller {
     const { id, tokenId } = request.params;
 
     try {
-      response.send(await this.userDao.removeToken(request.user, id, tokenId));
+      const data: any = await this.userDao.removeToken(request.user, id, tokenId);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -109,7 +119,8 @@ class UserController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.userDao.removeAllTokens(request.user, id));
+      const data: any = await this.userDao.removeAllTokens(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -120,7 +131,8 @@ class UserController implements Controller {
     const newRecord: AddRoleDto = request.body;
 
     try {
-      response.send(await this.userDao.addRole(request.user, id, newRecord));
+      const data: any = await this.userDao.addRole(request.user, id, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -130,7 +142,8 @@ class UserController implements Controller {
     const { id } = request.params; // id of user to get roles for
 
     try {
-      response.send(await this.userDao.getRoles(request.user, id));
+      const data: any = await this.userDao.getRoles(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -140,7 +153,8 @@ class UserController implements Controller {
     const { id, roleId } = request.params;
 
     try {
-      response.send(await this.userDao.removeRole(request.user, id, roleId));
+      const data: any = await this.userDao.removeRole(request.user, id, roleId);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

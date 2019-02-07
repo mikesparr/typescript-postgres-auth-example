@@ -31,15 +31,15 @@ beforeAll(async () => {
     .post("/login")
     .send(testUserData)
     .set("Accept", "application/json");
-  userToken = userLoginResult.body.token;
-  userId = userLoginResult.body.user.id;
+  userToken = userLoginResult.body.data.token;
+  userId = userLoginResult.body.data.user.id;
 
   const adminLoginResult = await request(app)
     .post("/login")
     .send(testAdminData)
     .set("Accept", "application/json");
-  adminToken = adminLoginResult.body.token;
-  adminId = adminLoginResult.body.user.id;
+  adminToken = adminLoginResult.body.data.token;
+  adminId = adminLoginResult.body.data.user.id;
 });
 
 afterAll(async () => {
@@ -139,6 +139,7 @@ describe("User", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
+      expect(result.body.errors.length).toEqual(1);
     });
 
     it("throws if invalid avatar URL", async () => {
@@ -147,7 +148,6 @@ describe("User", () => {
         .send(testDataWithInvalidAvatarURL)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -158,7 +158,6 @@ describe("User", () => {
         .send(testDataWithBadIPAddress)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -169,7 +168,6 @@ describe("User", () => {
         .send(testDataWithTooShortCountry)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -180,7 +178,6 @@ describe("User", () => {
         .send(testDataWithTooLongCountry)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -191,7 +188,6 @@ describe("User", () => {
         .send(testDataWithInvalidLanguage)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -202,7 +198,6 @@ describe("User", () => {
         .send(testDataWithTooShortPassword)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -213,7 +208,6 @@ describe("User", () => {
         .send(testDataWithTooLongPassword)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -224,7 +218,6 @@ describe("User", () => {
         .send(testDataWithPasswordWithSpaces)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
 
       expect(result.status).toEqual(400);
     });
@@ -235,7 +228,7 @@ describe("User", () => {
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newUserId = result.body.id;
+      newUserId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });
@@ -275,8 +268,8 @@ describe("User", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].age).toBeUndefined();
-      expect(result.body[0].password).toBeUndefined();
+      expect(result.body.data[0].age).toBeUndefined();
+      expect(result.body.data[0].password).toBeUndefined();
     });
 
     it("allows admin role access with age but no password", async () => {
@@ -286,8 +279,8 @@ describe("User", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].age).toBeDefined();
-      expect(result.body[0].password).toBeUndefined();
+      expect(result.body.data[0].age).toBeDefined();
+      expect(result.body.data[0].password).toBeUndefined();
     });
   }); // GET /users
 
@@ -299,8 +292,8 @@ describe("User", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.age).toBeUndefined();
-      expect(result.body.password).toBeUndefined();
+      expect(result.body.data.age).toBeUndefined();
+      expect(result.body.data.password).toBeUndefined();
     });
 
     it("allows admin role access with with age but no password", async () => {
@@ -310,8 +303,8 @@ describe("User", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.age).toBeDefined();
-      expect(result.body.password).toBeUndefined();
+      expect(result.body.data.age).toBeDefined();
+      expect(result.body.data.password).toBeUndefined();
     });
   }); // GET /users/:id
 

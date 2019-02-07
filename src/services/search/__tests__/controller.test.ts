@@ -22,8 +22,8 @@ beforeAll(async () => {
     .post("/login")
     .send(testUserData)
     .set("Accept", "application/json");
-  userToken = userLoginResult.body.token;
-  userId = userLoginResult.body.user.id;
+  userToken = userLoginResult.body.data.token;
+  userId = userLoginResult.body.data.user.id;
 });
 
 afterAll(async () => {

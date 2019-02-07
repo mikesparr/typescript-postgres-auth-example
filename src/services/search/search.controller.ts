@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import SearchDao from "./search.dao";
 
@@ -12,6 +13,8 @@ import SearchDao from "./search.dao";
 class SearchController implements Controller {
   public path: string = "/search";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private searchDao: SearchDao = new SearchDao();
 
   constructor() {
@@ -23,7 +26,8 @@ class SearchController implements Controller {
     const { q } = request.query;
 
     try {
-      response.send(await this.searchDao.getPlacesByName(request.user, q));
+      const data: any = await this.searchDao.getPlacesByName(request.user, q);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

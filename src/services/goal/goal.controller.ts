@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import GoalDao from "./goal.dao";
 import CreateGoalDto from "./goal.dto";
@@ -13,6 +14,8 @@ import CreateGoalDto from "./goal.dto";
 class GoalController implements Controller {
   public path: string = "/goals";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private goalDao: GoalDao = new GoalDao();
 
   constructor() {
@@ -31,7 +34,8 @@ class GoalController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.goalDao.getAll(request.user));
+      const data: any = await this.goalDao.getAll(request.user);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -41,7 +45,8 @@ class GoalController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.goalDao.getOne(request.user, id));
+      const data: any = await this.goalDao.getOne(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -51,7 +56,8 @@ class GoalController implements Controller {
     const newRecord: CreateGoalDto = request.body;
 
     try {
-      response.send(await this.goalDao.save(request.user, newRecord));
+      const data: any = await this.goalDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -61,7 +67,8 @@ class GoalController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.goalDao.remove(request.user, id));
+      const data: any = await this.goalDao.remove(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

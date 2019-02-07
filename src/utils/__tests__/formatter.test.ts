@@ -1,4 +1,6 @@
 import { DataType, Formatter } from "../formatter";
+import { User } from "../../services/user/user.entity";
+
 const fmt: Formatter = new Formatter();
 
 describe("Formatter", () => {
@@ -73,4 +75,48 @@ describe("Formatter", () => {
       expect(result).toEqual(expected);
     });
   }); // format
+
+  describe("formatResponse", () => {
+    const testResult1 = {
+      email: "test1@example.com",
+      firstName: "Test",
+      id: "abc123",
+      lastName: "User",
+      type: "users",
+    };
+    const testResult2 = {
+      email: "test2@example.com",
+      firstName: "Test",
+      id: "abc123",
+      lastName: "User",
+      type: "users",
+    };
+    const testResultList: User[] = [testResult1, testResult2];
+
+    it("standardizes API response for single record with length 1", () => {
+      const result = fmt.formatResponse(testResult1, 250);
+      expect(result.meta.length).toEqual(1);
+      expect(result.data).toBeDefined();
+      expect(result.errors).toBeNull();
+    });
+
+    it("standardizes API response for multiple records with length 2", () => {
+      const result = fmt.formatResponse(testResultList, 375);
+      expect(result.meta.length).toEqual(2);
+      expect(result.data).toBeDefined();
+    });
+
+    it("standardizes API response for no records with length 0", () => {
+      const result = fmt.formatResponse(null, 375);
+      expect(result.meta.length).toEqual(0);
+      expect(result.data).toBeDefined();
+    });
+
+    it("standardizes API response for errors", () => {
+      const result = fmt.formatResponse(new Error("Test message"), 250);
+      expect(result.meta.length).toEqual(0);
+      expect(result.data).toBeNull();
+      expect(result.errors).toBeDefined();
+    });
+  }); // formatResponse
 });

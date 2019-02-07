@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../config/logger";
 import HttpException from "../exceptions/HttpException";
+import { Formatter } from "../utils/formatter";
+
+const fmt: Formatter = new Formatter();
 
 /**
  * Global handler for Errors sending the message and status
@@ -16,10 +19,7 @@ const errorMiddleware = (error: HttpException, request: Request, response: Respo
   logger.warn(message); // TODO: consider changing to different level
   response
     .status(status)
-    .send({
-      message,
-      status,
-    });
+    .send(fmt.formatResponse(new HttpException(status, message), 0, message));
 };
 
 export default errorMiddleware;

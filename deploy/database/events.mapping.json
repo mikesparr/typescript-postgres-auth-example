@@ -90,50 +90,50 @@
 		"_doc": {
 			"dynamic": false,
 			"properties": {
-        "action": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "actor": {
-          "type": "object",
-          "dynamic": true
-        },
-        "object": {
-          "type": "object",
-          "dynamic": true
-        },
-        "resource": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "target": {
-          "type": "object",
-          "dynamic": true
-        },
-        "timestamp": {
-          "type": "date",
-          "format": "strict_date_optional_time||epoch_millis"
-        },
-        "verb": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        }
-      }
-    }
-  }
+				"action": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"ignore_above": 256
+						}
+					}
+				},
+				"actor": {
+					"type": "object",
+					"dynamic": true
+				},
+				"object": {
+					"type": "object",
+					"dynamic": true
+				},
+				"resource": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"ignore_above": 256
+						}
+					}
+				},
+				"target": {
+					"type": "object",
+					"dynamic": true
+				},
+				"timestamp": {
+					"type": "date",
+					"format": "strict_date_optional_time||epoch_millis"
+				},
+				"verb": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"ignore_above": 256
+						}
+					}
+				}
+			}
+		}
+	}
 }

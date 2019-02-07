@@ -31,15 +31,15 @@ beforeAll(async () => {
     .post("/login")
     .send(testUserData)
     .set("Accept", "application/json");
-  userToken = userLoginResult.body.token;
-  userId = userLoginResult.body.user.id;
+  userToken = userLoginResult.body.data.token;
+  userId = userLoginResult.body.data.user.id;
 
   const adminLoginResult = await request(app)
     .post("/login")
     .send(testAdminData)
     .set("Accept", "application/json");
-  adminToken = adminLoginResult.body.token;
-  adminId = adminLoginResult.body.user.id;
+  adminToken = adminLoginResult.body.data.token;
+  adminId = adminLoginResult.body.data.user.id;
 });
 
 afterAll(async () => {
@@ -90,9 +90,9 @@ describe("Segment", () => {
         .send(testDataWithBadKey)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newSegmentId = result.body.id;
 
       expect(result.status).toEqual(400);
+      expect(result.body.errors.length).toEqual(1);
     });
 
     it("allows admin to create new segments", async () => {
@@ -101,7 +101,7 @@ describe("Segment", () => {
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newSegmentId = result.body.id;
+      newSegmentId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });

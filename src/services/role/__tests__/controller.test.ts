@@ -32,15 +32,15 @@ beforeAll(async () => {
     .post("/login")
     .send(testUserData)
     .set("Accept", "application/json");
-  userToken = userLoginResult.body.token;
-  userId = userLoginResult.body.user.id;
+  userToken = userLoginResult.body.data.token;
+  userId = userLoginResult.body.data.user.id;
 
   const adminLoginResult = await request(app)
     .post("/login")
     .send(testAdminData)
     .set("Accept", "application/json");
-  adminToken = adminLoginResult.body.token;
-  adminId = adminLoginResult.body.user.id;
+  adminToken = adminLoginResult.body.data.token;
+  adminId = adminLoginResult.body.data.user.id;
 });
 
 afterAll(async () => {
@@ -63,7 +63,7 @@ describe("Role", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeUndefined();
+      expect(result.body.data[0].permissions).toBeUndefined();
     });
 
     it("allows admin role access with roles", async () => {
@@ -73,7 +73,7 @@ describe("Role", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body[0].permissions).toBeDefined();
+      expect(result.body.data[0].permissions).toBeDefined();
     });
   }); // GET /roles
 
@@ -85,7 +85,7 @@ describe("Role", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeUndefined();
+      expect(result.body.data.permissions).toBeUndefined();
     });
 
     it("allows admin role access with roles", async () => {
@@ -95,7 +95,7 @@ describe("Role", () => {
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
-      expect(result.body.permissions).toBeDefined();
+      expect(result.body.data.permissions).toBeDefined();
     });
   }); // GET /roles:id
 
@@ -150,7 +150,7 @@ describe("Role", () => {
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newRoleId = result.body.id;
+      newRoleId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });
@@ -215,7 +215,7 @@ describe("Role", () => {
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newPermissionId = result.body.id;
+      newPermissionId = result.body.data.id;
 
       expect(result.status).toEqual(200);
       // TODO: query to confirm role has expected permission

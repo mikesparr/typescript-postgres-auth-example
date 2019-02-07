@@ -32,15 +32,15 @@ beforeAll(async () => {
     .post("/login")
     .send(testUserData)
     .set("Accept", "application/json");
-  userToken = userLoginResult.body.token;
-  userId = userLoginResult.body.user.id;
+  userToken = userLoginResult.body.data.token;
+  userId = userLoginResult.body.data.user.id;
 
   const adminLoginResult = await request(app)
     .post("/login")
     .send(testAdminData)
     .set("Accept", "application/json");
-  adminToken = adminLoginResult.body.token;
-  adminId = adminLoginResult.body.user.id;
+  adminToken = adminLoginResult.body.data.token;
+  adminId = adminLoginResult.body.data.user.id;
 });
 
 afterAll(async () => {
@@ -258,7 +258,7 @@ describe("Authentication", () => {
         .send(testData)
         .set("Accept", "application/json");
 
-      testAuthToken = result.body.token;
+      testAuthToken = result.body.data.token;
 
       expect(result.status).toEqual(200);
     });

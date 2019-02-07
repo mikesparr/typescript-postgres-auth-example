@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import RoleDao from "./role.dao";
 import CreateRoleDto from "./role.dto";
@@ -14,6 +15,8 @@ import PermissionDto from "../permission/permission.dto";
 class RoleController implements Controller {
   public path: string = "/roles";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private roleDao: RoleDao = new RoleDao();
 
   constructor() {
@@ -35,7 +38,8 @@ class RoleController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.roleDao.getAll(request.user));
+      const data: any = await this.roleDao.getAll(request.user);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -45,7 +49,8 @@ class RoleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.roleDao.getOne(request.user, id));
+      const data: any = await this.roleDao.getOne(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -55,7 +60,8 @@ class RoleController implements Controller {
     const newRecord: CreateRoleDto = request.body;
 
     try {
-      response.send(await this.roleDao.save(request.user, newRecord));
+      const data: any = await this.roleDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -65,7 +71,8 @@ class RoleController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.roleDao.remove(request.user, id));
+      const data: any = await this.roleDao.remove(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -76,7 +83,8 @@ class RoleController implements Controller {
     const newRecord: PermissionDto = request.body;
 
     try {
-      response.send(await this.roleDao.addPermission(request.user, id, newRecord));
+      const data: any = await this.roleDao.addPermission(request.user, id, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -86,7 +94,8 @@ class RoleController implements Controller {
     const { id } = request.params; // id of role to get permissions for
 
     try {
-      response.send(await this.roleDao.getPermissions(request.user, id));
+      const data: any = await this.roleDao.getPermissions(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -96,7 +105,8 @@ class RoleController implements Controller {
     const { id, roleId } = request.params;
 
     try {
-      response.send(await this.roleDao.removePermission(request.user, id, roleId));
+      const data: any = await this.roleDao.removePermission(request.user, id, roleId);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

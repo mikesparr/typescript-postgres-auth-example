@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import SegmentDao from "./segment.dao";
 import CreateSegmentDto from "./segment.dto";
@@ -13,6 +14,8 @@ import CreateSegmentDto from "./segment.dto";
 class SegmentController implements Controller {
   public path: string = "/segments";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private segmentDao: SegmentDao = new SegmentDao();
 
   constructor() {
@@ -31,7 +34,8 @@ class SegmentController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.segmentDao.getAll(request.user));
+      const data: any = await this.segmentDao.getAll(request.user);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -41,7 +45,8 @@ class SegmentController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.segmentDao.getOne(request.user, id));
+      const data: any = await this.segmentDao.getOne(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -51,7 +56,8 @@ class SegmentController implements Controller {
     const newRecord: CreateSegmentDto = request.body;
 
     try {
-      response.send(await this.segmentDao.save(request.user, newRecord));
+      const data: any = await this.segmentDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -61,7 +67,8 @@ class SegmentController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.segmentDao.remove(request.user, id));
+      const data: any = await this.segmentDao.remove(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

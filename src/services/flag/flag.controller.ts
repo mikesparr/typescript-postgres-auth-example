@@ -3,6 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import RequestWithUser from "../../interfaces/request.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import { Formatter } from "../../utils/formatter";
 
 import FlagDao from "./flag.dao";
 import CreateFlagDto from "./flag.dto";
@@ -13,6 +14,8 @@ import CreateFlagDto from "./flag.dto";
 class FlagController implements Controller {
   public path: string = "/flags";
   public router: Router = Router();
+
+  private fmt: Formatter = new Formatter();
   private flagDao: FlagDao = new FlagDao();
 
   constructor() {
@@ -31,7 +34,8 @@ class FlagController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      response.send(await this.flagDao.getAll(request.user));
+      const data: any = await this.flagDao.getAll(request.user);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -41,7 +45,8 @@ class FlagController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.flagDao.getOne(request.user, id));
+      const data: any = await this.flagDao.getOne(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -51,7 +56,8 @@ class FlagController implements Controller {
     const newRecord: CreateFlagDto = request.body;
 
     try {
-      response.send(await this.flagDao.save(request.user, newRecord));
+      const data: any = await this.flagDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }
@@ -61,7 +67,8 @@ class FlagController implements Controller {
     const { id } = request.params;
 
     try {
-      response.send(await this.flagDao.remove(request.user, id));
+      const data: any = await this.flagDao.remove(request.user, id);
+      response.send(this.fmt.formatResponse(data, 0, "OK"));
     } catch (error) {
       next(error);
     }

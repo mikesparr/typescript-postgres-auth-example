@@ -4,6 +4,7 @@
 import moment from "moment";
 import { PhoneNumberUtil, PhoneNumber, PhoneNumberFormat } from "google-libphonenumber";
 import logger from "../config/logger";
+import { ApiResponse } from "../interfaces/response.interface";
 
 export enum DataType {
   CREDIT_CARD = "creditCard",
@@ -61,6 +62,35 @@ export class Formatter {
         logger.debug(`No compatible type so just returning raw value`); // should be impossible with Enum
         return value;
     }
+  }
+
+  public formatResponse = (result: any, time: number, message?: string, total?: number): ApiResponse => {
+    let numRecords: number = 0;
+    let errors: Error[] = null;
+    let data: any = null;
+
+    if (result && result instanceof Array) {
+      numRecords = result.length;
+      data = result;
+    } else if (result && result instanceof Error) {
+      errors = [result];
+    } else if (result || result === 0) {
+      numRecords = 1;
+      data = result;
+    }
+
+    const response: ApiResponse = {
+      data,
+      errors,
+      message: message ? message : null,
+      meta: {
+        length: numRecords,
+        took: time,
+        total: total ? total : numRecords,
+      },
+    };
+
+    return response;
   }
 
   private isValidEmail = (email: string): boolean => {
