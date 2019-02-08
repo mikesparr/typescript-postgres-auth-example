@@ -21,7 +21,7 @@ const handleEvent = async (data: {[key: string]: any}) => {
 
   // log events in document database (optionally filter by verb or whatever)
   try {
-    await save(data, "events");
+    await save("events", data);
   } catch (error) {
     logger.error(error.message);
   }

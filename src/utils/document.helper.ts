@@ -18,7 +18,7 @@ enum DocType {
 export const getAll = async (
         index: string,
         query: {[key: string]: any},
-        params: any = {}): Promise<object | Error> => {
+        params: any = {}): Promise<any | Error> => {
   try {
     logger.debug(`Searching documents index ${index}`);
     // build search options
@@ -30,6 +30,7 @@ export const getAll = async (
       ...params,
       type: DocType.DEFAULT,
     };
+    logger.info(`Query options: ${JSON.stringify(options)}`);
 
     const response = await client.search(options);
     logger.debug(`Received response ${JSON.stringify(response)}`);
@@ -49,8 +50,8 @@ export const getAll = async (
 };
 
 export const save = async (
-        doc: {[key: string]: any},
         index: string,
+        doc: {[key: string]: any},
         id?: string ): Promise<void | Error> => {
   try {
     logger.debug(`Saving document in index ${index}`);
