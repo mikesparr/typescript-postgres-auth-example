@@ -11,14 +11,6 @@ jobs:
       # specify the version you desire here
       - image: circleci/node:10
 
-      - image: circleci/redis:alpine
-
-      - image: circleci/postgres:latest
-        environment:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: auth_example
-      
       - image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
         environment:
           - cluster.name: elasticsearch
@@ -30,6 +22,14 @@ jobs:
           - bootstrap.memory_lock: true
           - ES_JAVA_OPTS: "-Xms512m -Xmx512m"
           - _JAVA_OPTIONS: "-Xms512m -Xmx512m"
+
+      - image: circleci/postgres:latest
+        environment:
+          - POSTGRES_USER: admin
+          - POSTGRES_PASSWORD: admin
+          - POSTGRES_DB: auth_example
+
+      - image: circleci/redis:alpine
 
     steps:
       - checkout
