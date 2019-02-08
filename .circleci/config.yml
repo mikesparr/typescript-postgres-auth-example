@@ -28,8 +28,8 @@ jobs:
           http.port: 9200
           discovery.type: single-node
           bootstrap.memory_lock: true
-          ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-          _JAVA_OPTIONS: "-Xms256m -Xmx256m"
+          ES_JAVA_OPTS: "-Xms750m -Xmx750m"
+          _JAVA_OPTIONS: "-Xms750m -Xmx750m"
 
     steps:
       - checkout
