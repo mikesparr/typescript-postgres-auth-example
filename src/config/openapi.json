@@ -140,6 +140,34 @@
         }
       }
     },
+    "/lost-password": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Emails new magic link to log user in if found",
+        "requestBody": {
+          "description": "Email address for valid user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation and prompt to check email (TODO)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LostPasswordResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/impersonate/{id}": {
       "post": {
         "tags": ["authentication"],
@@ -214,34 +242,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/lost-password": {
-      "post": {
-        "tags": ["authentication"],
-        "summary": "Emails new magic link to log user in if found",
-        "requestBody": {
-          "description": "Email address for valid user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Confirmation and prompt to check email (TODO)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LostPasswordResponse"
                 }
               }
             }
@@ -1729,6 +1729,93 @@
         }
       }
     },
+    "/events": {
+      "get": {
+        "tags": ["events"],
+        "summary": "Event log viewing for monitoring and troubleshooting",
+        "security": [
+          {"bearerAuth": []}
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "query parameters to filter records",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "max records to return per request (default 10)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "record offset for pagination",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "limit date range (starting point until 'to')",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "limit date range (if empty default to now)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "which field(s) to sort by and what order",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of events logged by the application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/search": {
       "get": {
         "tags": ["search"],
@@ -2565,6 +2652,76 @@
               "type": "string"
             }
           }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "verb": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/User"
+          },
+          "object": {
+            "type": "object"
+          },
+          "target": {
+            "type": "object"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "published": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          }
+        }
+      },
+      "EventResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "message"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Event"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "length": {
+                "type": "integer"
+              },
+              "took": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorModel"
+            }
+          },
+          "message": {
+            "type": "string"
+          } 
         }
       },
       "LostPasswordResponse": {

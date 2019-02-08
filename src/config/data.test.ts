@@ -55,6 +55,13 @@ const createTestData = async (connection: Connection) => {
     resource: "surrogate",
   });
 
+  // events
+  const adminEventViewPermission = connection.manager.create(Permission, {
+    action: "read:any",
+    attributes: "*, !actor.password, !actor.surrogatePrincipal.password",
+    resource: "event",
+  });
+
   // user
   const userUserViewPermission = connection.manager.create(Permission, {
     action: "read:any",
@@ -294,6 +301,7 @@ const createTestData = async (connection: Connection) => {
     id: "admin",
     permissions: [
       adminSurrogate,
+      adminEventViewPermission,
       adminUserViewPermission,
       adminUserViewTokens,
       adminUserUpdateTokens,

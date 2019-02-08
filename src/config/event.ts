@@ -1,5 +1,7 @@
+import os from "os";
 import { EventEmitter } from "events";
 import logger from "./logger";
+import { DataType, Formatter } from "../utils/formatter";
 
 import { save } from "../utils/document.helper";
 
@@ -12,6 +14,11 @@ import { save } from "../utils/document.helper";
 const event = new EventEmitter();
 
 /**
+ * Formatter to standardize data before storing in DB
+ */
+const fmt: Formatter = new Formatter();
+
+/**
  * Example handler but could register a handler and array of events with App
  * and publish to a queue for async processing. Could also flag whether to
  * save or update data in local DB.
@@ -21,6 +28,10 @@ const handleEvent = async (data: {[key: string]: any}) => {
 
   // log events in document database (optionally filter by verb or whatever)
   try {
+    // add ISO published and hostname
+    data.published = fmt.format(data.timestamp, DataType.DATE);
+    data.host = os.hostname();
+
     await save("events", data);
   } catch (error) {
     logger.error(error.message);

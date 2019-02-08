@@ -38,8 +38,10 @@ export const getAll = async (
     // TODO: check for error message and/or hit count perhaps
     if (response) {
       const hits = response.hits.hits;
-      logger.debug(`Returning hits ${JSON.stringify(hits)}`);
-      return hits;
+      const filteredResults: Array<{[key: string]: any}> = [];
+      hits.map((hit) => filteredResults.push(hit._source));
+
+      return filteredResults;
     } else {
       throw new RecordsNotFoundException(index);
     }

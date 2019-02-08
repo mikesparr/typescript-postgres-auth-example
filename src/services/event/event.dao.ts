@@ -2,6 +2,7 @@ import { getRepository, Repository } from "typeorm";
 import event from "../../config/event";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import URLParams from "../../interfaces/urlparams.interface";
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
@@ -10,6 +11,7 @@ import { AuthPermission, getPermission, methodActions } from "../../utils/author
 import { getAll } from "../../utils/document.helper";
 
 import { User } from "../user/user.entity";
+import { Event } from "./event.entity";
 
 /**
  * Handles CRUD operations on Flag data in database
@@ -17,18 +19,61 @@ import { User } from "../user/user.entity";
  */
 class EventDao implements Dao {
   private resource: string = "event"; // matches defined flag flag "resource"
+  private docIndex: string = "events";
+  private docType: string = "_doc";
 
   constructor() {
     // nothing
   }
 
+  public getAll = async (user: User, params?: URLParams):
+            Promise<Event[] | Error> => {
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = methodActions.GET;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const query: any = {
+        match_all: {},
+      };
+
+      const searchParams: any = {};
+      if (params) {
+        if (params.limit) {
+          searchParams.size = params.limit;
+        }
+        if (params.offset) {
+          searchParams.from = params.offset;
+        }
+      }
+      // TODO: add date range and sort
+
+      const records: Event[] = await getAll(this.docIndex, query, searchParams);
+
+      if (!records) {
+        throw new RecordsNotFoundException(this.resource);
+      } else {
+        // log event to central handler
+        event.emit("read-all", {
+          action,
+          actor: user,
+          object: null,
+          resource: this.resource,
+          timestamp: Date.now(),
+          verb: "read-all",
+        });
+
+        return permission.filter(records);
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
+  }
+
   /**
    * Just to satisfy interface requirements, but not used for Authentication
    */
-  public getAll = async (user: User, params?: {[key: string]: any}):
-            Promise<NotImplementedException> => {
-    throw new NotImplementedException("getAll");
-  }
   public getOne = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("getOne");
