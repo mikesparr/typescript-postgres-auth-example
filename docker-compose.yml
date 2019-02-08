@@ -6,7 +6,7 @@ services:
     ports:
     - "6379:6379"
     volumes:
-    - /usr/local/data/redis:/data
+    - redisdata:/data
 
   postgres:
     container_name: postgres
@@ -14,7 +14,7 @@ services:
     ports:
     - "5432:5432"
     volumes:
-    - /usr/local/data/postgres:/data/postgres
+    - postgresdata:/data/postgres
     env_file:
     - docker.env
     networks:
@@ -28,7 +28,7 @@ services:
     ports:
     - "8080:80"
     volumes:
-    - /usr/local/data/pgadmin:/root/.pgadmin
+    - pgadmindata:/root/.pgadmin
     env_file:
     - docker.env
     networks:
@@ -51,22 +51,22 @@ services:
       - 9200:9200
     networks:
       - esnet
-  elasticsearch2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
-    container_name: elasticsearch2
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata2:/usr/share/elasticsearch/data
-    networks:
-      - esnet
+ #elasticsearch2:
+ #  image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+ #  container_name: elasticsearch2
+ #  environment:
+ #    - cluster.name=docker-cluster
+ #    - bootstrap.memory_lock=true
+ #    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+ #    - "discovery.zen.ping.unicast.hosts=elasticsearch"
+ #  ulimits:
+ #    memlock:
+ #      soft: -1
+ #      hard: -1
+ #  volumes:
+ #    - esdata2:/usr/share/elasticsearch/data
+ #  networks:
+ #    - esnet
 
   kibana:
     image: docker.elastic.co/kibana/kibana:6.6.0
@@ -84,10 +84,16 @@ services:
       - esnet
 
 volumes:
+  redisdata:
+    driver: local
+  postgresdata:
+    driver: local
+  pgadmindata:
+    driver: local
   esdata1:
     driver: local
-  esdata2:
-    driver: local
+#  esdata2:
+#    driver: local
 
 networks:
   postgres:

@@ -15,7 +15,7 @@ gather input from peers.
     * RUN in CLI from project root `./setenv.test.sh`
  4. Make note of generated files and change to your preferences
     * IMPORTANT: when deploying app, don't use the `.env` file, simply set vars in your CI provider or container manager
- 5. `docker-compose up` (may need to edit the paths or permissions on your computer)
+ 5. `docker-compose up`
     * This will spin up Postgres, PGAdmin, Elasticsearch, Kibana, and Redis
     * IMPORTANT: run `./setup_es.sh` to create index mapping templates for Elasticsearch after startup
     * To stop them, and remove local volumes: `docker-compose down -v`
