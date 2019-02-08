@@ -47,7 +47,7 @@ describe("document helper", () => {
       counter ++;
     }
     logger.info(`Loaded ${await counter} test records`);
-    await sleep(1500); // allow Elasticsearch time to index records before searching
+    await sleep(2500); // allow Elasticsearch time to index records before searching
   });
 
   afterAll(async () => {
