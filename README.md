@@ -19,15 +19,12 @@ gather input from peers.
     * This will spin up Postgres, PGAdmin, Elasticsearch, Kibana, and Redis
     * IMPORTANT: run `./setup_es.sh` to create index mapping templates for Elasticsearch after startup
     * To stop them, and remove local volumes: `docker-compose down -v`
- 6. Start up app in developer mode to create database tables, then stop
-    * `npm run dev`
-    * `CTRL + C`
- 7. Run tests (will load up test data in tables)
+ 6. Run tests (will load up test data in tables)
     * `npm run test`
- 8. Start up app in developer mode (will watch and recompile for changes)
+ 7. Start up app in developer mode (will watch and recompile for changes)
     * `npm run dev`
- 9. Open browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
- 10. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
+ 8. Open browser tab to [Swagger UI Explorer](http://localhost:3000/api-docs) to explore API
+ 9. Open browser tab to [Postgres Admin](http://localhost:8080/browser) for Postgres Admin
      * click on "Servers" and then "Object > Create > Server"
      * "General > Name" the connection "Test Server"
      * click on "Connection" tab:
@@ -36,7 +33,7 @@ gather input from peers.
        * Password: `admin` (or whatever you set in ENV vars)
      * click on "Save"
      * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
- 11. Open browser tab to [Kibana](http://localhost:5601) for Elasticsearch Admin
+ 10. Open browser tab to [Kibana](http://localhost:5601) for Elasticsearch Admin
      * You will have to know a little about ES if you choose to use it
 
 # Testing
