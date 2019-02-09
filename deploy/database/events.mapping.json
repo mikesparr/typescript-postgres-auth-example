@@ -103,9 +103,16 @@
 					"type": "object",
 					"dynamic": true
 				},
+				"count": {
+					"type": "integer"
+				},
 				"object": {
 					"type": "object",
 					"dynamic": true
+				},
+				"published": {
+					"type": "date",
+					"format": "strict_date_optional_time||epoch_millis"
 				},
 				"resource": {
 					"type": "text",
@@ -123,6 +130,9 @@
 				"timestamp": {
 					"type": "date",
 					"format": "strict_date_optional_time||epoch_millis"
+				},
+				"took": {
+					"type": "integer"
 				},
 				"verb": {
 					"type": "text",

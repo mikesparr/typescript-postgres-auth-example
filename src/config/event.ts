@@ -59,6 +59,7 @@ const handleEvent = async (data: {[key: string]: any}) => {
     // add ISO published and hostname
     cleanData.published = fmt.format(data.timestamp, DataType.DATE);
     cleanData.host = os.hostname();
+    cleanData.count = 1;
 
     await save("events", cleanData);
   } catch (error) {

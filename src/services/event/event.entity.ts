@@ -27,6 +27,8 @@ export class Event {
 
   public took?: number; // milliseconds to process
 
+  public count?: number; // used for quantifying number of events in aggregtion or over time
+
 }
 
 export default Event;
