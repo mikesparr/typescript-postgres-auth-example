@@ -23,6 +23,8 @@ export class Event {
 
   public published?: Date;
 
+  public host?: string;
+
 }
 
 export default Event;

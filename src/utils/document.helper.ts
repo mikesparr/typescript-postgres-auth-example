@@ -23,20 +23,22 @@ export const getAll = async (
     logger.debug(`Searching documents index ${index}`);
     // build search options
     const options: {[key: string]: any} = {
-      body: {
-        query,
-      },
       index,
       ...params,
       type: DocType.DEFAULT,
     };
-    logger.info(`Query options: ${JSON.stringify(options)}`);
+
+    // add query object if `q` not provided
+    if (!params.hasOwnProperty("q")) {
+      options.body = {query};
+    }
+    logger.debug(`Query options: ${JSON.stringify(options)}`);
 
     const response = await client.search(options);
     logger.debug(`Received response ${JSON.stringify(response)}`);
 
-    // TODO: check for error message and/or hit count perhaps
-    if (response) {
+    if (response && response.hits && response.hits.total > 0) {
+      // TODO: return object with total and data for pagination hints in controller response
       const hits = response.hits.hits;
       const filteredResults: Array<{[key: string]: any}> = [];
       hits.map((hit) => filteredResults.push(hit._source));

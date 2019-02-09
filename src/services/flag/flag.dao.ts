@@ -128,7 +128,7 @@ class FlagDao implements Dao {
         event.emit("remove", {
           action,
           actor: user,
-          object: recordToRemove,
+          object: {id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "remove",

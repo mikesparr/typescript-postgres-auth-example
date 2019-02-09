@@ -38,7 +38,7 @@ class SearchDao implements Dao {
         event.emit("search", {
           action,
           actor: user,
-          object: records,
+          object: null,
           resource: this.resource,
           timestamp: Date.now(),
           verb: "search",

@@ -1,6 +1,7 @@
 import os from "os";
 import { EventEmitter } from "events";
 import logger from "./logger";
+import Event from "../services/event/event.entity";
 import { DataType, Formatter } from "../utils/formatter";
 
 import { save } from "../utils/document.helper";
@@ -19,20 +20,47 @@ const event = new EventEmitter();
 const fmt: Formatter = new Formatter();
 
 /**
+ * Remove sensitive data from records before logging or publishing
+ */
+const removeSensitiveData = (data: any): Event => {
+  const { actor, object, target } = data;
+
+  const removePassword = (obj: {[key: string]: any}, key: string) => {
+    if (obj.hasOwnProperty("password")) {
+      data[key].password = undefined;
+    }
+    if (obj.surrogatePrincipal && obj.surrogatePrincipal.password) {
+      data[key].surrogatePrincipal.password = undefined;
+    }
+  };
+
+  if (actor) {
+    removePassword(actor, "actor");
+  }
+  if (target) {
+    removePassword(target, "target");
+  }
+
+  return data;
+};
+
+/**
  * Example handler but could register a handler and array of events with App
  * and publish to a queue for async processing. Could also flag whether to
  * save or update data in local DB.
  */
 const handleEvent = async (data: {[key: string]: any}) => {
-  logger.debug(JSON.stringify(data));
+  const cleanData: Event = removeSensitiveData(data);
+
+  logger.debug(JSON.stringify(cleanData));
 
   // log events in document database (optionally filter by verb or whatever)
   try {
     // add ISO published and hostname
-    data.published = fmt.format(data.timestamp, DataType.DATE);
-    data.host = os.hostname();
+    cleanData.published = fmt.format(data.timestamp, DataType.DATE);
+    cleanData.host = os.hostname();
 
-    await save("events", data);
+    await save("events", cleanData);
   } catch (error) {
     logger.error(error.message);
   }

@@ -43,7 +43,7 @@ class RoleDao implements Dao {
         event.emit("read-all", {
           action,
           actor: user,
-          object: records,
+          object: null,
           resource: this.resource,
           timestamp: Date.now(),
           verb: "read-all",
@@ -72,7 +72,7 @@ class RoleDao implements Dao {
         event.emit("read-one", {
           action,
           actor: user,
-          object: record,
+          object: {id: record.id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "read-one",
@@ -130,7 +130,7 @@ class RoleDao implements Dao {
         event.emit("remove", {
           action,
           actor: user,
-          object: recordToRemove,
+          object: {id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "remove",
@@ -162,7 +162,7 @@ class RoleDao implements Dao {
         event.emit("read-all", {
           action,
           actor: user,
-          object: record.permissions,
+          object: null,
           resource: this.rolePermissionResource,
           target: record,
           timestamp: Date.now(),

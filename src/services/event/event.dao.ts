@@ -46,8 +46,19 @@ class EventDao implements Dao {
         if (params.offset) {
           searchParams.from = params.offset;
         }
+        if (params.q) {
+          searchParams.q = params.q;
+        }
+        if (params.from) {
+          searchParams.start = params.from;
+        }
+        if (params.to) {
+          searchParams.end = params.to;
+        }
+        if (params.sort) {
+          searchParams.sort = params.sort;
+        }
       }
-      // TODO: add date range and sort
 
       const records: Event[] = await getAll(this.docIndex, query, searchParams);
 
@@ -55,6 +66,7 @@ class EventDao implements Dao {
         throw new RecordsNotFoundException(this.resource);
       } else {
         // log event to central handler
+        user.password = undefined;
         event.emit("read-all", {
           action,
           actor: user,

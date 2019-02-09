@@ -184,7 +184,7 @@ class AuthenticationDao implements Dao {
           event.emit("verify", {
             action: "update",
             actor: foundUser,
-            object: foundUser,
+            object: token,
             resource: this.resource,
             timestamp: Date.now(),
             verb: "verify",
@@ -221,7 +221,7 @@ class AuthenticationDao implements Dao {
       event.emit("lost-password", {
         action: "create",
         actor: foundUser,
-        object: foundUser,
+        object: {id: foundUser.id},
         resource: this.resource,
         timestamp: Date.now(),
         verb: "lost-password",
@@ -305,6 +305,7 @@ class AuthenticationDao implements Dao {
     const isSurrogate: boolean = (user.surrogateEnabled && user.surrogatePrincipal) ? true : false;
 
     // log event to central handler
+    // TODO: check if need tertiary logic for actor
     event.emit(isSurrogate ? "impersonate" : "login", {
       action: "create",
       actor: user.surrogatePrincipal,

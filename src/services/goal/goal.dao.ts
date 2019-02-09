@@ -69,7 +69,7 @@ class GoalDao implements Dao {
         event.emit("read-one", {
           action,
           actor: user,
-          object: record,
+          object: {id: record.id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "read-one",
@@ -128,7 +128,7 @@ class GoalDao implements Dao {
         event.emit("remove", {
           action,
           actor: user,
-          object: recordToRemove,
+          object: {id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "remove",

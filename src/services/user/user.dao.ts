@@ -53,7 +53,7 @@ class UserDao implements Dao {
         event.emit("read-all", {
           action,
           actor: user,
-          object: records,
+          object: null,
           resource: this.resource,
           timestamp: Date.now(),
           verb: "read-all",
@@ -82,7 +82,7 @@ class UserDao implements Dao {
         event.emit("read-one", {
           action,
           actor: user,
-          object: record,
+          object: {id: record.id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "read-one",
@@ -141,7 +141,7 @@ class UserDao implements Dao {
         event.emit("remove", {
           action,
           actor: user,
-          object: recordToRemove,
+          object: {id},
           resource: this.resource,
           timestamp: Date.now(),
           verb: "remove",
@@ -176,8 +176,9 @@ class UserDao implements Dao {
         event.emit("read-tokens", {
           action,
           actor: user,
-          object: userTokens,
+          object: null,
           resource: this.resource,
+          target: record,
           timestamp: Date.now(),
           verb: "read-tokens",
         });
@@ -209,8 +210,9 @@ class UserDao implements Dao {
         event.emit("read-user-flags", {
           action,
           actor: user,
-          object: userFlags,
+          object: null,
           resource: this.resource,
+          target: record,
           timestamp: Date.now(),
           verb: "read-user-flags",
         });
@@ -240,6 +242,7 @@ class UserDao implements Dao {
           actor: user,
           object: tokenId,
           resource: this.tokenResource,
+          target: recordToRemove,
           timestamp: Date.now(),
           verb: "remove-token",
         });
@@ -270,8 +273,9 @@ class UserDao implements Dao {
         event.emit("remove-user-tokens", {
           action,
           actor: user,
-          object: record,
+          object: null,
           resource: this.tokenResource,
+          target: record,
           timestamp: Date.now(),
           verb: "remove-user-tokens",
         });
@@ -302,7 +306,7 @@ class UserDao implements Dao {
         event.emit("read-all", {
           action,
           actor: user,
-          object: record.roles,
+          object: null,
           resource: this.userRoleResource,
           target: record,
           timestamp: Date.now(),
