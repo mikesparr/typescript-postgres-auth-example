@@ -29,6 +29,7 @@ class RoleDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Role[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const records = await this.roleRepository.find({ relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
@@ -40,12 +41,14 @@ class RoleDao implements Dao {
         throw new RecordsNotFoundException(this.resource);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-all", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 
@@ -58,6 +61,7 @@ class RoleDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
@@ -69,12 +73,14 @@ class RoleDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-one", {
           action,
           actor: user,
           object: {id: record.id},
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-one",
         });
 
@@ -87,6 +93,7 @@ class RoleDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const newRecord: CreateRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -98,12 +105,14 @@ class RoleDao implements Dao {
       await this.roleRepository.save(filteredData);
 
       // log event to central handler
+      const ended: number = Date.now();
       event.emit("save", {
         action,
         actor: user,
         object: filteredData,
         resource: this.resource,
-        timestamp: Date.now(),
+        timestamp: ended,
+        took: ended - started,
         verb: "save",
       });
 
@@ -116,6 +125,7 @@ class RoleDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const recordToRemove = await this.roleRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
@@ -127,12 +137,14 @@ class RoleDao implements Dao {
         await this.roleRepository.remove(recordToRemove);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove", {
           action,
           actor: user,
           object: {id},
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove",
         });
 
@@ -148,6 +160,7 @@ class RoleDao implements Dao {
 
   public getPermissions = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
@@ -159,13 +172,15 @@ class RoleDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-all", {
           action,
           actor: user,
           object: null,
           resource: this.rolePermissionResource,
           target: record,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 
@@ -178,6 +193,7 @@ class RoleDao implements Dao {
 
   public addPermission = async (user: User, id: string, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const newRecord: Permission = data;
 
     const isOwnerOrMember: boolean = false;
@@ -194,13 +210,15 @@ class RoleDao implements Dao {
         await this.roleRepository.save(recordToUpdate);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("add-user-permission", {
           action,
           actor: user,
           object: newRecord,
           resource: this.rolePermissionResource,
           target: recordToUpdate,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "add-user-permission",
         });
 
@@ -216,6 +234,7 @@ class RoleDao implements Dao {
 
   public removePermission = async (user: User, id: string, permissionId: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.DELETE;
@@ -246,13 +265,15 @@ class RoleDao implements Dao {
         await this.roleRepository.save(recordToUpdate);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove-user-permission", {
           action,
           actor: user,
           object: removedItem,
           resource: this.rolePermissionResource,
           target: recordToUpdate,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove-user-permission",
         });
 

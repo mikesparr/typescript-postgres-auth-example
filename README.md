@@ -127,6 +127,7 @@ as much as possible so we could change out solutions in future without modifying
  * As an `architect`, I want to app to be able to run in containers, so it is isolated and can easily scale to meet growth requirements
  * As an `architect`, I want to be able to change password hash solutions, so we can stay current as security standards evolve
  * As an `architect`, I want to be able to plug in security middleware, so we can stay current as security standards evolve
+ * As an `architect`, I want to log performance metrics, so I can eliminate bottlenecks or calculate resource needs for scaling
 
 ### Developer
  * As a `developer`, I want to be able to toggle/flag new functionality, so we can safely build/deploy and test out new features

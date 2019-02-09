@@ -15,6 +15,8 @@ class Email {
   }
 
   public send = async (message: EmailDto): Promise<boolean | Error> => {
+    const started: number = Date.now();
+
     // validate message
     try {
       const isValid: boolean | Error = await validateDto(EmailDto, message, true);
@@ -26,12 +28,14 @@ class Email {
         logger.info(`Email to ${message.to} sent successfully`);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("send-email", {
           action: "create",
           actor: {id: "System"},
           object: message,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "send-email",
         });
 

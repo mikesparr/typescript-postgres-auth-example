@@ -39,6 +39,7 @@ class UserDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<User[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const records = await this.userRepository.find({ relations: ["roles"] });
 
     const isOwnerOrMember: boolean = false;
@@ -50,12 +51,14 @@ class UserDao implements Dao {
         throw new RecordsNotFoundException(this.resource);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-all", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 
@@ -68,6 +71,7 @@ class UserDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const record = await this.userRepository.findOne(id, { relations: ["roles"] });
 
     const isOwnerOrMember: boolean = String(user.id) === String(id);
@@ -79,12 +83,14 @@ class UserDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-one", {
           action,
           actor: user,
           object: {id: record.id},
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-one",
         });
 
@@ -97,6 +103,7 @@ class UserDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const newRecord: CreateUserDto = data;
 
     const isOwnerOrMember: boolean = (data.id && String(user.id) === String(data.id));
@@ -108,12 +115,14 @@ class UserDao implements Dao {
       await this.userRepository.save(filteredData);
 
       // log event to central handler
+      const ended: number = Date.now();
       event.emit("save", {
         action,
         actor: user,
         object: filteredData,
         resource: this.resource,
-        timestamp: Date.now(),
+        timestamp: ended,
+        took: ended - started,
         verb: "save",
       });
 
@@ -126,6 +135,7 @@ class UserDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const recordToRemove = await this.userRepository.findOne(id);
 
     const isOwnerOrMember: boolean = String(user.id) === String(id);
@@ -138,12 +148,14 @@ class UserDao implements Dao {
         await addAllUserTokensToDenyList(recordToRemove);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove", {
           action,
           actor: user,
           object: {id},
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove",
         });
 
@@ -158,6 +170,7 @@ class UserDao implements Dao {
   }
 
   public getTokens = async (user: User, tokenUserId: string): Promise<object | Error> => {
+    const started: number = Date.now();
     const record = await this.userRepository.findOne(tokenUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(tokenUserId);
@@ -173,13 +186,15 @@ class UserDao implements Dao {
         const userTokens: string[] = await getTokensFromUserTokensList(record);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-tokens", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
           target: record,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-tokens",
         });
 
@@ -192,6 +207,7 @@ class UserDao implements Dao {
 
   public getFlags = async (
           user: User, flagUserId: string): Promise<Array<{[key: string]: any}> | Error> => {
+    const started: number = Date.now();
     const record = await this.userRepository.findOne(flagUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(flagUserId);
@@ -207,13 +223,15 @@ class UserDao implements Dao {
         const userFlags: Array<{[key: string]: any}> = await getFlagsForUser(record);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-user-flags", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
           target: record,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-user-flags",
         });
 
@@ -226,6 +244,7 @@ class UserDao implements Dao {
 
   public removeToken = async (user: User, id: string, tokenId: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const recordToRemove = await decodeToken(tokenId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(id);
@@ -237,13 +256,15 @@ class UserDao implements Dao {
         await removeTokenFromCache(tokenId);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove-token", {
           action,
           actor: user,
           object: tokenId,
           resource: this.tokenResource,
           target: recordToRemove,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove-token",
         });
 
@@ -259,6 +280,7 @@ class UserDao implements Dao {
 
   public removeAllTokens = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const record = await this.userRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
@@ -270,13 +292,15 @@ class UserDao implements Dao {
         await removeAllUserTokensFromCache(record);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove-user-tokens", {
           action,
           actor: user,
           object: null,
           resource: this.tokenResource,
           target: record,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove-user-tokens",
         });
 
@@ -292,6 +316,7 @@ class UserDao implements Dao {
 
   public getRoles = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const record = await this.userRepository.findOne(id, { relations: ["roles"] });
 
     const isOwnerOrMember: boolean = false;
@@ -303,13 +328,15 @@ class UserDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-all", {
           action,
           actor: user,
           object: null,
           resource: this.userRoleResource,
           target: record,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 
@@ -322,6 +349,7 @@ class UserDao implements Dao {
 
   public addRole = async (user: User, id: number, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const newRecord: AddRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -347,13 +375,15 @@ class UserDao implements Dao {
         }
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("add-user-role", {
           action,
           actor: user,
           object: relationToAdd,
           resource: this.userRoleResource,
           target: recordToUpdate,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "add-user-role",
         });
 
@@ -370,6 +400,7 @@ class UserDao implements Dao {
 
   public removeRole = async (user: User, id: string, roleId: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.DELETE;
@@ -389,13 +420,15 @@ class UserDao implements Dao {
         await this.userRepository.save(recordToUpdate);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove-user-role", {
           action,
           actor: user,
           object: { id: roleId },
           resource: this.userRoleResource,
           target: recordToUpdate,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove-user-role",
         });
 

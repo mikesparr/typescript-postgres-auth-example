@@ -25,6 +25,7 @@ class FlagDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<Flag[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const records = await this.flagRepository.find({ relations: ["segments", "goals"] });
 
     const isOwnerOrMember: boolean = false;
@@ -36,12 +37,14 @@ class FlagDao implements Dao {
         throw new RecordsNotFoundException(this.resource);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-all", {
           action,
           actor: user,
-          object: records,
+          object: null,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 
@@ -54,6 +57,7 @@ class FlagDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     logger.info(`Fetching ${this.resource} with ID ${id}`);
     const record = await this.flagRepository.findOne(id, { relations: ["segments", "goals"] });
 
@@ -66,12 +70,14 @@ class FlagDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("read-one", {
           action,
           actor: user,
           object: record,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-one",
         });
 
@@ -84,6 +90,7 @@ class FlagDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const newRecord: CreateFlagDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -95,12 +102,14 @@ class FlagDao implements Dao {
       await this.flagRepository.save(filteredData);
 
       // log event to central handler
+      const ended: number = Date.now();
       event.emit("save", {
         action,
         actor: user,
         object: filteredData,
         resource: this.resource,
-        timestamp: Date.now(),
+        timestamp: ended,
+        took: ended - started,
         verb: "save",
       });
 
@@ -113,6 +122,7 @@ class FlagDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
     const recordToRemove = await this.flagRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
@@ -125,12 +135,14 @@ class FlagDao implements Dao {
         await this.flagRepository.save(recordToRemove);
 
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("remove", {
           action,
           actor: user,
           object: {id},
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "remove",
         });
 

@@ -28,6 +28,7 @@ class EventDao implements Dao {
 
   public getAll = async (user: User, params?: URLParams):
             Promise<Event[] | Error> => {
+    const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -67,12 +68,15 @@ class EventDao implements Dao {
       } else {
         // log event to central handler
         user.password = undefined;
+        const ended: number = Date.now();
+
         event.emit("read-all", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "read-all",
         });
 

@@ -5,25 +5,27 @@ import { User } from "../user/user.entity";
  */
 export class Event {
 
-  public id?: string;
+  public id?: string; // unique id of event (immutable so not critical)
 
-  public action: string;
+  public action: string; // CRUD action taken: create, update, delete, read
 
-  public resource: string;
+  public resource: string; // type of resource action taken upon (i.e. flag)
 
-  public verb: string;
+  public verb: string; // descriptor of action taken
 
-  public actor: User;
+  public actor: User; // individual or {id: "System"} performing the action
 
-  public object: {[key: string]: any};
+  public object: {[key: string]: any}; // main payload of event but null on read-all
 
-  public target?: {[key: string]: any};
+  public target?: {[key: string]: any}; // optional if performing action against something
 
-  public timestamp: number;
+  public timestamp: number; // unix timestamp with millis
 
-  public published?: Date;
+  public published?: Date; // human-readable ISO 8601 format
 
-  public host?: string;
+  public host?: string; // server hostname to track which instance
+
+  public took?: number; // milliseconds to process
 
 }
 

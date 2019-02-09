@@ -23,6 +23,7 @@ class SearchDao implements Dao {
   }
 
   public getPlacesByName = async (user: User, query: string) => {
+    const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -35,12 +36,14 @@ class SearchDao implements Dao {
         throw new RecordsNotFoundException(this.resource);
       } else {
         // log event to central handler
+        const ended: number = Date.now();
         event.emit("search", {
           action,
           actor: user,
           object: null,
           resource: this.resource,
-          timestamp: Date.now(),
+          timestamp: ended,
+          took: ended - started,
           verb: "search",
         });
 
