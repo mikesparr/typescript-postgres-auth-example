@@ -43,7 +43,7 @@ class UserController implements Controller {
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       const data: any = await this.userDao.getAll(request.user);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -54,7 +54,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.getOne(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -65,7 +65,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.save(request.user, newRecord);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -76,7 +76,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.remove(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -87,7 +87,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.getFlags(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -98,7 +98,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.getTokens(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -109,7 +109,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.removeToken(request.user, id, tokenId);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -120,7 +120,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.removeAllTokens(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -132,7 +132,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.addRole(request.user, id, newRecord);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -143,7 +143,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.getRoles(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -154,7 +154,7 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.removeRole(request.user, id, roleId);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }

@@ -35,7 +35,7 @@ class FlagController implements Controller {
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       const data: any = await this.flagDao.getAll(request.user);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -46,7 +46,7 @@ class FlagController implements Controller {
 
     try {
       const data: any = await this.flagDao.getOne(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -57,7 +57,7 @@ class FlagController implements Controller {
 
     try {
       const data: any = await this.flagDao.save(request.user, newRecord);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -68,7 +68,7 @@ class FlagController implements Controller {
 
     try {
       const data: any = await this.flagDao.remove(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }

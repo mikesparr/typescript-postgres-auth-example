@@ -51,7 +51,7 @@ class EventController implements Controller {
 
     try {
       const data: any = await this.eventDao.getAll(request.user, params);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }

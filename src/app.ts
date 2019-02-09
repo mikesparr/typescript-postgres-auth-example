@@ -6,6 +6,7 @@ import express from "express";
 import helmet from "helmet";
 import logger from "./config/logger";
 import Controller from "./interfaces/controller.interface";
+import RequestWithUser from "./interfaces/request.interface";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./config/openapi.json";
 import errorMiddleware from "./middleware/error.middleware";
@@ -57,6 +58,12 @@ class App extends EventEmitter {
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
     this.app.use(compression());
+
+    // use for computing processing time on response
+    this.app.use((request: RequestWithUser, response: express.Response, next: express.NextFunction) => {
+      request.startTime = Date.now();
+      next();
+    });
   }
 
   /**

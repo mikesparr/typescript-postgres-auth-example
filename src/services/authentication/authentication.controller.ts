@@ -46,7 +46,7 @@ class AuthenticationController implements Controller {
 
     try {
       const data: any = await this.authenticationDao.login(loginData, request.userAgent);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -60,7 +60,7 @@ class AuthenticationController implements Controller {
 
     try {
       const data: any = await this.authenticationDao.impersonate(request.user, id, request.userAgent);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -72,7 +72,7 @@ class AuthenticationController implements Controller {
   private logout = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       const data: any = await this.authenticationDao.logout(request.user, parseToken(request));
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -86,7 +86,7 @@ class AuthenticationController implements Controller {
 
     try {
       const data: any = await this.authenticationDao.register(userData, request.userAgent);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -117,7 +117,7 @@ class AuthenticationController implements Controller {
 
     try {
       const data: any = await this.authenticationDao.lostPassword(userData, request.userAgent);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -128,7 +128,7 @@ class AuthenticationController implements Controller {
 
     try {
       const data: any = await this.authenticationDao.removeToken(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }

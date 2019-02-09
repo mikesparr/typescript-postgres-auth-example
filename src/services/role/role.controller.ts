@@ -39,7 +39,7 @@ class RoleController implements Controller {
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       const data: any = await this.roleDao.getAll(request.user);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -50,7 +50,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.getOne(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -61,7 +61,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.save(request.user, newRecord);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -72,7 +72,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.remove(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -84,7 +84,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.addPermission(request.user, id, newRecord);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -95,7 +95,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.getPermissions(request.user, id);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
@@ -106,7 +106,7 @@ class RoleController implements Controller {
 
     try {
       const data: any = await this.roleDao.removePermission(request.user, id, roleId);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }

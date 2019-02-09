@@ -27,7 +27,7 @@ class SearchController implements Controller {
 
     try {
       const data: any = await this.searchDao.getPlacesByName(request.user, q);
-      response.send(this.fmt.formatResponse(data, 0, "OK"));
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
     }
