@@ -13,6 +13,7 @@ gather input from peers.
  * Authorization (role-based access control with attribute filtering)
  * Features flags (flags, multi-variant flags, user segments, environments, goal tracking)
  * Event logging (logs activity stream of user events, search and filter log records)
+ * Performance monitoring (logging process time per request to identify bottlenecks)
  * Security (token deny list, helmet, more to come...)
  * Email using Sendgrid transactional email
  * Docker Compose (rapid setup including database admin tools)
