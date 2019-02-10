@@ -1,12 +1,10 @@
 [![CircleCI](https://circleci.com/gh/mikesparr/typescript-postgres-auth-example.svg?style=svg)](https://circleci.com/gh/mikesparr/typescript-postgres-auth-example)
 
-# Typescript Postgres Auth Example
-This project was created more for research purposes, reviewing how various other
+# Full-featured Starter API (Typescript, Express, RBAC / ABAC)
+This project was created initially for research purposes, reviewing how various other
 apps organize their Node/Express/Typescript repos and trying to pick the best 
-parts of each. Also, I wanted to figure out how best to combine Postgres, Redis, 
-JWT (or other token solution), and RBAC/ABAC authorization. This will be a "playground" 
-of sorts until I am comfortable with some of the tech decisions, but public so I can 
-gather input from peers.
+parts of each. It is now a reference / starter API project any startup could use to
+start off on the right foot with key functionality needed for future scaling and support.
 
 ## Features included
  * Authentication (register, login, verify email, lost password, login as (assume identity))
@@ -24,6 +22,13 @@ gather input from peers.
  * Strongly-typed codebase (written in Typescript)
  * Interactive API documentation using Swagger UI (Open API spec)
  * Automated testing (including integration tests for API routes)
+
+## Planned features
+ * User groups support (authorization based on membership roles)
+ * Internationalization
+ * Additional view layers (i.e. GraphQL)
+ * Graph relations
+ * Workspaces
 
 # Usage (quick start)
  1. clone the repo
@@ -148,21 +153,6 @@ as much as possible so we could change out solutions in future without modifying
 
 ### Developer
  * As a `developer`, I want to be able to toggle/flag new functionality, so we can safely build/deploy and test out new features
-
-# TODO
-## Add support for group permissions
-One could extend the functionality to add **group** or **department** (team) access as well. By making a `user`
-a member of a **group** and then adding author or group *ownership* to records, you can extend the Controller logic
-to `isOwnerOrMember` to check the records accordingly.
-
- * Example from AccessControl module author: https://github.com/onury/accesscontrol/issues/39
-
-## Add support for other API views (i.e. GraphQL)
-Some of the database interaction via ORM in Controllers could be factored out to a lib/model object for each 
-service so the Controller just calls methods. This way if we added a GraphQL service the resolvers could reuse the 
-same methods to keep the app DRY.
- * UPDATE 1/27/19: I factored controller logic to DAO layer so they could be reused by GraphQL resolvers
- * Time permitting, I may add GraphQL Schema/Resolvers and interface as well so this is multi-purpose API
 
 # Resources
  * [Methodology: 12-factor](https://12factor.net/)
