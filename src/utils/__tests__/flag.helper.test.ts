@@ -1,7 +1,7 @@
 import { User } from "../../services/user/user.entity";
 import { Flag } from "../../services/flag/flag.entity";
-import { Goal } from "../../services/goal/goal.entity";
-import { Segment } from "../../services/segment/segment.entity";
+import { Goal } from "../../services/flag/goal.entity";
+import { Segment } from "../../services/flag/segment.entity";
 import { Rule, RuleType } from "../../interfaces/rule.interface";
 import IVariant from "../../interfaces/variant.interface";
 import { Environment, EnvironmentType } from "../../interfaces/environment.interface";
