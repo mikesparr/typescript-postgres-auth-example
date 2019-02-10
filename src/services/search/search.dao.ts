@@ -4,6 +4,7 @@ import logger from "../../config/logger";
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import Dao from "../../interfaces/dao.interface";
+import SearchResult from "../../interfaces/searchresult.interface";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
@@ -22,7 +23,8 @@ class SearchDao implements Dao {
     // nothing
   }
 
-  public getPlacesByName = async (user: User, query: string) => {
+  public getPlacesByName = async (user: User, query: string):
+          Promise<SearchResult> => {
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
@@ -47,7 +49,11 @@ class SearchDao implements Dao {
           verb: "search",
         });
 
-        return permission.filter(records);
+        return {
+          data: permission.filter(records),
+          length: records.length,
+          total: records.length,
+        };
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);

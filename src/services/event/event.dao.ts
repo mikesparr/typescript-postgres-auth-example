@@ -2,6 +2,7 @@ import { getRepository, Repository } from "typeorm";
 import event from "../../config/event";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import SearchResult from "../../interfaces/searchresult.interface";
 import URLParams from "../../interfaces/urlparams.interface";
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
@@ -27,7 +28,7 @@ class EventDao implements Dao {
   }
 
   public getAll = async (user: User, params?: URLParams):
-            Promise<Event[] | Error> => {
+            Promise<SearchResult> => {
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
@@ -61,7 +62,7 @@ class EventDao implements Dao {
         }
       }
 
-      const records: Event[] = await getAll(this.docIndex, query, searchParams);
+      const records: SearchResult = await getAll(this.docIndex, query, searchParams);
 
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
@@ -80,7 +81,11 @@ class EventDao implements Dao {
           verb: "read-all",
         });
 
-        return permission.filter(records);
+        return {
+          data: permission.filter(records.data),
+          length: records.length,
+          total: records.total,
+        };
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);

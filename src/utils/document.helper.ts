@@ -6,8 +6,10 @@
 import client from "../config/documents"; // Elasticsearch client library
 import { DataType, Formatter } from "./formatter";
 import logger from "../config/logger";
+import SearchResult from "../interfaces/searchresult.interface";
 import RecordNotFoundException from "../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../exceptions/RecordsNotFoundException";
+import { filter } from "bluebird";
 
 const fmt: Formatter = new Formatter();
 
@@ -18,7 +20,7 @@ enum DocType {
 export const getAll = async (
         index: string,
         query: {[key: string]: any},
-        params: any = {}): Promise<any | Error> => {
+        params: any = {}): Promise<SearchResult> => {
   try {
     logger.debug(`Searching documents index ${index}`);
     // build search options
@@ -43,7 +45,11 @@ export const getAll = async (
       const filteredResults: Array<{[key: string]: any}> = [];
       hits.map((hit) => filteredResults.push(hit._source));
 
-      return filteredResults;
+      return {
+        data: filteredResults,
+        length: filteredResults.length,
+        total: response.hits.total,
+      };
     } else {
       throw new RecordsNotFoundException(index);
     }

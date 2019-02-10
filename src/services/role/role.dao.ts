@@ -2,6 +2,7 @@ import { getRepository, Repository } from "typeorm";
 import event from "../../config/event";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
@@ -28,7 +29,7 @@ class RoleDao implements Dao {
   }
 
   public getAll = async (user: User, params?: {[key: string]: any}):
-            Promise<Role[] | RecordsNotFoundException | UserNotAuthorizedException> => {
+            Promise<SearchResult> => {
     const started: number = Date.now();
     const records = await this.roleRepository.find({ relations: ["permissions"] });
 
@@ -52,7 +53,11 @@ class RoleDao implements Dao {
           verb: "read-all",
         });
 
-        return permission.filter(records);
+        return {
+          data: permission.filter(records),
+          length: records.length,
+          total: records.length,
+        };
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);

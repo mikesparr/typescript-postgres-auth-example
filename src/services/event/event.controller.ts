@@ -4,9 +4,11 @@ import RequestWithUser from "../../interfaces/request.interface";
 import URLParams from "../../interfaces/urlparams.interface";
 import authenticationMiddleware from "../../middleware/authentication.middleware";
 import validationMiddleware from "../../middleware/validation.middleware";
+import addSearchParams from "../../middleware/search.middleware";
 import { Formatter } from "../../utils/formatter";
 
 import EventDao from "./event.dao";
+import SearchResult from "../../interfaces/searchresult.interface";
 
 /**
  * Handles Event routes for RESTful interface
@@ -23,35 +25,13 @@ class EventController implements Controller {
   }
 
   private initializeRoutes(): void {
-    this.router.get(this.path, authenticationMiddleware, this.all);
+    this.router.get(this.path, authenticationMiddleware, addSearchParams, this.all);
   }
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const {q, limit, offset, from, to, sort} = request.query;
-    const params: URLParams = {};
-
-    if (q) {
-      params.q = q;
-    }
-    if (limit) {
-      params.limit = limit;
-    }
-    if (offset) {
-      params.offset = offset;
-    }
-    if (from) {
-      params.from = from;
-    }
-    if (to) {
-      params.to = to;
-    }
-    if (sort) {
-      params.sort = sort;
-    }
-
     try {
-      const data: any = await this.eventDao.getAll(request.user, params);
-      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
+      const {data, total} = await this.eventDao.getAll(request.user, request.searchParams);
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", total));
     } catch (error) {
       next(error);
     }

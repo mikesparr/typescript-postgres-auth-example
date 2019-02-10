@@ -5,6 +5,7 @@ import {
 import logger from "../../config/logger";
 
 import { Client } from "elasticsearch";
+import SearchResult from "../../interfaces/searchresult.interface";
 
 describe("document helper", () => {
   const TEST_INDEX: string = "test-data";
