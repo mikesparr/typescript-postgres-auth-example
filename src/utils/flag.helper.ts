@@ -3,7 +3,7 @@
  * and manage cached values
  */
 import jexl from "jexl";
-import cache from "../config/cache"; // Redis commands
+import cache from "../config/cache";
 import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
 import { User } from "../services/user/user.entity";
