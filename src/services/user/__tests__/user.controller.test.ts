@@ -4,7 +4,7 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { User } from "../../user/user.entity";
+import { User } from "../user.entity";
 
 let app: Application;
 let userId: string;

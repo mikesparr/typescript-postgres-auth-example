@@ -8,8 +8,8 @@ import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
 import { User } from "../services/user/user.entity";
 import { Flag } from "../services/flag/flag.entity";
-import { Goal } from "../services/goal/goal.entity";
-import { Segment } from "../services/segment/segment.entity";
+import { Goal } from "../services/flag/goal.entity";
+import { Segment } from "../services/flag/segment.entity";
 import { Environment } from "../interfaces/environment.interface";
 
 /**

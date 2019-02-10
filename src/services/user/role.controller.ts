@@ -8,7 +8,7 @@ import { Formatter } from "../../utils/formatter";
 
 import RoleDao from "./role.dao";
 import CreateRoleDto from "./role.dto";
-import PermissionDto from "../permission/permission.dto";
+import PermissionDto from "./permission.dto";
 
 /**
  * Handles Role routes for RESTful interface

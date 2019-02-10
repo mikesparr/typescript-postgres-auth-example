@@ -8,10 +8,10 @@ import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException"
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
-import { User } from "../../services/user/user.entity";
+import { User } from "./user.entity";
 import { Role } from "./role.entity";
-import { Permission } from "../../services/permission/permission.entity";
-import PermissionDto from "../permission/permission.dto";
+import { Permission } from "./permission.entity";
+import PermissionDto from "./permission.dto";
 import CreateRoleDto from "./role.dto";
 
 /**

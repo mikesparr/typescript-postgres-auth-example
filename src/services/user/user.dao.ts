@@ -18,9 +18,9 @@ import {
 } from "../../utils/authentication.helper";
 
 import { User } from "./user.entity";
-import { Role } from "../role/role.entity";
+import { Role } from "./role.entity";
 import CreateUserDto from "./user.dto";
-import AddRoleDto from "../role/addrole.dto";
+import AddRoleDto from "./addrole.dto";
 
 /**
  * Handles CRUD operations on User data in database

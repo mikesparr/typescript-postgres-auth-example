@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToOne, Unique } from "typeorm";
-import { Role } from "../role/role.entity";
+import { Role } from "./role.entity";
 
 /**
  * Data object with annotations to configure database in ORM

@@ -4,14 +4,14 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { Flag } from "../../flag/flag.entity";
+import { Goal } from "../goal.entity";
 
 let app: Application;
 let userId: string;
 let userToken: string;
 let adminId: string;
 let adminToken: string;
-let newFlagId: string;
+let newGoalId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -45,37 +45,28 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const flagToRemove: Flag = await connection.manager.findOne(Flag, newFlagId);
+  const goalToRemove: Goal = await connection.manager.findOne(Goal, newGoalId);
 
-  // only remove new flags if a test failed and they exist
-  if (flagToRemove) {
-    await connection.manager.delete(Flag, flagToRemove);
+  // only remove new goals if a test failed and they exist
+  if (goalToRemove) {
+    await connection.manager.delete(Goal, goalToRemove);
   }
 });
 
-describe("Flag", () => {
-  describe("POST /flags", () => {
+describe("Goal", () => {
+  describe("POST /goals", () => {
     const testData = {
       key: "test",
-      name: "Test flag",
-      type: "user",
+      name: "Test goal",
     };
-
     const testDataWithBadKey = {
-      key: "test flag",
-      name: "Test flag",
-      type: "user",
+      key: "test goal",
+      name: "Test goal",
     };
 
-    const testDataWithBadType = {
-      key: "test",
-      name: "Test flag",
-      type: "American",
-    };
-
-    it("denies user ability to create new flags", async () => {
+    it("denies user ability to create new goals", async () => {
       const result = await request(app)
-        .post("/flags")
+        .post("/goals")
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -85,95 +76,85 @@ describe("Flag", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .post("/flags")
+        .post("/goals")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("throws if key has spaces", async () => {
+    it("throws if adding space to key name", async () => {
       const result = await request(app)
-        .post("/flags")
+        .post("/goals")
         .send(testDataWithBadKey)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
+      expect(result.body.errors.length).toEqual(1);
     });
 
-    it("throws if type does not match enum values", async () => {
+    it("allows admin to create new goals", async () => {
       const result = await request(app)
-        .post("/flags")
-        .send(testDataWithBadType)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(400);
-    });
-
-    it("allows admin to create new flags", async () => {
-      const result = await request(app)
-        .post("/flags")
+        .post("/goals")
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newFlagId = result.body.data.id;
+      newGoalId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });
-  }); // POST /flags
+  }); // POST /goals
 
-  describe("GET /flags", () => {
-    it("denies user flag access", async () => {
+  describe("GET /goals", () => {
+    it("denies user goal access", async () => {
       const result = await request(app)
-        .get("/flags")
+        .get("/goals")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin flag access with rules and goals", async () => {
+    it("allows admin goal access with toggles", async () => {
       const result = await request(app)
-        .get("/flags")
+        .get("/goals")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /flags
+  }); // GET /goals
 
-  describe("GET /flags/:id", () => {
-    it("denies user flag access", async () => {
+  describe("GET /goals/:id", () => {
+    it("denies user goal access", async () => {
       const result = await request(app)
-        .get(`/flags/${newFlagId}`)
+        .get(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin flag access with rules and goals", async () => {
+    it("allows admin goal access with toggles", async () => {
       const result = await request(app)
-        .get(`/flags/${newFlagId}`)
+        .get(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /flags:id
+  }); // GET /goals:id
 
-  describe("PUT /flags/:id", () => {
+  describe("PUT /goals/:id", () => {
     const testData = {
       key: "test",
-      name: "Test flag (updated)",
-      type: "user",
+      name: "Test goal (updated)",
     };
 
-    it("denies user ability to update flags", async () => {
+    it("denies user ability to update goals", async () => {
       const result = await request(app)
-        .put(`/flags/${newFlagId}`)
+        .put(`/goals/${newGoalId}`)
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -183,28 +164,28 @@ describe("Flag", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .put(`/flags/${newFlagId}`)
+        .put(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to update existing flags", async () => {
+    it("allows admin to update existing goals", async () => {
       const result = await request(app)
-        .put(`/flags/${newFlagId}`)
+        .put(`/goals/${newGoalId}`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // PUT /flags
+  }); // PUT /goals
 
-  describe("DELETE /flags/:id", () => {
-    it("denies user ability to delete flags", async () => {
+  describe("DELETE /goals/:id", () => {
+    it("denies user ability to delete goals", async () => {
       const result = await request(app)
-        .delete(`/flags/${newFlagId}`)
+        .delete(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -213,21 +194,21 @@ describe("Flag", () => {
 
     it("throws no record found if missing id", async () => {
       const result = await request(app)
-        .delete(`/flags`)
+        .delete(`/goals`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin to delete existing flags", async () => {
+    it("allows admin to delete existing goals", async () => {
       const result = await request(app)
-        .delete(`/flags/${newFlagId}`)
+        .delete(`/goals/${newGoalId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // DELETE /flags/:id
+  }); // DELETE /goals/:id
 
 });

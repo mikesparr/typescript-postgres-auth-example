@@ -8,7 +8,7 @@ import { Formatter } from "../../utils/formatter";
 
 import UserDao from "./user.dao";
 import CreateUserDto from "./user.dto";
-import AddRoleDto from "../role/addrole.dto";
+import AddRoleDto from "./addrole.dto";
 
 /**
  * Handles User routes for RESTful interface

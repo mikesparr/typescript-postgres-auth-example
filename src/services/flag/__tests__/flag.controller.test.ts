@@ -4,14 +4,14 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { Segment } from "../../segment/segment.entity";
+import { Flag } from "../flag.entity";
 
 let app: Application;
 let userId: string;
 let userToken: string;
 let adminId: string;
 let adminToken: string;
-let newSegmentId: string;
+let newFlagId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -45,29 +45,37 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const segmentToRemove: Segment = await connection.manager.findOne(Segment, newSegmentId);
+  const flagToRemove: Flag = await connection.manager.findOne(Flag, newFlagId);
 
-  // only remove new segments if a test failed and they exist
-  if (segmentToRemove) {
-    segmentToRemove.deleted = true;
-    await connection.manager.save(Segment, segmentToRemove);
+  // only remove new flags if a test failed and they exist
+  if (flagToRemove) {
+    await connection.manager.delete(Flag, flagToRemove);
   }
 });
 
-describe("Segment", () => {
-  describe("POST /segments", () => {
+describe("Flag", () => {
+  describe("POST /flags", () => {
     const testData = {
       key: "test",
-      name: "Test segment",
-    };
-    const testDataWithBadKey = {
-      key: "test segment",
-      name: "Test segment",
+      name: "Test flag",
+      type: "user",
     };
 
-    it("denies user ability to create new segments", async () => {
+    const testDataWithBadKey = {
+      key: "test flag",
+      name: "Test flag",
+      type: "user",
+    };
+
+    const testDataWithBadType = {
+      key: "test",
+      name: "Test flag",
+      type: "American",
+    };
+
+    it("denies user ability to create new flags", async () => {
       const result = await request(app)
-        .post("/segments")
+        .post("/flags")
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -77,85 +85,95 @@ describe("Segment", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .post("/segments")
+        .post("/flags")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("throws if spaces in key name", async () => {
+    it("throws if key has spaces", async () => {
       const result = await request(app)
-        .post("/segments")
+        .post("/flags")
         .send(testDataWithBadKey)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
-      expect(result.body.errors.length).toEqual(1);
     });
 
-    it("allows admin to create new segments", async () => {
+    it("throws if type does not match enum values", async () => {
       const result = await request(app)
-        .post("/segments")
+        .post("/flags")
+        .send(testDataWithBadType)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("allows admin to create new flags", async () => {
+      const result = await request(app)
+        .post("/flags")
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newSegmentId = result.body.data.id;
+      newFlagId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });
-  }); // POST /segments
+  }); // POST /flags
 
-  describe("GET /segments", () => {
-    it("denies user segment access", async () => {
+  describe("GET /flags", () => {
+    it("denies user flag access", async () => {
       const result = await request(app)
-        .get("/segments")
+        .get("/flags")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin segment access with toggles", async () => {
+    it("allows admin flag access with rules and goals", async () => {
       const result = await request(app)
-        .get("/segments")
+        .get("/flags")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /segments
+  }); // GET /flags
 
-  describe("GET /segments/:id", () => {
-    it("denies user segment access", async () => {
+  describe("GET /flags/:id", () => {
+    it("denies user flag access", async () => {
       const result = await request(app)
-        .get(`/segments/${newSegmentId}`)
+        .get(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin segment access with toggles", async () => {
+    it("allows admin flag access with rules and goals", async () => {
       const result = await request(app)
-        .get(`/segments/${newSegmentId}`)
+        .get(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /segments:id
+  }); // GET /flags:id
 
-  describe("PUT /segments/:id", () => {
+  describe("PUT /flags/:id", () => {
     const testData = {
       key: "test",
-      name: "Test segment (updated)",
+      name: "Test flag (updated)",
+      type: "user",
     };
 
-    it("denies user ability to update segments", async () => {
+    it("denies user ability to update flags", async () => {
       const result = await request(app)
-        .put(`/segments/${newSegmentId}`)
+        .put(`/flags/${newFlagId}`)
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -165,28 +183,28 @@ describe("Segment", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .put(`/segments/${newSegmentId}`)
+        .put(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to update existing segments", async () => {
+    it("allows admin to update existing flags", async () => {
       const result = await request(app)
-        .put(`/segments/${newSegmentId}`)
+        .put(`/flags/${newFlagId}`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // PUT /segments
+  }); // PUT /flags
 
-  describe("DELETE /segments/:id", () => {
-    it("denies user ability to delete segments", async () => {
+  describe("DELETE /flags/:id", () => {
+    it("denies user ability to delete flags", async () => {
       const result = await request(app)
-        .delete(`/segments/${newSegmentId}`)
+        .delete(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -195,21 +213,21 @@ describe("Segment", () => {
 
     it("throws no record found if missing id", async () => {
       const result = await request(app)
-        .delete(`/segments`)
+        .delete(`/flags`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin to delete existing segments", async () => {
+    it("allows admin to delete existing flags", async () => {
       const result = await request(app)
-        .delete(`/segments/${newSegmentId}`)
+        .delete(`/flags/${newFlagId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // DELETE /segments/:id
+  }); // DELETE /flags/:id
 
 });

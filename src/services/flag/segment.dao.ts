@@ -8,17 +8,17 @@ import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException"
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
 
-import { User } from "../../services/user/user.entity";
-import { Goal } from "./goal.entity";
-import CreateGoalDto from "./goal.dto";
+import { User } from "../user/user.entity";
+import { Segment } from "./segment.entity";
+import CreateSegmentDto from "./segment.dto";
 
 /**
- * Handles CRUD operations on Goal data in database
+ * Handles CRUD operations on Segment data in database
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
-class GoalDao implements Dao {
-  private resource: string = "goal"; // matches defined goal goal "resource"
-  private goalRepository: Repository<Goal> = getRepository(Goal);
+class SegmentDao implements Dao {
+  private resource: string = "segment"; // matches defined segment segment "resource"
+  private segmentRepository: Repository<Segment> = getRepository(Segment);
 
   constructor() {
     // nothing
@@ -27,7 +27,7 @@ class GoalDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.goalRepository.find({ relations: ["flags"] });
+    const records = await this.segmentRepository.find({ relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -61,10 +61,10 @@ class GoalDao implements Dao {
   }
 
   public getOne = async (user: User, id: string):
-            Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+            Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
     logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.goalRepository.findOne(id, { relations: ["flags"] });
+    const record = await this.segmentRepository.findOne(id, { relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.GET;
@@ -94,17 +94,17 @@ class GoalDao implements Dao {
   }
 
   public save = async (user: User, data: any):
-            Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+            Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const newRecord: CreateGoalDto = data;
+    const newRecord: CreateSegmentDto = data;
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.POST;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: Goal = permission.filter(newRecord);
-      await this.goalRepository.save(filteredData);
+      const filteredData: Segment = permission.filter(newRecord);
+      await this.segmentRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
@@ -128,7 +128,7 @@ class GoalDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.goalRepository.findOne(id);
+    const recordToRemove = await this.segmentRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = methodActions.DELETE;
@@ -136,8 +136,8 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        recordToRemove.enabled = false;
-        await this.goalRepository.save(recordToRemove);
+        recordToRemove.deleted = true;
+        await this.segmentRepository.save(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();
@@ -163,4 +163,4 @@ class GoalDao implements Dao {
 
 }
 
-export default GoalDao;
+export default SegmentDao;

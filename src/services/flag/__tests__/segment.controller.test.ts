@@ -4,14 +4,14 @@ import { Application } from "express";
 import { getConnection, Connection } from "typeorm";
 import App from "../../../app";
 
-import { Goal } from "../../goal/goal.entity";
+import { Segment } from "../segment.entity";
 
 let app: Application;
 let userId: string;
 let userToken: string;
 let adminId: string;
 let adminToken: string;
-let newGoalId: string;
+let newSegmentId: string;
 
 beforeAll(async () => {
   const connection: Connection = await getConnection();
@@ -45,28 +45,29 @@ beforeAll(async () => {
 afterAll(async () => {
   // clean up test data
   const connection: Connection = await getConnection();
-  const goalToRemove: Goal = await connection.manager.findOne(Goal, newGoalId);
+  const segmentToRemove: Segment = await connection.manager.findOne(Segment, newSegmentId);
 
-  // only remove new goals if a test failed and they exist
-  if (goalToRemove) {
-    await connection.manager.delete(Goal, goalToRemove);
+  // only remove new segments if a test failed and they exist
+  if (segmentToRemove) {
+    segmentToRemove.deleted = true;
+    await connection.manager.save(Segment, segmentToRemove);
   }
 });
 
-describe("Goal", () => {
-  describe("POST /goals", () => {
+describe("Segment", () => {
+  describe("POST /segments", () => {
     const testData = {
       key: "test",
-      name: "Test goal",
+      name: "Test segment",
     };
     const testDataWithBadKey = {
-      key: "test goal",
-      name: "Test goal",
+      key: "test segment",
+      name: "Test segment",
     };
 
-    it("denies user ability to create new goals", async () => {
+    it("denies user ability to create new segments", async () => {
       const result = await request(app)
-        .post("/goals")
+        .post("/segments")
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -76,16 +77,16 @@ describe("Goal", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .post("/goals")
+        .post("/segments")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("throws if adding space to key name", async () => {
+    it("throws if spaces in key name", async () => {
       const result = await request(app)
-        .post("/goals")
+        .post("/segments")
         .send(testDataWithBadKey)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
@@ -94,67 +95,67 @@ describe("Goal", () => {
       expect(result.body.errors.length).toEqual(1);
     });
 
-    it("allows admin to create new goals", async () => {
+    it("allows admin to create new segments", async () => {
       const result = await request(app)
-        .post("/goals")
+        .post("/segments")
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newGoalId = result.body.data.id;
+      newSegmentId = result.body.data.id;
 
       expect(result.status).toEqual(200);
     });
-  }); // POST /goals
+  }); // POST /segments
 
-  describe("GET /goals", () => {
-    it("denies user goal access", async () => {
+  describe("GET /segments", () => {
+    it("denies user segment access", async () => {
       const result = await request(app)
-        .get("/goals")
+        .get("/segments")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin goal access with toggles", async () => {
+    it("allows admin segment access with toggles", async () => {
       const result = await request(app)
-        .get("/goals")
+        .get("/segments")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /goals
+  }); // GET /segments
 
-  describe("GET /goals/:id", () => {
-    it("denies user goal access", async () => {
+  describe("GET /segments/:id", () => {
+    it("denies user segment access", async () => {
       const result = await request(app)
-        .get(`/goals/${newGoalId}`)
+        .get(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin goal access with toggles", async () => {
+    it("allows admin segment access with toggles", async () => {
       const result = await request(app)
-        .get(`/goals/${newGoalId}`)
+        .get(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // GET /goals:id
+  }); // GET /segments:id
 
-  describe("PUT /goals/:id", () => {
+  describe("PUT /segments/:id", () => {
     const testData = {
       key: "test",
-      name: "Test goal (updated)",
+      name: "Test segment (updated)",
     };
 
-    it("denies user ability to update goals", async () => {
+    it("denies user ability to update segments", async () => {
       const result = await request(app)
-        .put(`/goals/${newGoalId}`)
+        .put(`/segments/${newSegmentId}`)
         .send(testData)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
@@ -164,28 +165,28 @@ describe("Goal", () => {
 
     it("throws if missing data", async () => {
       const result = await request(app)
-        .put(`/goals/${newGoalId}`)
+        .put(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(400);
     });
 
-    it("allows admin to update existing goals", async () => {
+    it("allows admin to update existing segments", async () => {
       const result = await request(app)
-        .put(`/goals/${newGoalId}`)
+        .put(`/segments/${newSegmentId}`)
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // PUT /goals
+  }); // PUT /segments
 
-  describe("DELETE /goals/:id", () => {
-    it("denies user ability to delete goals", async () => {
+  describe("DELETE /segments/:id", () => {
+    it("denies user ability to delete segments", async () => {
       const result = await request(app)
-        .delete(`/goals/${newGoalId}`)
+        .delete(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -194,21 +195,21 @@ describe("Goal", () => {
 
     it("throws no record found if missing id", async () => {
       const result = await request(app)
-        .delete(`/goals`)
+        .delete(`/segments`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(404); // no record found
     });
 
-    it("allows admin to delete existing goals", async () => {
+    it("allows admin to delete existing segments", async () => {
       const result = await request(app)
-        .delete(`/goals/${newGoalId}`)
+        .delete(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
       expect(result.status).toEqual(200);
     });
-  }); // DELETE /goals/:id
+  }); // DELETE /segments/:id
 
 });

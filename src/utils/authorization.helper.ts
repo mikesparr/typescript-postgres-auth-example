@@ -7,8 +7,8 @@ import cache from "../config/cache"; // Redis commands
 import logger from "../config/logger";
 import { getRepository, Repository } from "typeorm";
 import { User } from "../services/user/user.entity";
-import { Role } from "../services/role/role.entity";
-import { Permission } from "../services/permission/permission.entity";
+import { Role } from "../services/user/role.entity";
+import { Permission } from "../services/user/permission.entity";
 
 /**
  * Keys for cache

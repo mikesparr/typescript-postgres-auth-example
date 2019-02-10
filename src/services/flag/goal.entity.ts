@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
-import { Flag } from "../flag/flag.entity";
+import { Flag } from "./flag.entity";
 
 /**
  * Data object with annotations to configure database in ORM

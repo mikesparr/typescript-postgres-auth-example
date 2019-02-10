@@ -1,6 +1,6 @@
 import { Column, Entity, Index, PrimaryColumn, OneToMany, ManyToMany, JoinTable } from "typeorm";
-import { Permission } from "../permission/permission.entity";
-import { User } from "../user/user.entity";
+import { Permission } from "./permission.entity";
+import { User } from "./user.entity";
 
 /**
  * Data object with annotations to configure database in ORM
