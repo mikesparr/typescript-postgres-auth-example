@@ -25,6 +25,7 @@ start off on the right foot with key functionality needed for future scaling and
 
 ## Planned features
  * User groups support (authorization based on membership roles)
+ * User invite support
  * Internationalization
  * Additional view layers (i.e. GraphQL)
  * Graph relations
@@ -51,7 +52,6 @@ start off on the right foot with key functionality needed for future scaling and
      * "General > Name" the connection "Test Server"
      * click on "Connection" tab:
        * Host: `postgres` (network exposed by docker-compose)
-       * Maintenance database: `auth_example` (or whatever you set in ENV vars)
        * Password: `admin` (or whatever you set in ENV vars)
      * click on "Save"
      * traverse "Servers > Test Server > Databases > auth_example > Schemas > public"
