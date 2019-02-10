@@ -8,7 +8,22 @@ JWT (or other token solution), and RBAC/ABAC authorization. This will be a "play
 of sorts until I am comfortable with some of the tech decisions, but public so I can 
 gather input from peers.
 
-# Usage (for testing purposes)
+## Features included
+ * Authentication (register, login, verify email, lost password, login as (assume identity))
+ * Authorization (role-based access control with attribute filtering)
+ * Features flags (flags, multi-variant flags, user segments, environments, goal tracking)
+ * Event logging (logs activity stream of user events, search and filter log records)
+ * Security (token deny list, helmet, more to come...)
+ * Email using Sendgrid transactional email
+ * Docker Compose (rapid setup including database admin tools)
+ * Database integrations (Postgres, Redis, Elasticsearch)
+ * Containers (optionally build app in Docker container with multi-stage build)
+ * Continuous Integration (CI config builds, lints, tests on push with CircleCI)
+ * Flexible architecture (Dao layer allows adding future "views", EventEmitter allows CQRS-ES)
+ * Strongly-typed codebase (written in Typescript)
+ * Interactive API documentation using Swagger UI (Open API spec)
+
+# Usage (quick start)
  1. clone the repo
  2. `npm install`
  3. Setup temp environment configs (TEST only)
