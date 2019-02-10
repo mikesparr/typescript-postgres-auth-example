@@ -22,6 +22,7 @@ gather input from peers.
  * Flexible architecture (Dao layer allows adding future "views", EventEmitter allows CQRS-ES)
  * Strongly-typed codebase (written in Typescript)
  * Interactive API documentation using Swagger UI (Open API spec)
+ * Automated testing (including integration tests for API routes)
 
 # Usage (quick start)
  1. clone the repo
