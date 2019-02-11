@@ -62,6 +62,23 @@ const createTestData = async (connection: Connection) => {
     resource: "event",
   });
 
+  // graph
+  const adminRelationViewPermission = connection.manager.create(Permission, {
+    action: "read:any",
+    attributes: "*",
+    resource: "relation",
+  });
+  const adminRelationCreatePermission = connection.manager.create(Permission, {
+    action: "create:any",
+    attributes: "*",
+    resource: "relation",
+  });
+  const adminRelationDeletePermission = connection.manager.create(Permission, {
+    action: "delete:any",
+    attributes: "*",
+    resource: "relation",
+  });
+
   // user
   const userUserViewPermission = connection.manager.create(Permission, {
     action: "read:any",
@@ -335,6 +352,9 @@ const createTestData = async (connection: Connection) => {
       adminRoleViewRolePermissions,
       adminRoleAddRolePermission,
       adminRoleDeleteRolePermission,
+      adminRelationViewPermission,
+      adminRelationCreatePermission,
+      adminRelationDeletePermission,
     ],
   });
   const sysadminRole = connection.manager.create(Role, {

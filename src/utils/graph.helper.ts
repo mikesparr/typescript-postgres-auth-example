@@ -1,0 +1,41 @@
+/**
+ * Utilities for bi-direction graph relations
+ */
+
+// still figuring out best place to put this
+export const relationMap: {[key: string]: any} = {
+  ACCEPTED: { source: "ACCEPTED", target: "ACCEPTED_BY" },
+  APPROVED: { source: "APPROVED", target: "APPROVED_BY" },
+  ATTENDED: { source: "ATTENDED", target: "ATTENDED_BY" },
+  AUTHORED: { source: "AUTHORED", target: "AUTHORED_BY" },
+  CANCELLED: { source: "CANCELLED", target: "CANCELLED_BY" },
+  CHECKED_IN: { source: "CHECKED_IN", target: "CHECKED_IN_BY" },
+  CONFIRMED: { source: "CONFIRMED", target: "CONFIRMED_BY" },
+  DELETED: { source: "DELETED", target: "DELETED_BY" },
+  DELIVERED: { source: "DELIVERED", target: "DELIVERED_BY" },
+  DOWNLOADED: { source: "DOWNLOADED", target: "DOWNLOADED_BY" },
+  EDITED: { source: "EDITED", target: "EDITED_BY" },
+  FAVORITED: { source: "FAVORITED", target: "FAVORITED_BY" },
+  FLAGGED: { source: "FLAGGED", target: "FLAGGED_BY" },
+  FOLLOWS: { source: "FOLLOWS", target: "FOLLOWED_BY" },
+  HID: { source: "HID", target: "HID_BY" },
+  INVITED: { source: "INVITED", target: "INVITED_BY" },
+  KNOWS: { source: "KNOWS", target: "KNOWS" },
+  LIKES: { source: "LIKES", target: "LIKED_BY" },
+  MEMBER_OF: { source: "MEMBER_OF", target: "HAS_MEMBER" },
+  OFFERED: { source: "OFFERED", target: "OFFERED_BY" },
+  ORDERED: { source: "ORDERED", target: "ORDERED_BY" },
+  PURCHASED: { source: "PURCHASED", target: "PURCHASED_BY" },
+  REGISTERED: { source: "REGISTERED", target: "REGISTERED_BY" },
+  REJECTED: { source: "REJECTED", target: "REJECTED_BY" },
+  REMOVED: { source: "REMOVED", target: "REMOVED_BY" },
+  RESERVED: { source: "RESERVED", target: "RESERVED_BY" },
+  RETURNED: { source: "RETURNED", target: "RETURNED_BY" },
+  SAVED: { source: "SAVED", target: "SAVED_BY" },
+  SHARED: { source: "SHARED", target: "SHARED_BY" },
+  SIGNED: { source: "SIGNED", target: "SIGNED_BY" },
+  STARS: { source: "STARS", target: "STARRED_BY" },
+  UPLOADED: { source: "UPLOADED", target: "UPLOADED_BY" },
+  VIEWED: { source: "VIEWED", target: "VIEWED_BY" },
+  VISITED: { source: "VISITED", target: "VISITED_BY" },
+};

@@ -5,7 +5,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 
 @Entity()
-export class Relation {
+export class Node {
 
   @PrimaryGeneratedColumn("uuid")
   public id: string;
