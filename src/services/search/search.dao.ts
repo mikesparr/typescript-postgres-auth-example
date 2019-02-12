@@ -1,14 +1,13 @@
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 
 import NotImplementedException from "../../exceptions/NotImplementedException";
-import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import Dao from "../../interfaces/dao.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
-import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 
 import { getPlaces } from "./provider/OpenCageDataProvider";
 import { User } from "../user/user.entity";
@@ -28,7 +27,7 @@ class SearchDao implements Dao {
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -39,14 +38,13 @@ class SearchDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("search", {
-          action,
+        event.emit(action, {
           actor: user,
           object: null,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "search",
+          type: action,
         });
 
         return {

@@ -1,12 +1,12 @@
 import { getRepository, Repository } from "typeorm";
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 
 import { User } from "../user/user.entity";
 import { Goal } from "./goal.entity";
@@ -30,7 +30,7 @@ class GoalDao implements Dao {
     const records = await this.goalRepository.find({ relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -39,14 +39,13 @@ class GoalDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("read-all", {
-          action,
+        event.emit(action, {
           actor: user,
           object: null,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "read-all",
+          type: action,
         });
 
         return {
@@ -67,7 +66,7 @@ class GoalDao implements Dao {
     const record = await this.goalRepository.findOne(id, { relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -76,14 +75,13 @@ class GoalDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("read-one", {
-          action,
+        event.emit(action, {
           actor: user,
           object: {id: record.id},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "read-one",
+          type: action,
         });
 
         return permission.filter(record);
@@ -99,7 +97,7 @@ class GoalDao implements Dao {
     const newRecord: CreateGoalDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.POST;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -108,14 +106,13 @@ class GoalDao implements Dao {
 
       // log event to central handler
       const ended: number = Date.now();
-      event.emit("save", {
-        action,
+      event.emit(action, {
         actor: user,
         object: filteredData,
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
-        verb: "save",
+        type: action,
       });
 
       logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
@@ -131,7 +128,7 @@ class GoalDao implements Dao {
     const recordToRemove = await this.goalRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.DELETE;
+    const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -141,14 +138,13 @@ class GoalDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("remove", {
-          action,
+        event.emit(action, {
           actor: user,
           object: {id},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "remove",
+          type: action,
         });
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);

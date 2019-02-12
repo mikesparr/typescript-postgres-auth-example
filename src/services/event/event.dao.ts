@@ -1,5 +1,5 @@
 import { getRepository, Repository } from "typeorm";
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
@@ -8,7 +8,7 @@ import NotImplementedException from "../../exceptions/NotImplementedException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 import { getAll } from "../../utils/document.helper";
 
 import { User } from "../user/user.entity";
@@ -32,7 +32,7 @@ class EventDao implements Dao {
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -71,14 +71,13 @@ class EventDao implements Dao {
         user.password = undefined;
         const ended: number = Date.now();
 
-        event.emit("read-all", {
-          action,
+        event.emit(action, {
           actor: user,
           object: null,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "read-all",
+          type: action,
         });
 
         return {

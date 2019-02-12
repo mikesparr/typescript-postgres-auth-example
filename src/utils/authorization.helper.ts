@@ -28,18 +28,6 @@ enum AuthorizationActions {
 }
 
 /**
- * Given UPPER-CASE HTTP request method, returns authorization action
- * read, create, update, or delete
- */
-const methodActions: {[key: string]: string} = {
-  DELETE: AuthorizationActions.DELETE,
-  GET: AuthorizationActions.READ,
-  PATCH: AuthorizationActions.UPDATE,
-  POST: AuthorizationActions.CREATE,
-  PUT: AuthorizationActions.UPDATE,
-};
-
-/**
  * Builds JSON grant list from database roles and permissions
  */
 const createGrantListFromDatabase = async (): Promise<Array<{[key: string]: any}>> => {
@@ -239,6 +227,5 @@ export {
   removeGrantListFromCache,
   refreshGrants,
   getAuthorizer,
-  methodActions,
   getPermission,
 };

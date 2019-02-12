@@ -1,17 +1,16 @@
 import { getRepository, Repository } from "typeorm";
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
-import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 
 import { User } from "./user.entity";
 import { Role } from "./role.entity";
 import { Permission } from "./permission.entity";
-import PermissionDto from "./permission.dto";
 import CreateRoleDto from "./role.dto";
 
 /**
@@ -22,7 +21,6 @@ class RoleDao implements Dao {
   private resource: string = "role"; // matches defined role role "resource"
   private rolePermissionResource: string = "rolepermission";
   private roleRepository: Repository<Role> = getRepository(Role);
-  private permissionRepository: Repository<Permission> = getRepository(Permission);
 
   constructor() {
     // nothing
@@ -34,7 +32,7 @@ class RoleDao implements Dao {
     const records = await this.roleRepository.find({ relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -43,14 +41,13 @@ class RoleDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("read-all", {
-          action,
+        event.emit(action, {
           actor: user,
           object: null,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "read-all",
+          type: action,
         });
 
         return {
@@ -70,7 +67,7 @@ class RoleDao implements Dao {
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -79,14 +76,13 @@ class RoleDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("read-one", {
-          action,
+        event.emit(action, {
           actor: user,
           object: {id: record.id},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "read-one",
+          type: action,
         });
 
         return permission.filter(record);
@@ -102,7 +98,7 @@ class RoleDao implements Dao {
     const newRecord: CreateRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.POST;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -111,14 +107,13 @@ class RoleDao implements Dao {
 
       // log event to central handler
       const ended: number = Date.now();
-      event.emit("save", {
-        action,
+      event.emit(action, {
         actor: user,
         object: filteredData,
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
-        verb: "save",
+        type: action,
       });
 
       logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
@@ -134,7 +129,7 @@ class RoleDao implements Dao {
     const recordToRemove = await this.roleRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.DELETE;
+    const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -143,14 +138,13 @@ class RoleDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("remove", {
-          action,
+        event.emit(action, {
           actor: user,
           object: {id},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "remove",
+          type: action,
         });
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);
@@ -169,7 +163,7 @@ class RoleDao implements Dao {
     const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.GET;
+    const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
@@ -178,15 +172,14 @@ class RoleDao implements Dao {
       } else {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("read-all", {
-          action,
+        event.emit(action, {
           actor: user,
           object: null,
           resource: this.rolePermissionResource,
           target: record,
           timestamp: ended,
           took: ended - started,
-          verb: "read-all",
+          verb: action,
         });
 
         return permission.filter(record.permissions);
@@ -202,7 +195,7 @@ class RoleDao implements Dao {
     const newRecord: Permission = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.POST;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
@@ -216,15 +209,14 @@ class RoleDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("add-user-permission", {
-          action,
+        event.emit(ActivityType.ADD, {
           actor: user,
           object: newRecord,
           resource: this.rolePermissionResource,
           target: recordToUpdate,
           timestamp: ended,
           took: ended - started,
-          verb: "add-user-permission",
+          type: ActivityType.ADD,
         });
 
         logger.info(`Added ${this.rolePermissionResource} with ID ${newRecord.action} to role ${recordToUpdate.id}`);
@@ -242,7 +234,7 @@ class RoleDao implements Dao {
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.DELETE;
+    const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
@@ -271,15 +263,14 @@ class RoleDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("remove-user-permission", {
-          action,
+        event.emit(ActivityType.REMOVE, {
           actor: user,
           object: removedItem,
           resource: this.rolePermissionResource,
           target: recordToUpdate,
           timestamp: ended,
           took: ended - started,
-          verb: "remove-user-permission",
+          type: ActivityType.REMOVE,
         });
 
         logger.info(`Removed ${this.rolePermissionResource} with ID ${permissionId} from user ${id}`);

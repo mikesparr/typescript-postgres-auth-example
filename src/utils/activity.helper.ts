@@ -1,10 +1,10 @@
 import os from "os";
 import { EventEmitter } from "events";
-import logger from "./logger";
+import logger from "../config/logger";
 import Event from "../services/event/event.entity";
-import { DataType, Formatter } from "../utils/formatter";
+import { DataType, Formatter } from "./formatter";
 
-import { save } from "../utils/document.helper";
+import { save } from "./document.helper";
 
 /**
  * Event emitter that can allow handling of application events
@@ -12,7 +12,41 @@ import { save } from "../utils/document.helper";
  * imports are cached so this should be a singleton used
  * throughout app
  */
-const event = new EventEmitter();
+export const event = new EventEmitter();
+
+/**
+ * Event types based on Activity Streams spec
+ */
+export enum ActivityType {
+  ACCEPT = "accept",
+  ADD = "add",
+  ANNOUNCE = "announce",
+  ARRIVE = "arrive",
+  BLOCK = "block",
+  CREATE = "create",
+  DELETE = "delete",
+  DISLIKE = "dislike",
+  FLAG = "flag",
+  FOLLOW = "follow",
+  IGNORE = "ignore",
+  INVITE = "invite",
+  JOIN = "join",
+  LEAVE = "leave",
+  LIKE = "like",
+  LISTEN = "listen",
+  MOVE = "move",
+  OFFER = "offer",
+  QUESTION = "question",
+  READ = "read",
+  REJECT = "reject",
+  REMOVE = "remove",
+  TENTATIVE_ACCEPT = "tentativeAccept",
+  TENTATIVE_REJECT = "tentativeReject",
+  TRAVEL = "travel",
+  UNDO = "undo",
+  UPDATE = "update",
+  VIEW = "view",
+}
 
 /**
  * Formatter to standardize data before storing in DB
@@ -67,6 +101,9 @@ const handleEvent = async (data: {[key: string]: any}) => {
   }
 };
 
+/**
+ * Listen for events emitted from DAO methods and pass in handler
+ */
 event.on("register", handleEvent);
 event.on("verify", handleEvent);
 event.on("reissue", handleEvent);
@@ -89,5 +126,3 @@ event.on("read-all", handleEvent);
 event.on("read-one", handleEvent);
 event.on("save", handleEvent);
 event.on("remove", handleEvent);
-
-export default event;

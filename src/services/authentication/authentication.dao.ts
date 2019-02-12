@@ -1,5 +1,5 @@
 import { getRepository, Repository, Not } from "typeorm";
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 
 import UserExistsException from "../../exceptions/UserExistsException";
@@ -8,7 +8,7 @@ import Dao from "../../interfaces/dao.interface";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import WrongCredentialsException from "../../exceptions/WrongCredentialsException";
 
-import { AuthPermission, getPermission, methodActions } from "../../utils/authorization.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 import {
   TokenTypes,
   addTokenToDenyList,
@@ -82,7 +82,7 @@ class AuthenticationDao implements Dao {
     const foundUser: User = await this.userRepository.findOne(surrogateUserId);
     if (foundUser) {
       const isOwnerOrMember: boolean = false; // TODO: consider logic if manager in group
-      const action: string = methodActions.POST;
+      const action: string = ActivityType.CREATE;
       const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.surrogateResource);
 
       if (permission.granted) {
@@ -102,7 +102,7 @@ class AuthenticationDao implements Dao {
   public logout = async (user: User, token: string): Promise<object | Error> => {
     const started: number = Date.now();
     const isOwnerOrMember: boolean = false;
-    const action: string = methodActions.PUT;
+    const action: string = ActivityType.UPDATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -111,14 +111,13 @@ class AuthenticationDao implements Dao {
 
       // log event to central handler
       const ended: number = Date.now();
-      event.emit("logout", {
-        action,
+      event.emit(ActivityType.LEAVE, {
         actor: user,
         object: null,
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
-        verb: "logout",
+        type: ActivityType.LEAVE,
       });
 
       logger.info(`User with email ${user.email} just logged out`);
@@ -148,14 +147,13 @@ class AuthenticationDao implements Dao {
 
       // log event to central handler
       const ended: number = Date.now();
-      event.emit("register", {
-        action: "create",
+      event.emit(ActivityType.CREATE, {
         actor: user,
         object: user,
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
-        verb: "register",
+        type: ActivityType.CREATE,
       }); // before password removed in case need to store in another DB
 
       await this.notifyByEmail(user, NotificationType.REGISTER);
@@ -195,14 +193,14 @@ class AuthenticationDao implements Dao {
 
           // log event to central handler
           const ended: number = Date.now();
-          event.emit("verify", {
-            action: "update",
+          // TODO: use invite, accept, and create activites (probably 2 UPDATE user, ACCEPT invite)
+          event.emit(ActivityType.ACCEPT, {
             actor: foundUser,
             object: token,
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
-            verb: "verify",
+            type: ActivityType.ACCEPT,
           });
 
           // destroy temp token
@@ -235,14 +233,14 @@ class AuthenticationDao implements Dao {
     if (foundUser) {
       // log event to central handler
       const ended: number = Date.now();
-      event.emit("lost-password", {
-        action: "create",
+      // TODO: figure out whether we create invite
+      event.emit(ActivityType.INVITE, {
         actor: foundUser,
         object: {id: foundUser.id},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
-        verb: "lost-password",
+        type: ActivityType.INVITE,
       });
 
       await this.notifyByEmail(foundUser, NotificationType.PASSWORD);
@@ -262,7 +260,7 @@ class AuthenticationDao implements Dao {
     const recordToRemove = await decodeToken(id);
 
     const isOwnerOrMember: boolean = String(user.id) === String(recordToRemove.id);
-    const action: string = methodActions.DELETE;
+    const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.tokenResource);
 
     if (permission.granted) {
@@ -271,14 +269,13 @@ class AuthenticationDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("remove-token", {
-          action,
+        event.emit(action, {
           actor: user,
-          object: id,
+          object: {type: "token", id},
           resource: this.tokenResource,
           timestamp: ended,
           took: ended - started,
-          verb: "remove-token",
+          type: action,
         });
 
         logger.info(`Removed ${this.tokenResource} with ID ${id} from the cache`);
@@ -326,16 +323,15 @@ class AuthenticationDao implements Dao {
     const isSurrogate: boolean = (user.surrogateEnabled && user.surrogatePrincipal) ? true : false;
 
     // log event to central handler
-    // TODO: check if need tertiary logic for actor
+    // TODO: check if need to name Application (that user join)
     const ended: number = Date.now();
-    event.emit(isSurrogate ? "impersonate" : "login", {
-      action: "create",
-      actor: user.surrogatePrincipal,
+    event.emit(ActivityType.ARRIVE, {
+      actor: isSurrogate ? user.surrogatePrincipal : user,
       object: user,
       resource: isSurrogate ? this.surrogateResource : this.resource,
       timestamp: ended,
       took: ended - started,
-      verb: isSurrogate ? "impersonate" : "login",
+      verb: ActivityType.ARRIVE,
     });
 
     let message: string;

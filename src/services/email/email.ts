@@ -1,6 +1,6 @@
 import { classToPlain } from "class-transformer";
 import logger from "../../config/logger";
-import event from "../../config/event";
+import { ActivityType, event } from "../../utils/activity.helper";
 import email from "../../config/email";
 import { validateDto } from "../../utils/validation.helper";
 
@@ -29,14 +29,13 @@ class Email {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("send-email", {
-          action: "create",
+        event.emit(ActivityType.CREATE, {
           actor: {id: "System"},
           object: message,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "send-email",
+          verb: ActivityType.CREATE,
         });
 
         return true;
