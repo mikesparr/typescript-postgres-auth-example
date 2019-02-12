@@ -90,8 +90,13 @@ to plug in another database if different needs arise.
    * Person (id: person-1)
    * Person (id: person-2)
    * Comment (id: comment-1)
+ * Layer 3: [optional] Get Comment relations
+   * `SELECT targetType, targetId, relation, meta FROM relations WHERE sourceId='comment-1';`
+   * `AUTHORED_BY` (targetId: person-2)
+ * Layer 4: [optional] Get author node
+   * `person-2` already retrieved so nothing to do
 
 With the data above, we could assemble a post and all associated
-data (likes and comments) with two queries and no costly JOINs. Depending
+data (likes and comments) with a few queries and no costly JOINs. Depending
 on length of the relation lists, fetching associated nodes, etc. may leverage
-a cache but this is super fast without to get started.
+a cache but this is already super fast without to get started.
