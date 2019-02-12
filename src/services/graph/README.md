@@ -80,7 +80,7 @@ to plug in another database if different needs arise.
 
 ## Example (Post)
  * Layer 1: Get relations where sourceId: post-1
-   * `SELECT targetType, targetId, relation, meta FROM relations WHERE sourceId='post-1';`
+   * `SELECT targetType, targetId, relation, meta FROM relation WHERE sourceId='post-1';`
    * `AUTHORED_BY` (targetId: person-1)
    * `LIKED_BY` (targetId: person-2)
    * `CONTAINS` (targetId: comment-1)
@@ -91,7 +91,7 @@ to plug in another database if different needs arise.
    * Person (id: person-2)
    * Comment (id: comment-1)
  * Layer 3: [optional] Get Comment relations
-   * `SELECT targetType, targetId, relation, meta FROM relations WHERE sourceId='comment-1';`
+   * `SELECT targetType, targetId, relation, meta FROM relation WHERE sourceId='comment-1';`
    * `AUTHORED_BY` (targetId: person-2)
  * Layer 4: [optional] Get author node
    * `person-2` already retrieved so nothing to do
