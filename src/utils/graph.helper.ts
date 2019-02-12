@@ -11,6 +11,7 @@ export const relationMap: {[key: string]: any} = {
   ASSIGNED: { source: "ASSIGNED", target: "ASSIGNED_BY" },              // node: Task, Person
   ATTENDS: { source: "ATTENDS", target: "ATTENDEES" },                  // node: Event
   AUTHORED: { source: "AUTHORED", target: "AUTHORED_BY" },              // node: Post, Comment, Record, Media
+  // TODO: consider factoring to Status and StatusChange nodes
   CANCELLED: { source: "CANCELLED", target: "CANCELLED_BY" },           // node: Event, Reservation, Payment
   CHILD_OF: { source: "CHILD_OF", target: "PARENT_OF" },                // node: Person, Category, Organization, Event
   CONFIRMED: { source: "CONFIRMED", target: "CONFIRMED_BY" },           // node: Message, Shipment, Reservation, Payment
@@ -41,6 +42,7 @@ export const relationMap: {[key: string]: any} = {
   MANUFACTURES: { source: "MANUFACTURES", target: "MANUFACTURED_BY"},   // node: Organization, Person, Product
   MARRIED_TO: { source: "MARRIED_TO", target: "MARRIED_TO" },           // node: Person, Idea
   MEMBER_OF: { source: "MEMBER_OF", target: "HAS_MEMBER" },             // node: Organization, Group, Category
+  MENTIONS: { source: "MENTIONS", target: "MENTIONED_BY" },             // node: Person, MediaItem, Post, Comment
   OFFERED: { source: "OFFERED", target: "OFFERED_BY" },                 // node: Product, Ticket, Record
   ORDERED: { source: "ORDERED", target: "ORDERED_BY" },                 // node: Product, Ticket, Record
   OWNS: { source: "OWNS", target: "OWNED_BY" },                         // node: Product, Property, Record
@@ -132,5 +134,5 @@ export enum NodeType {
   Venue = "venue",
   Vote = "vote",
   Worker = "worker",
-  Workspace = "workspace",
+  Workspace = "workspace", // aka Namespace, Project
 }
