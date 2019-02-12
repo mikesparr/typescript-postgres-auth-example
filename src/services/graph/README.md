@@ -100,3 +100,8 @@ With the data above, we could assemble a post and all associated
 data (likes and comments) with a few queries and no costly JOINs. Depending
 on length of the relation lists, fetching associated nodes, etc. may leverage
 a cache but this is already super fast without to get started.
+
+### Why not use JOIN from relation to node?
+You can easily use a JOIN to fetch relations AND nodes in a single query.
+This example ignores that because we may want to fetch from cache which would
+be faster than from database, and splitting them out allows this.
