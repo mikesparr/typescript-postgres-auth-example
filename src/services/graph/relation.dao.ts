@@ -10,6 +10,7 @@ import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import { AuthPermission, getPermission } from "../../utils/authorization.helper";
+import { actionToRelationMap } from "../../utils/graph.helper";
 import CreateRelationDto from "./relation.dto";
 
 import { User } from "../user/user.entity";
@@ -65,64 +66,26 @@ class RelationDao implements Dao {
     }
   }
 
-  public save = async (user: User, data: any):
-            Promise<object> => {
-    const started: number = Date.now();
+  public updateGraphFromEvent = async (user: User, data: any):
+            Promise<void> => {
 
-    const isOwnerOrMember: boolean = false;
-    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
-    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
+    try {
+      logger.info(`Saving relation ${JSON.stringify(data)}`);
 
-    if (permission.granted) {
-      try {
-        logger.info(`Saving relation ${JSON.stringify(data)}`);
-        // save bi-directional relation (2 records)
-        await getConnection().manager.transaction(async (manager) => {
-          const sourceRel: Relation = this.relationRepository.create({
-            created: this.fmt.format(Date.now(), DataType.DATE),
-            ...data as CreateRelationDto,
-          });
-
-          // add bi-directional relationship
-          /* const targetRel: Relation = this.relationRepository.create({
-            created: this.fmt.format(Date.now(), DataType.DATE),
-            relation: relationMap[sourceRel.relation].target,
-            sourceId: sourceRel.targetId,
-            sourceType: sourceRel.targetType,
-            targetId: sourceRel.sourceId,
-            targetType: sourceRel.sourceType,
-          }); */
-
-          await manager.save(sourceRel);
-          // await manager.save(targetRel);
+      // initiate transaction so all relations save or none for integrity
+      await getConnection().manager.transaction(async (manager) => {
+        // get relations for event, then loop through them and build object
+        actionToRelationMap[data.type].map(async (template: {[key: string]: any}) => {
+          // TODO: check if type = "add" or "remove"
+          const newRelation: Relation = this.getEventRelation(template, data);
+          await manager.save(newRelation);
         });
+      });
 
-        // log event to central handler
-        const ended: number = Date.now();
-
-        event.emit(action, {
-          actor: user,
-          object: data,
-          resource: this.resource,
-          timestamp: ended,
-          took: ended - started,
-          type: action,
-        });
-
-        data.id = "test";
-        return data;
-      } catch (error) {
-        logger.error(error.message);
-        throw new Error("Sum ting wong");
-      }
-    } else {
-      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    } catch (error) {
+      logger.error(error.message);
+      throw new Error("Sum ting wong");
     }
-  }
-
-  public remove = async (user: User, id: string):
-            Promise<NotImplementedException> => {
-    throw new NotImplementedException("remove");
   }
 
   /**
@@ -132,9 +95,30 @@ class RelationDao implements Dao {
             Promise<NotImplementedException> => {
     throw new NotImplementedException("getOne");
   }
+
+  public save = async (user: User, data: any):
+            Promise<NotImplementedException> => {
+    throw new NotImplementedException("save");
+  }
+
+  public remove = async (user: User, id: string):
+            Promise<NotImplementedException> => {
+    throw new NotImplementedException("remove");
+  }
   /**
    * END unused methods
    */
+
+  private getEventRelation = (template: {[key: string]: any}, data: {[key: string]: any}): Relation => {
+    return this.relationRepository.create({
+      created: this.fmt.format(Date.now(), DataType.DATE),
+      relation: template.relation,
+      sourceId: data[template.from].id,
+      sourceType: data[template.from].type,
+      targetId: data[template.to].id,
+      targetType: data[template.to].type,
+    });
+  }
 
 }
 

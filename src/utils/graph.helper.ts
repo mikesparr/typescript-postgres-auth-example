@@ -1,7 +1,6 @@
 /**
  * Utilities for bi-direction graph relations
  */
-import { ActivityType } from "./activity.helper";
 
 /**
  * Dynamically maintain graph relations based on Activity Stream
@@ -22,173 +21,173 @@ import { ActivityType } from "./activity.helper";
  *
  */
 export const actionToRelationMap: {[key: string]: any} = {
-  [ActivityType.ACCEPT]: [
+  accept: [
     {type: "add", from: "actor", to: "object", relation: "ACCEPTED"},
     {type: "add", from: "object", to: "actor", relation: "ACCEPTED_BY"},
   ],
-  [ActivityType.ADD]: [
+  add: [
     {type: "add", from: "actor", to: "object", relation: "CREATED"},
     {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
   ],
-  [ActivityType.ANNOUNCE]: [
+  announce: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.ARRIVE]: [
+  arrive: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.BLOCK]: [
+  block: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.CREATE]: [
+  create: [
     {type: "add", from: "actor", to: "object", relation: "CREATED"},
     {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
   ],
-  [ActivityType.DELETE]: [
+  delete: [
     {type: "add", from: "actor", to: "object", relation: "DELETED"},
     {type: "add", from: "object", to: "actor", relation: "DELETED_BY"},
   ],
-  [ActivityType.DISLIKE]: [
+  dislike: [
     {type: "add", from: "actor", to: "object", relation: "DISLIKED"},
     {type: "add", from: "object", to: "actor", relation: "DISLIKED_BY"},
   ],
-  [ActivityType.FLAG]: [
+  flag: [
     {type: "add", from: "actor", to: "object", relation: "FLAGGED"},
     {type: "add", from: "object", to: "actor", relation: "FLAGGED_BY"},
   ],
-  [ActivityType.FOLLOW]: [
+  follow: [
     {type: "add", from: "actor", to: "object", relation: "FOLLOWS"},
     {type: "add", from: "object", to: "actor", relation: "FOLLOWED_BY"},
   ],
-  [ActivityType.IGNORE]: [
+  ignore: [
     {type: "add", from: "actor", to: "object", relation: "IGNORED"},
     {type: "add", from: "object", to: "actor", relation: "IGNORED_BY"},
   ],
-  [ActivityType.INVITE]: [
+  invite: [
     {type: "add", from: "actor", to: "target", relation: "INVITED"},
     {type: "add", from: "target", to: "object", relation: "INVITED_TO"},
     {type: "add", from: "target", to: "actor", relation: "INVITED_BY"},
     {type: "add", from: "object", to: "target", relation: "INVITEE"},
   ],
-  [ActivityType.JOIN]: [
+  join: [
     {type: "add", from: "actor", to: "object", relation: "MEMBER_OF"},
     {type: "add", from: "object", to: "actor", relation: "HAS_MEMBER"},
   ],
-  [ActivityType.LEAVE]: [
+  leave: [
     {type: "remove", from: "actor", to: "object", relation: "MEMBER_OF"},
     {type: "remove", from: "object", to: "actor", relation: "HAS_MEMBER"},
     {type: "add", from: "actor", to: "object", relation: "PAST_MEMBER"},
     {type: "add", from: "object", to: "actor", relation: "FORMER_MEMBER"},
   ],
-  [ActivityType.LIKE]: [
+  like: [
     {type: "add", from: "actor", to: "object", relation: "LIKES"},
     {type: "add", from: "object", to: "actor", relation: "LIKED_BY"},
   ],
-  [ActivityType.LISTEN]: [
+  listen: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.MOVE]: [
+  move: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.OFFER]: [
+  offer: [
     {type: "add", from: "actor", to: "object", relation: "OFFERED"},
     {type: "add", from: "object", to: "actor", relation: "OFFERED_BY"},
   ],
-  [ActivityType.QUESTION]: [
+  question: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.READ]: [
+  read: [
     {type: "add", from: "actor", to: "object", relation: "READ"},
     {type: "add", from: "object", to: "actor", relation: "READ_BY"},
   ],
-  [ActivityType.REJECT]: [
+  reject: [
     {type: "add", from: "actor", to: "object", relation: "REJECTED"},
     {type: "add", from: "object", to: "actor", relation: "REJECTED_BY"},
   ],
-  [ActivityType.REMOVE]: [
+  remove: [
     {type: "add", from: "actor", to: "object", relation: "CREATED"},
     {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
   ],
-  [ActivityType.TENTATIVE_ACCEPT]: [
+  tentativeAccept: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.TENTATIVE_REJECT]: [
+  tentativeReject: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.TRAVEL]: [
+  travel: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.UNDO]: [
+  undo: [
     {type: "add", from: "actor", to: "object"},
   ],
-  [ActivityType.UPDATE]: [
+  update: [
     {type: "add", from: "actor", to: "object", relation: "UPDATED"},
     {type: "add", from: "object", to: "actor", relation: "UPDATED_BY"},
   ],
-  [ActivityType.VIEW]: [
+  view: [
     {type: "add", from: "actor", to: "object", relation: "VIEWED"},
     {type: "add", from: "object", to: "actor", relation: "VIEWED_BY"},
   ],
 };
 
 export enum NodeType {
-  Address = "address",
-  Application = "application", // computer program
-  Assembly = "assembly",
-  Building = "building",
-  Cart = "cart",
-  Category = "category", // aka Topic, Subject, EventType
-  Comment = "comment",
-  Country = "country",
-  Deposit = "deposit",
-  Dish = "dish",  // aka FoodItem
-  District = "district", // aka SchoolDistrict, HuntingDistrict
-  Equipment = "equipment",
-  Event = "event", // aka Concert, Game, Meal, Listing, Showing, Closing
-  Group = "group", // aka UserGroup, ProductGroup, Department, Team, EventClass
-  Idea = "idea",
-  Information = "information", // (i.e. secret)
-  Ingredient = "ingredient",
-  Instruction = "instruction",
-  Inventory = "inventory",
-  Item = "item", // aka LineItem, OrderItem, CartItem, ListItem
-  Language = "language",
-  Level = "level", // aka Floor (of building)
-  List = "list", // aka TodoList, TaskList
-  Locality = "locality", // aka City, Jurisdiction
-  Location = "location",
-  MediaItem = "mediaItem", // aka File, Photo, Video
-  Message = "message",
-  Office = "office",
-  Order = "order",
-  Organization = "organization",
-  Package = "package",
-  Payment = "payment",
-  Permission = "permission",
-  Person = "person",
-  Poll = "poll",
-  Position = "position", // aka Job, Role
-  Post = "post", // aka Article
-  PostalCode = "postalCode",
-  Product = "product",
-  Property = "property", // aka RealEstate, Land
-  Query = "query", // aka Search, Request
-  Receipt = "receipt",
-  Recipe = "recipe",
-  Record = "record", // aka PatientRecord, MedicalRecord, Document
-  Region = "region", // aka State, Province, HuntingRegion, CompetitionRegion
-  Role = "role",
-  Room = "room",
-  Shipment = "shipment",
-  Skill = "skill",
-  Step = "step",
-  Subscription = "subscription",
-  Task = "task",
-  Ticket = "ticket",
-  Unit = "unit",
-  User = "user",
-  Variant = "variant",
-  Venue = "venue",
-  Vote = "vote",
-  Worker = "worker",
-  Workspace = "workspace", // aka Namespace, Project
+  Address           = "address",
+  Application       = "application", // computer program
+  Assembly          = "assembly",
+  Building          = "building",
+  Cart              = "cart",
+  Category          = "category", // aka Topic, Subject, EventType
+  Comment           = "comment",
+  Country           = "country",
+  Deposit           = "deposit",
+  Dish              = "dish",  // aka FoodItem
+  District          = "district", // aka SchoolDistrict, HuntingDistrict
+  Equipment         = "equipment",
+  Event             = "event", // aka Concert, Game, Meal, Listing, Showing, Closing
+  Group             = "group", // aka UserGroup, ProductGroup, Department, Team, EventClass
+  Idea              = "idea",
+  Information       = "information", // (i.e. secret)
+  Ingredient        = "ingredient",
+  Instruction       = "instruction",
+  Inventory         = "inventory",
+  Item              = "item", // aka LineItem, OrderItem, CartItem, ListItem
+  Language          = "language",
+  Level             = "level", // aka Floor (of building)
+  List              = "list", // aka TodoList, TaskList
+  Locality          = "locality", // aka City, Jurisdiction
+  Location          = "location",
+  MediaItem         = "mediaItem", // aka File, Photo, Video
+  Message           = "message",
+  Office            = "office",
+  Order             = "order",
+  Organization      = "organization",
+  Package           = "package",
+  Payment           = "payment",
+  Permission        = "permission",
+  Person            = "person",
+  Poll              = "poll",
+  Position          = "position", // aka Job, Role
+  Post              = "post", // aka Article
+  PostalCode        = "postalCode",
+  Product           = "product",
+  Property          = "property", // aka RealEstate, Land
+  Query             = "query", // aka Search, Request
+  Receipt           = "receipt",
+  Recipe            = "recipe",
+  Record            = "record", // aka PatientRecord, MedicalRecord, Document
+  Region            = "region", // aka State, Province, HuntingRegion
+  Role              = "role",
+  Room              = "room",
+  Shipment          = "shipment",
+  Skill             = "skill",
+  Step              = "step",
+  Subscription      = "subscription",
+  Task              = "task",
+  Ticket            = "ticket",
+  Unit              = "unit",
+  User              = "user",
+  Variant           = "variant",
+  Venue             = "venue",
+  Vote              = "vote",
+  Worker            = "worker",
+  Workspace         = "workspace", // aka Namespace, Project
 }

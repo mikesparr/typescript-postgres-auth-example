@@ -5,6 +5,7 @@ import Event from "../services/event/event.entity";
 import { DataType, Formatter } from "./formatter";
 
 import { save } from "./document.helper";
+import RelationDao from "../services/graph/relation.dao";
 
 /**
  * Event emitter that can allow handling of application events
@@ -18,35 +19,37 @@ export const event = new EventEmitter();
  * Event types based on Activity Streams spec
  */
 export enum ActivityType {
-  ACCEPT = "accept",
-  ADD = "add",
-  ANNOUNCE = "announce",
-  ARRIVE = "arrive",
-  BLOCK = "block",
-  CREATE = "create",
-  DELETE = "delete",
-  DISLIKE = "dislike",
-  FLAG = "flag",
-  FOLLOW = "follow",
-  IGNORE = "ignore",
-  INVITE = "invite",
-  JOIN = "join",
-  LEAVE = "leave",
-  LIKE = "like",
-  LISTEN = "listen",
-  MOVE = "move",
-  OFFER = "offer",
-  QUESTION = "question",
-  READ = "read",
-  REJECT = "reject",
-  REMOVE = "remove",
-  TENTATIVE_ACCEPT = "tentativeAccept",
-  TENTATIVE_REJECT = "tentativeReject",
-  TRAVEL = "travel",
-  UNDO = "undo",
-  UPDATE = "update",
-  VIEW = "view",
+  ACCEPT              = "accept",
+  ADD                 = "add",
+  ANNOUNCE            = "announce",
+  ARRIVE              = "arrive",
+  BLOCK               = "block",
+  CREATE              = "create",
+  DELETE              = "delete",
+  DISLIKE             = "dislike",
+  FLAG                = "flag",
+  FOLLOW              = "follow",
+  IGNORE              = "ignore",
+  INVITE              = "invite",
+  JOIN                = "join",
+  LEAVE               = "leave",
+  LIKE                = "like",
+  LISTEN              = "listen",
+  MOVE                = "move",
+  OFFER               = "offer",
+  QUESTION            = "question",
+  READ                = "read",
+  REJECT              = "reject",
+  REMOVE              = "remove",
+  TENTATIVE_ACCEPT    = "tentativeAccept",
+  TENTATIVE_REJECT    = "tentativeReject",
+  TRAVEL              = "travel",
+  UNDO                = "undo",
+  UPDATE              = "update",
+  VIEW                = "view",
 }
+
+const EVENT_INDEX = "events";
 
 /**
  * Formatter to standardize data before storing in DB
@@ -95,7 +98,15 @@ const handleEvent = async (data: {[key: string]: any}) => {
     cleanData.host = os.hostname();
     cleanData.count = 1;
 
-    await save("events", cleanData);
+    await save(EVENT_INDEX, cleanData);
+  } catch (error) {
+    logger.error(error.message);
+  }
+
+  // manage graph relations
+  try {
+    const relationDao: RelationDao = new RelationDao();
+    await relationDao.updateGraphFromEvent(data.actor, data);
   } catch (error) {
     logger.error(error.message);
   }
