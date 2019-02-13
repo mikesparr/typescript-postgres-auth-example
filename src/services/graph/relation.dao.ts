@@ -1,7 +1,13 @@
-import { getConnection, getRepository, Repository } from "typeorm";
+import { getManager, getRepository, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActorType } from "../../interfaces/activitystream.interface";
+import {
+  ActivityRelation,
+  RelationAction } from "../../interfaces/graph.interface";
 import { DataType, Formatter } from "../../utils/formatter";
 import SearchResult from "../../interfaces/searchresult.interface";
 import URLParams from "../../interfaces/urlparams.interface";
@@ -47,7 +53,7 @@ class RelationDao implements Dao {
         const ended: number = Date.now();
 
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,
@@ -66,25 +72,40 @@ class RelationDao implements Dao {
     }
   }
 
-  public updateGraphFromEvent = async (user: User, data: any):
-            Promise<void> => {
-
+  public updateGraphFromEvent = async (data: any): Promise<void> => {
     try {
-      logger.info(`Saving relation ${JSON.stringify(data)}`);
-
       // initiate transaction so all relations save or none for integrity
-      await getConnection().manager.transaction(async (manager) => {
-        // get relations for event, then loop through them and build object
-        actionToRelationMap[data.type].map(async (template: {[key: string]: any}) => {
-          // TODO: check if type = "add" or "remove"
+      /*
+      await getManager().transaction(async (manager) => {
+      }); */
+
+      const jobs: Array<Promise<any>> = [];
+
+      // get relations for event, then loop through them and build object
+      actionToRelationMap[data.type].forEach(async (template: ActivityRelation) => {
+        const addRelation: boolean = template.type === RelationAction.ADD &&
+                data.hasOwnProperty(template.from) &&
+                data.hasOwnProperty(template.to) &&
+                data[template.from] !== null && data[template.to] !== null &&
+                data[template.from].type && data[template.to].type;
+
+        if (addRelation) {
           const newRelation: Relation = this.getEventRelation(template, data);
-          await manager.save(newRelation);
-        });
+          jobs.push( this.relationRepository.save(newRelation) );
+        }
       });
 
+      Promise.all(jobs)
+        .then((results) => {
+          logger.info(`Added ${results.length} relations`);
+        })
+        .catch((error) => {
+          logger.warn(`+++++++++ ERROR ADDING RELATION ${JSON.stringify(data)} ++++++++`);
+          logger.error(`------- ${error.message} --------`);
+        });
     } catch (error) {
-      logger.error(error.message);
-      throw new Error("Sum ting wong");
+      logger.error(`********* %%%%%% ${error.message} %%%%%% ************`);
+      throw new Error(`OOPSY with event: ${JSON.stringify(data)}`);
     }
   }
 
@@ -109,14 +130,14 @@ class RelationDao implements Dao {
    * END unused methods
    */
 
-  private getEventRelation = (template: {[key: string]: any}, data: {[key: string]: any}): Relation => {
+  private getEventRelation = (template: ActivityRelation, data: Activity): Relation => {
     return this.relationRepository.create({
       created: this.fmt.format(Date.now(), DataType.DATE),
-      relation: template.relation,
+      relation: template.relation || "UNKNOWN",
       sourceId: data[template.from].id,
-      sourceType: data[template.from].type,
+      sourceType: data[template.from].type || "unknown",
       targetId: data[template.to].id,
-      targetType: data[template.to].type,
+      targetType: data[template.to].type || "unknown",
     });
   }
 

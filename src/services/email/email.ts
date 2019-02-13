@@ -1,8 +1,14 @@
 import { classToPlain } from "class-transformer";
+import uuid from "uuid/v1";
 import logger from "../../config/logger";
 import { ActivityType, event } from "../../utils/activity.helper";
 import email from "../../config/email";
 import { validateDto } from "../../utils/validation.helper";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 
 import EmailDeliveryException from "../../exceptions/EmailDeliveryException";
 import EmailDto from "./email.dto";
@@ -30,8 +36,8 @@ class Email {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(ActivityType.CREATE, {
-          actor: {id: "System"},
-          object: message,
+          actor: {id: "System", type: ActorType.Application},
+          object: {id: uuid(), ...message, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

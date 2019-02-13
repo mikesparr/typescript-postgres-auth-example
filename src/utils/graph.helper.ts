@@ -1,6 +1,7 @@
 /**
  * Utilities for bi-direction graph relations
  */
+import { ActivityField, RelationAction } from "../interfaces/graph.interface";
 
 /**
  * Dynamically maintain graph relations based on Activity Stream
@@ -8,124 +9,104 @@
  * Examples:
  *
  * CREATE: [
- *   {type: "add", from: "actor", to: "object", relation: "CREATED"},
- *   {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
+ *   {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
+ *   {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
  * ]
  *
  * INVITE: [
- *   {type: "add", from: "actor", to: "target", relation: "INVITED"},
- *   {type: "add", from: "target", to: "object", relation: "INVITED_TO"},
- *   {type: "add", from: "target", to: "actor", relation: "INVITED_BY"},
- *   {type: "add", from: "object", to: "target", relation: "INVITEE"},
+ *   {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.TARGET, relation: "INVITED"},
+ *   {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "INVITED_TO"},
+ *   {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.ACTOR, relation: "INVITED_BY"},
+ *   {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "INVITEE"},
  * ]
  *
  */
 export const actionToRelationMap: {[key: string]: any} = {
   accept: [
-    {type: "add", from: "actor", to: "object", relation: "ACCEPTED"},
-    {type: "add", from: "object", to: "actor", relation: "ACCEPTED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "ACCEPTED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "ACCEPTED_BY"},
   ],
   add: [
-    {type: "add", from: "actor", to: "object", relation: "CREATED"},
-    {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
   ],
-  announce: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  arrive: [
-    {type: "add", from: "actor", to: "object"},
-  ],
+  announce: [],
+  arrive: [],
   block: [
-    {type: "add", from: "actor", to: "object"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "BLOCKED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "BLOCKED_BY"},
   ],
   create: [
-    {type: "add", from: "actor", to: "object", relation: "CREATED"},
-    {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
   ],
   delete: [
-    {type: "add", from: "actor", to: "object", relation: "DELETED"},
-    {type: "add", from: "object", to: "actor", relation: "DELETED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "DELETED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "DELETED_BY"},
   ],
   dislike: [
-    {type: "add", from: "actor", to: "object", relation: "DISLIKED"},
-    {type: "add", from: "object", to: "actor", relation: "DISLIKED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "DISLIKED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "DISLIKED_BY"},
   ],
   flag: [
-    {type: "add", from: "actor", to: "object", relation: "FLAGGED"},
-    {type: "add", from: "object", to: "actor", relation: "FLAGGED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "FLAGGED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "FLAGGED_BY"},
   ],
   follow: [
-    {type: "add", from: "actor", to: "object", relation: "FOLLOWS"},
-    {type: "add", from: "object", to: "actor", relation: "FOLLOWED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "FOLLOWS"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "FOLLOWED_BY"},
   ],
   ignore: [
-    {type: "add", from: "actor", to: "object", relation: "IGNORED"},
-    {type: "add", from: "object", to: "actor", relation: "IGNORED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "IGNORED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "IGNORED_BY"},
   ],
   invite: [
-    {type: "add", from: "actor", to: "target", relation: "INVITED"},
-    {type: "add", from: "target", to: "object", relation: "INVITED_TO"},
-    {type: "add", from: "target", to: "actor", relation: "INVITED_BY"},
-    {type: "add", from: "object", to: "target", relation: "INVITEE"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.TARGET, relation: "INVITED"},
+    {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "INVITED_TO"},
+    {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.ACTOR, relation: "INVITED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "INVITEE"},
   ],
   join: [
-    {type: "add", from: "actor", to: "object", relation: "MEMBER_OF"},
-    {type: "add", from: "object", to: "actor", relation: "HAS_MEMBER"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "MEMBER_OF"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "HAS_MEMBER"},
   ],
   leave: [
-    {type: "remove", from: "actor", to: "object", relation: "MEMBER_OF"},
-    {type: "remove", from: "object", to: "actor", relation: "HAS_MEMBER"},
-    {type: "add", from: "actor", to: "object", relation: "PAST_MEMBER"},
-    {type: "add", from: "object", to: "actor", relation: "FORMER_MEMBER"},
+    {type: RelationAction.REMOVE, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "MEMBER_OF"},
+    {type: RelationAction.REMOVE, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "HAS_MEMBER"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "WAS_MEMBER"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "PAST_MEMBER"},
   ],
   like: [
-    {type: "add", from: "actor", to: "object", relation: "LIKES"},
-    {type: "add", from: "object", to: "actor", relation: "LIKED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "LIKES"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "LIKED_BY"},
   ],
-  listen: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  move: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  offer: [
-    {type: "add", from: "actor", to: "object", relation: "OFFERED"},
-    {type: "add", from: "object", to: "actor", relation: "OFFERED_BY"},
-  ],
-  question: [
-    {type: "add", from: "actor", to: "object"},
-  ],
+  listen: [],
+  move: [],
+  offer: [],
+  question: [],
   read: [
-    {type: "add", from: "actor", to: "object", relation: "READ"},
-    {type: "add", from: "object", to: "actor", relation: "READ_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "READ"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "READ_BY"},
   ],
   reject: [
-    {type: "add", from: "actor", to: "object", relation: "REJECTED"},
-    {type: "add", from: "object", to: "actor", relation: "REJECTED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "REJECTED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "REJECTED_BY"},
   ],
   remove: [
-    {type: "add", from: "actor", to: "object", relation: "CREATED"},
-    {type: "add", from: "object", to: "actor", relation: "CREATED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
   ],
-  tentativeAccept: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  tentativeReject: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  travel: [
-    {type: "add", from: "actor", to: "object"},
-  ],
-  undo: [
-    {type: "add", from: "actor", to: "object"},
-  ],
+  tentativeAccept: [],
+  tentativeReject: [],
+  travel: [],
+  undo: [],
   update: [
-    {type: "add", from: "actor", to: "object", relation: "UPDATED"},
-    {type: "add", from: "object", to: "actor", relation: "UPDATED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "UPDATED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "UPDATED_BY"},
   ],
   view: [
-    {type: "add", from: "actor", to: "object", relation: "VIEWED"},
-    {type: "add", from: "object", to: "actor", relation: "VIEWED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "VIEWED"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "VIEWED_BY"},
   ],
 };
 

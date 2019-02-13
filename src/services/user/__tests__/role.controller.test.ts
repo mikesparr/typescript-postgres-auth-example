@@ -55,70 +55,6 @@ afterAll(async () => {
 });
 
 describe("Role", () => {
-  describe("GET /roles", () => {
-    it("allows user role access but without roles", async () => {
-      const result = await request(app)
-        .get("/roles")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.data[0].permissions).toBeUndefined();
-    });
-
-    it("allows admin role access with roles", async () => {
-      const result = await request(app)
-        .get("/roles")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.data[0].permissions).toBeDefined();
-    });
-  }); // GET /roles
-
-  describe("GET /roles/:id", () => {
-    it("allows user role access without roles", async () => {
-      const result = await request(app)
-        .get("/roles/guest")
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.data.permissions).toBeUndefined();
-    });
-
-    it("allows admin role access with roles", async () => {
-      const result = await request(app)
-        .get("/roles/guest")
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-      expect(result.body.data.permissions).toBeDefined();
-    });
-  }); // GET /roles:id
-
-  describe("GET /roles/:id/permissions", () => {
-    it("does not allow user role to view role permissions", async () => {
-      const result = await request(app)
-        .get(`/roles/user/permissions`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(403);
-    });
-
-    it("allows admin role to view role permissions", async () => {
-      const result = await request(app)
-        .get(`/roles/user/permissions`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(200);
-    });
-  }); // GET /users/:id/roles
-
   describe("POST /roles", () => {
     const testData = {
       description: "Test role from automated tests",
@@ -191,6 +127,70 @@ describe("Role", () => {
       expect(result.status).toEqual(200);
     });
   }); // PUT /roles
+
+  describe("GET /roles", () => {
+    it("allows user role access but without roles", async () => {
+      const result = await request(app)
+        .get("/roles")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.data[0].permissions).toBeUndefined();
+    });
+
+    it("allows admin role access with roles", async () => {
+      const result = await request(app)
+        .get("/roles")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.data[0].permissions).toBeDefined();
+    });
+  }); // GET /roles
+
+  describe("GET /roles/:id", () => {
+    it("allows user role access without roles", async () => {
+      const result = await request(app)
+        .get("/roles/guest")
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.data.permissions).toBeUndefined();
+    });
+
+    it("allows admin role access with roles", async () => {
+      const result = await request(app)
+        .get("/roles/guest")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+      expect(result.body.data.permissions).toBeDefined();
+    });
+  }); // GET /roles:id
+
+  describe("GET /roles/:id/permissions", () => {
+    it("does not allow user role to view role permissions", async () => {
+      const result = await request(app)
+        .get(`/roles/user/permissions`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(403);
+    });
+
+    it("allows admin role to view role permissions", async () => {
+      const result = await request(app)
+        .get(`/roles/user/permissions`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(200);
+    });
+  }); // GET /users/:id/roles
 
   describe("POST /roles/:id/permissions", () => {
     const testData = {

@@ -49,27 +49,6 @@ afterAll(async () => {
 });
 
 describe("relation", () => {
-  describe("POST /relations", () => {
-    const testData = {
-      relation: "LIKES",
-      sourceId: "abc123",
-      sourceType: "user",
-      targetId: "zyx987",
-      targetType: "user",
-    }; // hard-coded for now in Dao
-
-    it("allows admin to create new relations", async () => {
-      const result = await request(app)
-        .post("/relations")
-        .send(testData)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-      // newRelationId = result.body.data.id;
-
-      expect(result.status).toEqual(200);
-    });
-  }); // POST /relations
-
   describe("GET /relations", () => {
     it("denies user relation access", async () => {
       const result = await request(app)

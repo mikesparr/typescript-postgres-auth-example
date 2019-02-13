@@ -2,6 +2,11 @@ import { getRepository, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
@@ -42,7 +47,7 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,
@@ -77,8 +82,8 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {id: record.id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: record.id, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -103,13 +108,13 @@ class RoleDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Role = permission.filter(newRecord);
-      await this.roleRepository.save(filteredData);
+      const savedData: Role = await this.roleRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
       event.emit(action, {
-        actor: user,
-        object: filteredData,
+        actor: {id: user.id, type: ActorType.Person},
+        object: {...savedData, type: this.resource},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -139,8 +144,8 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id, type: "role"},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -173,10 +178,10 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.rolePermissionResource,
-          target: record,
+          target: {id, type: this.resource},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -210,10 +215,10 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(ActivityType.ADD, {
-          actor: user,
-          object: newRecord,
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: recordToUpdate.id, type: "permission"},
           resource: this.rolePermissionResource,
-          target: recordToUpdate,
+          target: {id, type: this.resource},
           timestamp: ended,
           took: ended - started,
           type: ActivityType.ADD,
@@ -264,10 +269,10 @@ class RoleDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(ActivityType.REMOVE, {
-          actor: user,
-          object: removedItem,
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: permissionId, type: "permission"},
           resource: this.rolePermissionResource,
-          target: recordToUpdate,
+          target: {id, type: this.resource},
           timestamp: ended,
           took: ended - started,
           type: ActivityType.REMOVE,

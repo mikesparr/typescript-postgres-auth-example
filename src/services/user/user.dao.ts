@@ -2,6 +2,11 @@ import { getRepository, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
@@ -55,7 +60,7 @@ class UserDao implements Dao {
         const ended: number = Date.now();
         // TODO: CREATE Query about resource with result
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,
@@ -90,8 +95,8 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {id: record.id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: record.id, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -116,13 +121,13 @@ class UserDao implements Dao {
 
     if (permission.granted) {
       const filteredData: User = permission.filter(newRecord);
-      await this.userRepository.save(filteredData);
+      const savedData: User = await this.userRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
       event.emit(action, {
-        actor: user,
-        object: filteredData,
+        actor: {id: user.id, type: ActorType.Person},
+        object: {...savedData, type: this.resource},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -153,8 +158,8 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -190,10 +195,10 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
-          target: record,
+          target: {id: tokenUserId, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -226,10 +231,10 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
-          target: record,
+          target: {id: flagUserId, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -257,11 +262,11 @@ class UserDao implements Dao {
 
         // log event to central handler
         const ended: number = Date.now();
-        event.emit(action, {
-          actor: user,
-          object: tokenId,
+        event.emit(ActivityType.REMOVE, {
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: tokenId, type: this.tokenResource},
           resource: this.tokenResource,
-          target: recordToRemove,
+          target: {id, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -294,10 +299,10 @@ class UserDao implements Dao {
         const ended: number = Date.now();
         // TODO: get list of tokens before removing
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.tokenResource,
-          target: record,
+          target: {id, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -329,10 +334,10 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.userRoleResource,
-          target: record,
+          target: {id, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -375,10 +380,10 @@ class UserDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(ActivityType.ADD, {
-          actor: user,
-          object: relationToAdd,
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: newRecord.id, type: "role"},
           resource: this.userRoleResource,
-          target: recordToUpdate,
+          target: {id, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: ActivityType.ADD,
@@ -420,10 +425,10 @@ class UserDao implements Dao {
         const ended: number = Date.now();
         event.emit(ActivityType.REMOVE, {
           action,
-          actor: user,
-          object: { id: roleId },
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id: roleId, type: "role"},
           resource: this.userRoleResource,
-          target: recordToUpdate,
+          target: {id, type: ActorType.Person},
           timestamp: ended,
           took: ended - started,
           type: ActivityType.REMOVE,

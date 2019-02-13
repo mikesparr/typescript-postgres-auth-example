@@ -5,6 +5,11 @@ import logger from "../../config/logger";
 import UserExistsException from "../../exceptions/UserExistsException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import WrongCredentialsException from "../../exceptions/WrongCredentialsException";
 
@@ -112,7 +117,7 @@ class AuthenticationDao implements Dao {
       // log event to central handler
       const ended: number = Date.now();
       event.emit(ActivityType.LEAVE, {
-        actor: user,
+        actor: {id: user.id, type: ActorType.Person},
         object: null,
         resource: this.resource,
         timestamp: ended,
@@ -143,13 +148,13 @@ class AuthenticationDao implements Dao {
         roles: [guestRole],
       });
 
-      await this.userRepository.save(user);
+      const newUser: User = await this.userRepository.save(user);
 
       // log event to central handler
       const ended: number = Date.now();
       event.emit(ActivityType.CREATE, {
-        actor: user,
-        object: user,
+        actor: {id: "System", type: ActorType.Application},
+        object: {...newUser, type: ActorType.Person},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -195,8 +200,8 @@ class AuthenticationDao implements Dao {
           const ended: number = Date.now();
           // TODO: use invite, accept, and create activites (probably 2 UPDATE user, ACCEPT invite)
           event.emit(ActivityType.ACCEPT, {
-            actor: foundUser,
-            object: token,
+            actor: {id: foundUser.id, type: ActorType.Person},
+            object: {id: token, type: "token"},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -235,8 +240,8 @@ class AuthenticationDao implements Dao {
       const ended: number = Date.now();
       // TODO: figure out whether we create invite
       event.emit(ActivityType.INVITE, {
-        actor: foundUser,
-        object: {id: foundUser.id},
+        actor: {id: foundUser.id, type: ActorType.Person},
+        object: {id: foundUser.id, type: ActorType.Person},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -270,8 +275,8 @@ class AuthenticationDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {type: "token", id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id, type: "token"},
           resource: this.tokenResource,
           timestamp: ended,
           took: ended - started,
@@ -326,8 +331,10 @@ class AuthenticationDao implements Dao {
     // TODO: check if need to name Application (that user join)
     const ended: number = Date.now();
     event.emit(ActivityType.ARRIVE, {
-      actor: isSurrogate ? user.surrogatePrincipal : user,
-      object: user,
+      actor: isSurrogate ?
+        {...user.surrogatePrincipal, type: ActorType.Person}
+        : {...user, type: ActorType.Person},
+      object: null,
       resource: isSurrogate ? this.surrogateResource : this.resource,
       timestamp: ended,
       took: ended - started,
@@ -360,8 +367,8 @@ class AuthenticationDao implements Dao {
         const ended: number = Date.now();
         // TODO: figure out invite flow in auth
         event.emit(ActivityType.INVITE, {
-          actor: foundUser,
-          object: foundUser,
+          actor: {...foundUser, type: ActorType.Person},
+          object: {...foundUser, type: ActorType.Person},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

@@ -2,6 +2,11 @@ import { getRepository, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import URLParams from "../../interfaces/urlparams.interface";
 import NotImplementedException from "../../exceptions/NotImplementedException";
@@ -12,7 +17,6 @@ import { AuthPermission, getPermission } from "../../utils/authorization.helper"
 import { getAll } from "../../utils/document.helper";
 
 import { User } from "../user/user.entity";
-import { Event } from "./event.entity";
 
 /**
  * Handles CRUD operations on Flag data in database
@@ -72,7 +76,7 @@ class EventDao implements Dao {
         const ended: number = Date.now();
 
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,

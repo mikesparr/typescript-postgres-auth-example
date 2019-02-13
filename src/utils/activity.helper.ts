@@ -1,7 +1,7 @@
 import os from "os";
 import { EventEmitter } from "events";
 import logger from "../config/logger";
-import Event from "../services/event/event.entity";
+import { Activity } from "../interfaces/activitystream.interface";
 import { DataType, Formatter } from "./formatter";
 
 import { save } from "./document.helper";
@@ -57,48 +57,19 @@ const EVENT_INDEX = "events";
 const fmt: Formatter = new Formatter();
 
 /**
- * Remove sensitive data from records before logging or publishing
- */
-const removeSensitiveData = (data: any): Event => {
-  const { actor, object, target } = data;
-
-  const removePassword = (obj: {[key: string]: any}, key: string) => {
-    if (obj.hasOwnProperty("password")) {
-      data[key].password = undefined;
-    }
-    if (obj.surrogatePrincipal && obj.surrogatePrincipal.password) {
-      data[key].surrogatePrincipal.password = undefined;
-    }
-  };
-
-  if (actor) {
-    removePassword(actor, "actor");
-  }
-  if (target) {
-    removePassword(target, "target");
-  }
-
-  return data;
-};
-
-/**
  * Example handler but could register a handler and array of events with App
  * and publish to a queue for async processing. Could also flag whether to
  * save or update data in local DB.
  */
-const handleEvent = async (data: {[key: string]: any}) => {
-  const cleanData: Event = removeSensitiveData(data);
-
-  logger.debug(JSON.stringify(cleanData));
-
+const handleEvent = async (data: Activity) => {
   // log events in document database (optionally filter by type or whatever)
   try {
     // add ISO published and hostname
-    cleanData.published = fmt.format(data.timestamp, DataType.DATE);
-    cleanData.host = os.hostname();
-    cleanData.count = 1;
+    data.published = fmt.format(data.timestamp, DataType.DATE);
+    data.host = os.hostname();
+    data.count = 1;
 
-    await save(EVENT_INDEX, cleanData);
+    await save(EVENT_INDEX, data);
   } catch (error) {
     logger.error(error.message);
   }
@@ -106,7 +77,7 @@ const handleEvent = async (data: {[key: string]: any}) => {
   // manage graph relations
   try {
     const relationDao: RelationDao = new RelationDao();
-    await relationDao.updateGraphFromEvent(data.actor, data);
+    await relationDao.updateGraphFromEvent(data);
   } catch (error) {
     logger.error(error.message);
   }

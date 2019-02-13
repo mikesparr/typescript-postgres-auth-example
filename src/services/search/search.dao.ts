@@ -3,6 +3,11 @@ import logger from "../../config/logger";
 
 import NotImplementedException from "../../exceptions/NotImplementedException";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
@@ -39,7 +44,7 @@ class SearchDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,

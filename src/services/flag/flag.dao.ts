@@ -2,6 +2,11 @@ import { getRepository, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
+import {
+  Activity,
+  ActivityObject,
+  Actor,
+  ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
@@ -40,7 +45,7 @@ class FlagDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
+          actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.resource,
           timestamp: ended,
@@ -76,8 +81,8 @@ class FlagDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: record,
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -102,13 +107,13 @@ class FlagDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Flag = permission.filter(newRecord);
-      await this.flagRepository.save(filteredData);
+      const savedData: Flag = await this.flagRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
       event.emit(action, {
-        actor: user,
-        object: filteredData,
+        actor: {id: user.id, type: ActorType.Person},
+        object: {...savedData, type: this.resource},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -139,8 +144,8 @@ class FlagDao implements Dao {
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
-          actor: user,
-          object: {id},
+          actor: {id: user.id, type: ActorType.Person},
+          object: {id, type: this.resource},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
