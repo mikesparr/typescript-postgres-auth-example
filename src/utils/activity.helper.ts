@@ -88,7 +88,7 @@ const handleEvent = async (data: {[key: string]: any}) => {
 
   logger.debug(JSON.stringify(cleanData));
 
-  // log events in document database (optionally filter by verb or whatever)
+  // log events in document database (optionally filter by type or whatever)
   try {
     // add ISO published and hostname
     cleanData.published = fmt.format(data.timestamp, DataType.DATE);
@@ -104,25 +104,17 @@ const handleEvent = async (data: {[key: string]: any}) => {
 /**
  * Listen for events emitted from DAO methods and pass in handler
  */
-event.on("register", handleEvent);
-event.on("verify", handleEvent);
-event.on("reissue", handleEvent);
-event.on("lost-password", handleEvent);
-event.on("login", handleEvent);
-// TODO: add failed-login for future monitoring/alerting
-event.on("logout", handleEvent);
-event.on("read-tokens", handleEvent);
-event.on("read-user-flags", handleEvent);
-event.on("remove-token", handleEvent);
-event.on("remove-user-tokens", handleEvent);
-event.on("add-user-role", handleEvent);
-event.on("add-role-permission", handleEvent);
-event.on("remove-user-role", handleEvent);
-event.on("remove-role-permission", handleEvent);
-event.on("search", handleEvent);
-event.on("send-email", handleEvent);
+event.on(ActivityType.INVITE, handleEvent);
+event.on(ActivityType.ACCEPT, handleEvent);
+event.on(ActivityType.REJECT, handleEvent);
+event.on(ActivityType.ARRIVE, handleEvent);
+event.on(ActivityType.JOIN, handleEvent);
+event.on(ActivityType.LEAVE, handleEvent);
+event.on(ActivityType.ADD, handleEvent);
+event.on(ActivityType.REMOVE, handleEvent);
 // global CRUD
-event.on("read-all", handleEvent);
-event.on("read-one", handleEvent);
-event.on("save", handleEvent);
-event.on("remove", handleEvent);
+event.on(ActivityType.CREATE, handleEvent);
+event.on(ActivityType.READ, handleEvent);
+event.on(ActivityType.UPDATE, handleEvent);
+event.on(ActivityType.DELETE, handleEvent);
+event.on(ActivityType.VIEW, handleEvent);

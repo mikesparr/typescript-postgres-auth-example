@@ -97,7 +97,7 @@ class GoalDao implements Dao {
     const newRecord: CreateGoalDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = ActivityType.CREATE;
+    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {

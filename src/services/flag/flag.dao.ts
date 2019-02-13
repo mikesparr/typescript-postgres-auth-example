@@ -97,7 +97,7 @@ class FlagDao implements Dao {
     const newRecord: CreateFlagDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = ActivityType.CREATE;
+    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {

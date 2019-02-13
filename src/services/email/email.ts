@@ -35,7 +35,7 @@ class Email {
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: ActivityType.CREATE,
+          type: ActivityType.CREATE,
         });
 
         return true;

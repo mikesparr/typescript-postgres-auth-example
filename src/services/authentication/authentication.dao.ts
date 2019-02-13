@@ -331,7 +331,7 @@ class AuthenticationDao implements Dao {
       resource: isSurrogate ? this.surrogateResource : this.resource,
       timestamp: ended,
       took: ended - started,
-      verb: ActivityType.ARRIVE,
+      type: ActivityType.ARRIVE,
     });
 
     let message: string;
@@ -358,14 +358,14 @@ class AuthenticationDao implements Dao {
       if (foundUser) {
         // log event to central handler
         const ended: number = Date.now();
-        event.emit("reissue", {
-          action: "create",
+        // TODO: figure out invite flow in auth
+        event.emit(ActivityType.INVITE, {
           actor: foundUser,
           object: foundUser,
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
-          verb: "reissue",
+          type: ActivityType.INVITE,
         }); // before password removed in case need to store in another DB
 
         await this.notifyByEmail(foundUser, NotificationType.REGISTER, tokenResult.type);
