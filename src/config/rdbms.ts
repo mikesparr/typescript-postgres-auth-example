@@ -8,6 +8,7 @@ const config: ConnectionOptions = {
   entities: [
     __dirname + "/../**/*.entity{.ts,.js}",
   ],
+  extra: { max: 5, min: 2 }, // connection pool
   host: process.env.POSTGRES_HOST,
   password: process.env.POSTGRES_PASSWORD,
   port: Number(process.env.POSTGRES_PORT),
