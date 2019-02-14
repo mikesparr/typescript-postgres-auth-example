@@ -9,8 +9,8 @@ import { Flag, FlagType } from "../services/flag/flag.entity";
 import { Goal } from "../services/flag/goal.entity";
 import { Segment } from "../services/flag/segment.entity";
 import { hashPassword } from "../utils/authentication.helper";
-import logger from "./logger";
-import cache from "./cache";
+import logger from "../config/logger";
+import cache from "../config/cache";
 
 // truncate entity tables in database
 const clearDb = async (connection: Connection) => {
@@ -18,7 +18,7 @@ const clearDb = async (connection: Connection) => {
 
   for (const entity of entities) {
     const repository = await connection.getRepository(entity.name);
-    await repository.query(`DROP TABLE IF EXISTS "${entity.tableName}" CASCADE;`);
+    await repository.query(`DELETE FROM "${entity.tableName}" CASCADE;`);
   }
 };
 
@@ -26,7 +26,22 @@ const resetUserPermissionCache = async () => {
   await cache.del("authorization:grants");
 };
 
-const createTestData = async (connection: Connection) => {
+const isDataAlreadyLoaded = async (connection: Connection) => {
+  try {
+    const adminUser: User =
+            await connection.manager.findOneOrFail(User, { email: "admin@example.com" });
+
+    if (adminUser) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false; // user not found so proceed
+  }
+};
+
+const loadData = async (connection: Connection) => {
   // clear database first
   // await clearDb(connection);
   // logger.info(`Dropped database tables, now creating test data ...`);
@@ -368,6 +383,7 @@ const createTestData = async (connection: Connection) => {
       logoutPermission,
     ],
   });
+  await connection.manager.save(guestRole);
   const userRole = connection.manager.create(Role, {
     description: "Authenticated user with basic privileges",
     id: "user",
@@ -491,6 +507,19 @@ const createTestData = async (connection: Connection) => {
   });
   await connection.manager.save(sysadminUser);
 
+};
+
+/**
+ * Run this once but if data already exists
+ * @param connection
+ */
+const createTestData = async (connection: Connection) => {
+  if (!await isDataAlreadyLoaded(connection)) {
+    logger.info("Loading data for first time...");
+    await loadData(connection);
+  } else {
+    logger.info("Data already loaded so running tests...");
+  }
 };
 
 export default createTestData;

@@ -16,8 +16,7 @@ export class User {
   @Column()
   public lastName: string;
 
-  @Column()
-  @Index("idx_unique_user_email", { unique: true })
+  @Column({ unique: true })
   public email: string;
 
   @Column({ nullable: true })
@@ -44,6 +43,9 @@ export class User {
   public surrogateEnabled?: boolean;
 
   public surrogatePrincipal?: User;
+
+  @Column({ default: false })
+  public archived?: boolean;
 
   @ManyToMany((type) => Role, (role) => role.users)
   public roles?: Role[];

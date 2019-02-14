@@ -18,7 +18,7 @@ export class Flag {
   @PrimaryGeneratedColumn("uuid")
   public id?: string;
 
-  @Column()
+  @Column({ unique: true })
   public key: string;
 
   @Column()

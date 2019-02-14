@@ -2,11 +2,15 @@ import "../config";
 import rdbms from "../config/rdbms";
 import { createConnection, getConnection, Connection } from "typeorm";
 
-import createTestData from "../config/data.test";
+import createTestData from "./data";
 
 beforeAll(async () => {
   const connection: Connection = await createConnection(rdbms);
-  await createTestData(connection);
+  try {
+    await createTestData(connection);
+  } catch (error) {
+    // do nothing
+  }
 });
 
 afterAll(async () => {

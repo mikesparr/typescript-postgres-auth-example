@@ -124,6 +124,11 @@ class RelationDao implements Dao {
     throw new NotImplementedException("save");
   }
 
+  public update = async (user: User, data: any):
+            Promise<NotImplementedException> => {
+    throw new NotImplementedException("update");
+  }
+
   public remove = async (user: User, id: string):
             Promise<NotImplementedException> => {
     throw new NotImplementedException("remove");

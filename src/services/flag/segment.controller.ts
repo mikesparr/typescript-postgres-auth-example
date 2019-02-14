@@ -29,7 +29,7 @@ class SegmentController implements Controller {
     this.router
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateSegmentDto), this.save)
-      .put(`${this.path}/:id`, validationMiddleware(CreateSegmentDto, true), this.save)
+      .put(`${this.path}/:id`, validationMiddleware(CreateSegmentDto, true), this.update)
       .delete(`${this.path}/:id`, this.remove);
   }
 
@@ -58,6 +58,17 @@ class SegmentController implements Controller {
 
     try {
       const data: any = await this.segmentDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private update = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const newRecord: CreateSegmentDto = request.body;
+
+    try {
+      const data: any = await this.segmentDao.update(request.user, newRecord);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);

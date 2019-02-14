@@ -138,7 +138,7 @@ class AuthenticationDao implements Dao {
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
     if (
-      await userRepository.findOne({ email: userData.email })
+      await userRepository.findOne({ email: userData.email, archived: false })
     ) {
       throw new UserExistsException(userData.email);
     } else {
@@ -172,7 +172,7 @@ class AuthenticationDao implements Dao {
         return user;
       } catch (error) {
         logger.error(`############# ${error} #############`);
-        throw error;
+        throw new Error("investigate me please");
       }
     }
   }
@@ -195,7 +195,7 @@ class AuthenticationDao implements Dao {
             case TokenTypes.REGISTER:
               const userRole: Role = roleRepository.create({id: "user"});
               foundUser.roles = [userRole];
-              await userRepository.save(foundUser);
+              await userRepository.update({ id: foundUser.id }, foundUser);
               break;
             case TokenTypes.PASSWORD:
               // just log user in

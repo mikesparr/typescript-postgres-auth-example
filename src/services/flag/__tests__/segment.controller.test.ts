@@ -49,8 +49,8 @@ afterAll(async () => {
 
   // only remove new segments if a test failed and they exist
   if (segmentToRemove) {
-    segmentToRemove.deleted = true;
-    await connection.manager.save(Segment, segmentToRemove);
+    segmentToRemove.archived = true;
+    await connection.manager.update(Segment, { id: newSegmentId }, segmentToRemove);
   }
 });
 

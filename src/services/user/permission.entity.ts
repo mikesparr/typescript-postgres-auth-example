@@ -5,6 +5,7 @@ import { Role } from "./role.entity";
  * Data object with annotations to configure database in ORM
  */
 @Entity()
+@Index("idx_unique_permission", ["resource", "action", "attributes", "role"])
 export class Permission {
 
   @PrimaryGeneratedColumn("uuid")

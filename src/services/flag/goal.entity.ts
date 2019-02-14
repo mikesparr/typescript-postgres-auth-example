@@ -10,7 +10,7 @@ export class Goal {
   @PrimaryGeneratedColumn("uuid")
   public id?: string;
 
-  @Column()
+  @Column({ unique: true })
   public key: string;
 
   @Column()
@@ -35,7 +35,7 @@ export class Goal {
   public stop?: Date;
 
   @Column({ default: false })
-  public enabled?: boolean;
+  public archived?: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.goals)
   @JoinTable()

@@ -29,7 +29,7 @@ class GoalController implements Controller {
     this.router
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateGoalDto), this.save)
-      .put(`${this.path}/:id`, validationMiddleware(CreateGoalDto, true), this.save)
+      .put(`${this.path}/:id`, validationMiddleware(CreateGoalDto, true), this.update)
       .delete(`${this.path}/:id`, this.remove);
   }
 
@@ -58,6 +58,17 @@ class GoalController implements Controller {
 
     try {
       const data: any = await this.goalDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private update = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const newRecord: CreateGoalDto = request.body;
+
+    try {
+      const data: any = await this.goalDao.update(request.user, newRecord);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);

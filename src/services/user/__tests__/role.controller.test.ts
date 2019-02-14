@@ -151,7 +151,7 @@ describe("Role", () => {
   }); // GET /roles
 
   describe("GET /roles/:id", () => {
-    it("allows user role access without roles", async () => {
+    it("allows user role access without permissions", async () => {
       const result = await request(app)
         .get("/roles/guest")
         .set("Authorization", `Bearer ${userToken}`)

@@ -34,7 +34,7 @@ class UserController implements Controller {
       .all(`${this.path}/*`, authenticationMiddleware)
       .post(this.path, authenticationMiddleware, validationMiddleware(CreateUserDto), this.save)
       .post(`${this.path}/:id/roles`, validationMiddleware(AddRoleDto), this.addRole)
-      .put(`${this.path}/:id`, validationMiddleware(CreateUserDto, true), this.save)
+      .put(`${this.path}/:id`, validationMiddleware(CreateUserDto, true), this.update)
       .delete(`${this.path}/:id`, this.remove)
       .delete(`${this.path}/:id/tokens`, this.removeAllTokens)
       .delete(`${this.path}/:id/tokens/:tokenId`, this.removeToken)
@@ -66,6 +66,17 @@ class UserController implements Controller {
 
     try {
       const data: any = await this.userDao.save(request.user, newRecord);
+      response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private update = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+    const newRecord: CreateUserDto = request.body;
+
+    try {
+      const data: any = await this.userDao.update(request.user, newRecord);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);

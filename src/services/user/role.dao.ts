@@ -8,6 +8,7 @@ import {
   Actor,
   ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
+import DuplicateRecordException from "../../exceptions/DuplicateRecordException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
@@ -104,30 +105,75 @@ class RoleDao implements Dao {
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
-
     const newRecord: CreateRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: Role = permission.filter(newRecord);
-      const savedData: Role = await roleRepository.save(filteredData);
+      try {
+        const filteredData: Role = permission.filter(newRecord);
+        const savedData: Role = await roleRepository.save(filteredData);
 
-      // log event to central handler
-      const ended: number = Date.now();
-      event.emit(action, {
-        actor: {id: user.id, type: ActorType.Person},
-        object: {...savedData, type: this.resource},
-        resource: this.resource,
-        timestamp: ended,
-        took: ended - started,
-        type: action,
-      });
+        // log event to central handler
+        const ended: number = Date.now();
+        event.emit(action, {
+          actor: {id: user.id, type: ActorType.Person},
+          object: {...savedData, type: this.resource},
+          resource: this.resource,
+          timestamp: ended,
+          took: ended - started,
+          type: action,
+        });
 
-      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
-      return filteredData;
+        logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
+        return permission.filter(savedData);
+      } catch (error) {
+        logger.error(`$$$$$$$$$$$$$$ ${error} $$$$$$$$$$$$$`);
+        throw new DuplicateRecordException();
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
+  }
+
+  public update = async (user: User, data: any):
+            Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = ActivityType.UPDATE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const recordToUpdate = await roleRepository.findOne(data.id);
+
+      if (recordToUpdate) {
+        try {
+          const savedData: Role = roleRepository.merge(permission.filter(data), recordToUpdate);
+          const updateResult: any = await roleRepository.update({ id: data.id }, savedData);
+
+          // log event to central handler
+          const ended: number = Date.now();
+          event.emit(action, {
+            actor: {id: user.id, type: ActorType.Person},
+            object: {...savedData, type: this.resource},
+            resource: this.resource,
+            timestamp: ended,
+            took: ended - started,
+            type: action,
+          });
+
+          logger.info(`Updated ${this.resource} with ID ${data.id} in the database`);
+          return permission.filter(savedData);
+        } catch (error) {
+          throw new Error("Investigate me please");
+        }
+      } else {
+        throw new RecordNotFoundException(data.id);
+      }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
     }
@@ -226,7 +272,7 @@ class RoleDao implements Dao {
         const ended: number = Date.now();
         event.emit(ActivityType.ADD, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: recordToUpdate.id, type: "permission"},
+          object: {id: data.id, type: "permission"},
           resource: this.rolePermissionResource,
           target: {id, type: this.resource},
           timestamp: ended,

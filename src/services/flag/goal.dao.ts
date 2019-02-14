@@ -8,6 +8,7 @@ import {
   Actor,
   ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
+import DuplicateRecordException from "../../exceptions/DuplicateRecordException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
@@ -105,26 +106,72 @@ class GoalDao implements Dao {
     const newRecord: CreateGoalDto = data;
 
     const isOwnerOrMember: boolean = false;
-    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: Goal = permission.filter(newRecord);
-      const savedData: Goal = await goalRepository.save(filteredData);
+      try {
+        const filteredData: Goal = permission.filter(newRecord);
+        const savedData: Goal = await goalRepository.save(filteredData);
 
-      // log event to central handler
-      const ended: number = Date.now();
-      event.emit(action, {
-        actor: {id: user.id, type: ActorType.Person},
-        object: {...savedData, type: this.resource},
-        resource: this.resource,
-        timestamp: ended,
-        took: ended - started,
-        type: action,
-      });
+        // log event to central handler
+        const ended: number = Date.now();
+        event.emit(action, {
+          actor: {id: user.id, type: ActorType.Person},
+          object: {...savedData, type: this.resource},
+          resource: this.resource,
+          timestamp: ended,
+          took: ended - started,
+          type: action,
+        });
 
-      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
-      return filteredData;
+        logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
+        return permission.filter(savedData);
+      } catch (error) {
+        logger.error(`$$$$$$$$$$$$$$ ${error} $$$$$$$$$$$$$`);
+        throw new DuplicateRecordException();
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
+  }
+
+  public update = async (user: User, data: any):
+            Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
+    const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
+
+    const isOwnerOrMember: boolean = false;
+    const action: string = ActivityType.UPDATE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const recordToUpdate = await goalRepository.findOne(data.id);
+
+      if (recordToUpdate) {
+        try {
+          const savedData: Goal = goalRepository.merge(permission.filter(data), recordToUpdate);
+          const updateResult: any = await goalRepository.update({ id: data.id }, savedData);
+
+          // log event to central handler
+          const ended: number = Date.now();
+          event.emit(action, {
+            actor: {id: user.id, type: ActorType.Person},
+            object: {...savedData, type: this.resource},
+            resource: this.resource,
+            timestamp: ended,
+            took: ended - started,
+            type: action,
+          });
+
+          logger.info(`Updated ${this.resource} with ID ${data.id} in the database`);
+          return permission.filter(savedData);
+        } catch (error) {
+          throw new Error("Investigate me please");
+        }
+      } else {
+        throw new RecordNotFoundException(data.id);
+      }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
     }
@@ -142,8 +189,8 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        recordToRemove.enabled = false;
-        await goalRepository.save(recordToRemove);
+        recordToRemove.archived = true;
+        await goalRepository.update({ id }, recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();

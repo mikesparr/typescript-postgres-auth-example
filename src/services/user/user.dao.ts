@@ -120,8 +120,8 @@ class UserDao implements Dao {
 
     const newRecord: CreateUserDto = data;
 
-    const isOwnerOrMember: boolean = (data.id && String(user.id) === String(data.id));
-    const action: string = data.id ? ActivityType.UPDATE : ActivityType.CREATE;
+    const isOwnerOrMember: boolean = false;
+    const action: string = ActivityType.CREATE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
@@ -141,14 +141,51 @@ class UserDao implements Dao {
         });
 
         logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
-        return filteredData;
+        return permission.filter(savedData);
       } catch (error) {
         logger.error(`$$$$$$$$$$$$$$ ${error} $$$$$$$$$$$$$`);
-        if (action === ActivityType.CREATE) {
-          throw new DuplicateRecordException();
-        } else {
+        throw new DuplicateRecordException();
+      }
+    } else {
+      throw new UserNotAuthorizedException(user.id, action, this.resource);
+    }
+  }
+
+  public update = async (user: User, data: any):
+            Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const isOwnerOrMember: boolean = (data.id && String(user.id) === String(data.id));
+    const action: string = ActivityType.UPDATE;
+    const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
+
+    if (permission.granted) {
+      const recordToUpdate = await userRepository.findOne(data.id);
+
+      if (recordToUpdate) {
+        try {
+          const savedData: User = userRepository.merge(permission.filter(data), recordToUpdate);
+          const updateResult: any = await userRepository.update({ id: data.id }, savedData);
+
+          // log event to central handler
+          const ended: number = Date.now();
+          event.emit(action, {
+            actor: {id: user.id, type: ActorType.Person},
+            object: {...savedData, type: this.resource},
+            resource: this.resource,
+            timestamp: ended,
+            took: ended - started,
+            type: action,
+          });
+
+          logger.info(`Updated ${this.resource} with ID ${data.id} in the database`);
+          return permission.filter(savedData);
+        } catch (error) {
           throw new Error("Investigate me please");
         }
+      } else {
+        throw new RecordNotFoundException(data.id);
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
@@ -168,7 +205,8 @@ class UserDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await userRepository.remove(recordToRemove);
+        recordToRemove.archived = true;
+        await userRepository.update({ id }, recordToRemove);
         await addAllUserTokensToDenyList(recordToRemove);
 
         // log event to central handler

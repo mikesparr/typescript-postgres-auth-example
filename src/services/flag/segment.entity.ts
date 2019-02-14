@@ -11,7 +11,7 @@ export class Segment {
   @PrimaryGeneratedColumn("uuid")
   public id?: string;
 
-  @Column()
+  @Column({ unique: true })
   public key: string;
 
   @Column()
@@ -33,7 +33,7 @@ export class Segment {
   public rules?: Rule[];
 
   @Column({ default: false })
-  public deleted?: boolean;
+  public archived?: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.segments)
   @JoinTable()
