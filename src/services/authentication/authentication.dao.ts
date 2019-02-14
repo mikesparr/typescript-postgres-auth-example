@@ -1,4 +1,4 @@
-import { getRepository, Repository, Not } from "typeorm";
+import { getConnection, Repository, Not } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 
@@ -53,8 +53,6 @@ class AuthenticationDao implements Dao {
   private resource: string = "authentication"; // matches defined user user 'resource'
   private surrogateResource: string = "surrogate";
   private tokenResource: string = "token";
-  private userRepository: Repository<User> = getRepository(User);
-  private roleRepository: Repository<Role> = getRepository(Role);
   private email: Email;
 
   constructor() {
@@ -63,8 +61,9 @@ class AuthenticationDao implements Dao {
 
   public login = async (loginData: UserLoginDto, userAgent: object): Promise<object | Error> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
 
-    const user: User = await this.userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
+    const user: User = await userRepository.findOne({ email: loginData.email }, { relations: ["roles"] });
     if (user) {
       const isPasswordMatching = await verifyPassword(loginData.password, user.password);
       if (isPasswordMatching) {
@@ -83,8 +82,9 @@ class AuthenticationDao implements Dao {
           surrogateUserId: string,
           userAgent: object): Promise<object | Error> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
 
-    const foundUser: User = await this.userRepository.findOne(surrogateUserId);
+    const foundUser: User = await userRepository.findOne(surrogateUserId);
     if (foundUser) {
       const isOwnerOrMember: boolean = false; // TODO: consider logic if manager in group
       const action: string = ActivityType.CREATE;
@@ -134,59 +134,68 @@ class AuthenticationDao implements Dao {
 
   public register = async (userData: CreateUserDto, userAgent: object): Promise<User | Error> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
     if (
-      await this.userRepository.findOne({ email: userData.email })
+      await userRepository.findOne({ email: userData.email })
     ) {
       throw new UserExistsException(userData.email);
     } else {
-      const hashedPassword = await hashPassword(userData.password);
-      const guestRole = this.roleRepository.create({id: "guest"});
-      const user = this.userRepository.create({
-        ...userData,
-        password: hashedPassword,
-        roles: [guestRole],
-      });
+      try {
+        const hashedPassword = await hashPassword(userData.password);
+        const guestRole = roleRepository.create({id: "guest"});
+        const user = userRepository.create({
+          ...userData,
+          password: hashedPassword,
+          roles: [guestRole],
+        });
 
-      const newUser: User = await this.userRepository.save(user);
+        const newUser: User = await userRepository.save(user);
 
-      // log event to central handler
-      const ended: number = Date.now();
-      event.emit(ActivityType.CREATE, {
-        actor: {id: "System", type: ActorType.Application},
-        object: {...newUser, type: ActorType.Person},
-        resource: this.resource,
-        timestamp: ended,
-        took: ended - started,
-        type: ActivityType.CREATE,
-      }); // before password removed in case need to store in another DB
+        // log event to central handler
+        const ended: number = Date.now();
+        event.emit(ActivityType.CREATE, {
+          actor: {id: "System", type: ActorType.Application},
+          object: {...newUser, type: ActorType.Person},
+          resource: this.resource,
+          timestamp: ended,
+          took: ended - started,
+          type: ActivityType.CREATE,
+        }); // before password removed in case need to store in another DB
 
-      await this.notifyByEmail(user, NotificationType.REGISTER);
+        await this.notifyByEmail(user, NotificationType.REGISTER);
 
-      user.password = undefined;
+        user.password = undefined;
 
-      logger.info(`User with email ${user.email} just registered`);
-      return user;
+        logger.info(`User with email ${user.email} just registered`);
+        return user;
+      } catch (error) {
+        logger.error(`############# ${error} #############`);
+        throw error;
+      }
     }
   }
 
   public verifyToken = async (token: string, userAgent: object): Promise<object | Error> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
     if (! await isTokenInDenyList(token)) {
       try {
         const tokenResult: any = await readToken(token);
 
-        const foundUser: User = await this.userRepository.findOne({ email: tokenResult.email });
+        const foundUser: User = await userRepository.findOne({ email: tokenResult.email });
 
         if (!foundUser) {
           throw new RecordNotFoundException(tokenResult.email);
         } else {
           switch (tokenResult.type) {
             case TokenTypes.REGISTER:
-              const userRole: Role = this.roleRepository.create({id: "user"});
+              const userRole: Role = roleRepository.create({id: "user"});
               foundUser.roles = [userRole];
-              await this.userRepository.save(foundUser);
+              await userRepository.save(foundUser);
               break;
             case TokenTypes.PASSWORD:
               // just log user in
@@ -233,7 +242,9 @@ class AuthenticationDao implements Dao {
 
   public lostPassword = async (userData: UserEmailDto, userAgent: object): Promise<object | Error> => {
     const started: number = Date.now();
-    const foundUser = await this.userRepository.findOne({ email: userData.email });
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const foundUser = await userRepository.findOne({ email: userData.email });
 
     if (foundUser) {
       // log event to central handler
@@ -358,9 +369,10 @@ class AuthenticationDao implements Dao {
   private reissueFromExpiredToken = async (token: string): Promise<void> => {
     try {
       const started: number = Date.now();
+      const userRepository: Repository<User> = getConnection().getRepository(User);
       const tokenResult: any = await decodeToken(token);
 
-      const foundUser: User = await this.userRepository.findOne({ email: tokenResult.email });
+      const foundUser: User = await userRepository.findOne({ email: tokenResult.email });
 
       if (foundUser) {
         // log event to central handler

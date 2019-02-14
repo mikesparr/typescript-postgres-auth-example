@@ -1,4 +1,4 @@
-import { getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -23,7 +23,6 @@ import CreateSegmentDto from "./segment.dto";
  */
 class SegmentDao implements Dao {
   private resource: string = "segment"; // matches defined segment segment "resource"
-  private segmentRepository: Repository<Segment> = getRepository(Segment);
 
   constructor() {
     // nothing
@@ -32,7 +31,9 @@ class SegmentDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.segmentRepository.find({ relations: ["flags"] });
+    const segmentRepository: Repository<Segment> = getConnection().getRepository(Segment);
+
+    const records = await segmentRepository.find({ relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -67,8 +68,10 @@ class SegmentDao implements Dao {
   public getOne = async (user: User, id: string):
             Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.segmentRepository.findOne(id, { relations: ["flags"] });
+    const segmentRepository: Repository<Segment> = getConnection().getRepository(Segment);
+
+    logger.debug(`Fetching ${this.resource} with ID ${id}`);
+    const record = await segmentRepository.findOne(id, { relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -99,6 +102,7 @@ class SegmentDao implements Dao {
   public save = async (user: User, data: any):
             Promise<Segment | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const segmentRepository: Repository<Segment> = getConnection().getRepository(Segment);
     const newRecord: CreateSegmentDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -107,7 +111,7 @@ class SegmentDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Segment = permission.filter(newRecord);
-      const savedData: Segment = await this.segmentRepository.save(filteredData);
+      const savedData: Segment = await segmentRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
@@ -130,7 +134,8 @@ class SegmentDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.segmentRepository.findOne(id);
+    const segmentRepository: Repository<Segment> = getConnection().getRepository(Segment);
+    const recordToRemove = await segmentRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
@@ -139,7 +144,7 @@ class SegmentDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         recordToRemove.deleted = true;
-        await this.segmentRepository.save(recordToRemove);
+        await segmentRepository.save(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();

@@ -1,4 +1,4 @@
-import { getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -23,7 +23,6 @@ import CreateGoalDto from "./goal.dto";
  */
 class GoalDao implements Dao {
   private resource: string = "goal"; // matches defined goal goal "resource"
-  private goalRepository: Repository<Goal> = getRepository(Goal);
 
   constructor() {
     // nothing
@@ -32,7 +31,8 @@ class GoalDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.goalRepository.find({ relations: ["flags"] });
+    const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
+    const records = await goalRepository.find({ relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -67,8 +67,10 @@ class GoalDao implements Dao {
   public getOne = async (user: User, id: string):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.goalRepository.findOne(id, { relations: ["flags"] });
+    const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
+
+    logger.debug(`Fetching ${this.resource} with ID ${id}`);
+    const record = await goalRepository.findOne(id, { relations: ["flags"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -99,6 +101,7 @@ class GoalDao implements Dao {
   public save = async (user: User, data: any):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
     const newRecord: CreateGoalDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -107,7 +110,7 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Goal = permission.filter(newRecord);
-      const savedData: Goal = await this.goalRepository.save(filteredData);
+      const savedData: Goal = await goalRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
@@ -130,7 +133,8 @@ class GoalDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.goalRepository.findOne(id);
+    const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
+    const recordToRemove = await goalRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
@@ -139,7 +143,7 @@ class GoalDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         recordToRemove.enabled = false;
-        await this.goalRepository.save(recordToRemove);
+        await goalRepository.save(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();

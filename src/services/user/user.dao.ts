@@ -1,4 +1,4 @@
-import { getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -8,6 +8,7 @@ import {
   Actor,
   ActorType } from "../../interfaces/activitystream.interface";
 import SearchResult from "../../interfaces/searchresult.interface";
+import DuplicateRecordException from "../../exceptions/DuplicateRecordException";
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
@@ -36,8 +37,6 @@ class UserDao implements Dao {
   private flagResource: string = "flag";
   private tokenResource: string = "token";
   private userRoleResource: string = "userrole";
-  private userRepository: Repository<User> = getRepository(User);
-  private roleRepository: Repository<Role> = getRepository(Role);
 
   constructor() {
     // nothing
@@ -46,7 +45,9 @@ class UserDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.userRepository.find({ relations: ["roles"] });
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const records = await userRepository.find({ relations: ["roles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -82,7 +83,9 @@ class UserDao implements Dao {
   public getOne = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const record = await this.userRepository.findOne(id, { relations: ["roles"] });
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const record = await userRepository.findOne(id, { relations: ["roles"] });
 
     const isOwnerOrMember: boolean = String(user.id) === String(id);
     const action: string = ActivityType.READ;
@@ -113,6 +116,8 @@ class UserDao implements Dao {
   public save = async (user: User, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
     const newRecord: CreateUserDto = data;
 
     const isOwnerOrMember: boolean = (data.id && String(user.id) === String(data.id));
@@ -120,22 +125,31 @@ class UserDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const filteredData: User = permission.filter(newRecord);
-      const savedData: User = await this.userRepository.save(filteredData);
+      try {
+        const filteredData: User = permission.filter(newRecord);
+        const savedData: User = await userRepository.save(filteredData);
 
-      // log event to central handler
-      const ended: number = Date.now();
-      event.emit(action, {
-        actor: {id: user.id, type: ActorType.Person},
-        object: {...savedData, type: this.resource},
-        resource: this.resource,
-        timestamp: ended,
-        took: ended - started,
-        type: action,
-      });
+        // log event to central handler
+        const ended: number = Date.now();
+        event.emit(action, {
+          actor: {id: user.id, type: ActorType.Person},
+          object: {...savedData, type: this.resource},
+          resource: this.resource,
+          timestamp: ended,
+          took: ended - started,
+          type: action,
+        });
 
-      logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
-      return filteredData;
+        logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
+        return filteredData;
+      } catch (error) {
+        logger.error(`$$$$$$$$$$$$$$ ${error} $$$$$$$$$$$$$`);
+        if (action === ActivityType.CREATE) {
+          throw new DuplicateRecordException();
+        } else {
+          throw new Error("Investigate me please");
+        }
+      }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
     }
@@ -144,7 +158,9 @@ class UserDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.userRepository.findOne(id);
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const recordToRemove = await userRepository.findOne(id);
 
     const isOwnerOrMember: boolean = String(user.id) === String(id);
     const action: string = ActivityType.DELETE;
@@ -152,7 +168,7 @@ class UserDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.userRepository.remove(recordToRemove);
+        await userRepository.remove(recordToRemove);
         await addAllUserTokensToDenyList(recordToRemove);
 
         // log event to central handler
@@ -178,7 +194,9 @@ class UserDao implements Dao {
 
   public getTokens = async (user: User, tokenUserId: string): Promise<object | Error> => {
     const started: number = Date.now();
-    const record = await this.userRepository.findOne(tokenUserId);
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const record = await userRepository.findOne(tokenUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(tokenUserId);
     const action: string = ActivityType.READ;
@@ -214,7 +232,9 @@ class UserDao implements Dao {
   public getFlags = async (
           user: User, flagUserId: string): Promise<Array<{[key: string]: any}> | Error> => {
     const started: number = Date.now();
-    const record = await this.userRepository.findOne(flagUserId);
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const record = await userRepository.findOne(flagUserId);
 
     const isOwnerOrMember: boolean = String(user.id) === String(flagUserId);
     const action: string = ActivityType.READ;
@@ -285,7 +305,9 @@ class UserDao implements Dao {
   public removeAllTokens = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const record = await this.userRepository.findOne(id);
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const record = await userRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
@@ -321,7 +343,9 @@ class UserDao implements Dao {
   public getRoles = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const record = await this.userRepository.findOne(id, { relations: ["roles"] });
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+
+    const record = await userRepository.findOne(id, { relations: ["roles"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -353,6 +377,9 @@ class UserDao implements Dao {
   public addRole = async (user: User, id: number, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
     const newRecord: AddRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -360,14 +387,14 @@ class UserDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.userRoleResource);
 
     if (permission.granted) {
-      const relationToAdd = await this.roleRepository.findOne(newRecord.id, { relations: ["permissions"] });
-      const recordToUpdate = await this.userRepository.findOne(id, { relations: ["roles"] });
+      const relationToAdd = await roleRepository.findOne(newRecord.id, { relations: ["permissions"] });
+      const recordToUpdate = await userRepository.findOne(id, { relations: ["roles"] });
 
       if (relationToAdd && recordToUpdate) {
         const filteredData: User = permission.filter(recordToUpdate);
 
         try {
-          await this.userRepository
+          await userRepository
           .createQueryBuilder()
           .relation(User, "roles")
           .of([{ id: recordToUpdate.id }])
@@ -403,23 +430,24 @@ class UserDao implements Dao {
   public removeRole = async (user: User, id: string, roleId: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const userRepository: Repository<User> = getConnection().getRepository(User);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.userRoleResource);
 
     if (permission.granted) {
-      const recordToUpdate = await this.userRepository.findOne(id, { relations: ["roles"] });
+      const recordToUpdate = await userRepository.findOne(id, { relations: ["roles"] });
 
       if (recordToUpdate) {
-        await this.userRepository
+        await userRepository
           .createQueryBuilder()
           .relation(User, "roles")
           .of([recordToUpdate])
           .remove({ id: roleId });
 
         const filteredData: User = permission.filter(recordToUpdate);
-        await this.userRepository.save(recordToUpdate);
+        await userRepository.save(recordToUpdate);
 
         // log event to central handler
         const ended: number = Date.now();

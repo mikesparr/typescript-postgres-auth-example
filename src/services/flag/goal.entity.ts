@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
 import { Flag } from "./flag.entity";
 
 /**
@@ -8,7 +8,7 @@ import { Flag } from "./flag.entity";
 export class Goal {
 
   @PrimaryGeneratedColumn("uuid")
-  public id: string;
+  public id?: string;
 
   @Column()
   public key: string;
@@ -38,6 +38,7 @@ export class Goal {
   public enabled?: boolean;
 
   @ManyToMany((type) => Flag, (flag) => flag.goals)
+  @JoinTable()
   public flags?: Flag[];
 
 }

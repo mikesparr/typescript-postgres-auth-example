@@ -5,6 +5,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 
 @Entity()
+@Index(["relation", "sourceId", "sourceType", "targetId", "targetType"], { unique: true })
 export class Relation {
 
   @PrimaryGeneratedColumn("uuid")

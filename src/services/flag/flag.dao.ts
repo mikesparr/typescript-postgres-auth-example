@@ -1,4 +1,4 @@
-import { getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -23,7 +23,6 @@ import CreateFlagDto from "./flag.dto";
  */
 class FlagDao implements Dao {
   private resource: string = "flag"; // matches defined flag flag "resource"
-  private flagRepository: Repository<Flag> = getRepository(Flag);
 
   constructor() {
     // nothing
@@ -32,7 +31,9 @@ class FlagDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.flagRepository.find({ relations: ["segments", "goals"] });
+    const flagRepository: Repository<Flag> = getConnection().getRepository(Flag);
+
+    const records = await flagRepository.find({ relations: ["segments", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -67,8 +68,10 @@ class FlagDao implements Dao {
   public getOne = async (user: User, id: string):
             Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    logger.info(`Fetching ${this.resource} with ID ${id}`);
-    const record = await this.flagRepository.findOne(id, { relations: ["segments", "goals"] });
+    const flagRepository: Repository<Flag> = getConnection().getRepository(Flag);
+
+    logger.debug(`Fetching ${this.resource} with ID ${id}`);
+    const record = await flagRepository.findOne(id, { relations: ["segments", "goals"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -99,6 +102,7 @@ class FlagDao implements Dao {
   public save = async (user: User, data: any):
             Promise<Flag | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const flagRepository: Repository<Flag> = getConnection().getRepository(Flag);
     const newRecord: CreateFlagDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -107,7 +111,7 @@ class FlagDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Flag = permission.filter(newRecord);
-      const savedData: Flag = await this.flagRepository.save(filteredData);
+      const savedData: Flag = await flagRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
@@ -130,7 +134,8 @@ class FlagDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.flagRepository.findOne(id);
+    const flagRepository: Repository<Flag> = getConnection().getRepository(Flag);
+    const recordToRemove = await flagRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
@@ -139,7 +144,7 @@ class FlagDao implements Dao {
     if (permission.granted) {
       if (recordToRemove) {
         recordToRemove.archived = true;
-        await this.flagRepository.save(recordToRemove);
+        await flagRepository.save(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();

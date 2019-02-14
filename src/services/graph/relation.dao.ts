@@ -1,4 +1,4 @@
-import { getManager, getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -28,7 +28,6 @@ import { Relation } from "./relation.entity";
  */
 class RelationDao implements Dao {
   private resource: string = "relation"; // matches defined flag flag "resource"
-  private relationRepository: Repository<Relation> = getRepository(Relation);
   private fmt: Formatter;
 
   constructor() {
@@ -38,13 +37,14 @@ class RelationDao implements Dao {
   public getAll = async (user: User, params?: URLParams):
             Promise<SearchResult> => {
     const started: number = Date.now();
+    const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const records: Relation[] = await this.relationRepository.find();
+      const records: Relation[] = await relationRepository.find();
 
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
@@ -73,6 +73,8 @@ class RelationDao implements Dao {
   }
 
   public updateGraphFromEvent = async (data: any): Promise<void> => {
+    const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
+
     try {
       // initiate transaction so all relations save or none for integrity
       /*
@@ -91,7 +93,7 @@ class RelationDao implements Dao {
 
         if (addRelation) {
           const newRelation: Relation = this.getEventRelation(template, data);
-          jobs.push( this.relationRepository.save(newRelation) );
+          jobs.push( relationRepository.save(newRelation) );
         }
       });
 
@@ -131,7 +133,9 @@ class RelationDao implements Dao {
    */
 
   private getEventRelation = (template: ActivityRelation, data: Activity): Relation => {
-    return this.relationRepository.create({
+    const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
+
+    return relationRepository.create({
       created: this.fmt.format(Date.now(), DataType.DATE),
       relation: template.relation || "UNKNOWN",
       sourceId: data[template.from].id,

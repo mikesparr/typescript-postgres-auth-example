@@ -1,4 +1,4 @@
-import { getRepository, Repository } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import { ActivityType, event } from "../../utils/activity.helper";
 import logger from "../../config/logger";
 import Dao from "../../interfaces/dao.interface";
@@ -25,7 +25,6 @@ import CreateRoleDto from "./role.dto";
 class RoleDao implements Dao {
   private resource: string = "role"; // matches defined role role "resource"
   private rolePermissionResource: string = "rolepermission";
-  private roleRepository: Repository<Role> = getRepository(Role);
 
   constructor() {
     // nothing
@@ -34,7 +33,9 @@ class RoleDao implements Dao {
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
     const started: number = Date.now();
-    const records = await this.roleRepository.find({ relations: ["permissions"] });
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
+    const records = await roleRepository.find({ relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -69,7 +70,9 @@ class RoleDao implements Dao {
   public getOne = async (user: User, id: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
+    const record = await roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -100,6 +103,8 @@ class RoleDao implements Dao {
   public save = async (user: User, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
     const newRecord: CreateRoleDto = data;
 
     const isOwnerOrMember: boolean = false;
@@ -108,7 +113,7 @@ class RoleDao implements Dao {
 
     if (permission.granted) {
       const filteredData: Role = permission.filter(newRecord);
-      const savedData: Role = await this.roleRepository.save(filteredData);
+      const savedData: Role = await roleRepository.save(filteredData);
 
       // log event to central handler
       const ended: number = Date.now();
@@ -131,7 +136,9 @@ class RoleDao implements Dao {
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const recordToRemove = await this.roleRepository.findOne(id);
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
+    const recordToRemove = await roleRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
@@ -139,7 +146,7 @@ class RoleDao implements Dao {
 
     if (permission.granted) {
       if (recordToRemove) {
-        await this.roleRepository.remove(recordToRemove);
+        await roleRepository.remove(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();
@@ -165,7 +172,9 @@ class RoleDao implements Dao {
   public getPermissions = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
-    const record = await this.roleRepository.findOne(id, { relations: ["permissions"] });
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+
+    const record = await roleRepository.findOne(id, { relations: ["permissions"] });
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.READ;
@@ -197,6 +206,7 @@ class RoleDao implements Dao {
   public addPermission = async (user: User, id: string, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
     const newRecord: Permission = data;
 
     const isOwnerOrMember: boolean = false;
@@ -204,13 +214,13 @@ class RoleDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
-      const recordToUpdate = await this.roleRepository.findOne(id, { relations: ["permissions"] });
+      const recordToUpdate = await roleRepository.findOne(id, { relations: ["permissions"] });
 
       if (recordToUpdate) {
         recordToUpdate.permissions.push(newRecord);
 
         const filteredData: Role = permission.filter(recordToUpdate);
-        await this.roleRepository.save(recordToUpdate);
+        await roleRepository.save(recordToUpdate);
 
         // log event to central handler
         const ended: number = Date.now();
@@ -237,13 +247,14 @@ class RoleDao implements Dao {
   public removePermission = async (user: User, id: string, permissionId: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
+    const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
-      const recordToUpdate = await this.roleRepository.findOne(id, { relations: ["permissions"] });
+      const recordToUpdate = await roleRepository.findOne(id, { relations: ["permissions"] });
 
       if (recordToUpdate) {
         // check if relation already exists
@@ -258,13 +269,14 @@ class RoleDao implements Dao {
         }
 
         // if it doesn't exist, add it to record and save update to database
+        // TODO: revisit this logic and perhaps use QueryBuilder
         if (removedItem) {
           recordToUpdate.permissions = updatedPermissions;
-          await this.roleRepository.save(recordToUpdate);
+          await roleRepository.save(recordToUpdate);
         }
 
         const filteredData: Role = permission.filter(recordToUpdate);
-        await this.roleRepository.save(recordToUpdate);
+        await roleRepository.save(recordToUpdate);
 
         // log event to central handler
         const ended: number = Date.now();

@@ -16,7 +16,7 @@ export enum FlagType {
 export class Flag {
 
   @PrimaryGeneratedColumn("uuid")
-  public id: string;
+  public id?: string;
 
   @Column()
   public key: string;
@@ -92,11 +92,9 @@ export class Flag {
 
   // these are global to the flag hits, but we may also log variant-defined goal hits
   @ManyToMany((type) => Goal, (goal) => goal.flags)
-  @JoinTable()
   public goals?: Goal[];
 
   @ManyToMany((type) => Segment, (segment) => segment.flags)
-  @JoinTable()
   public segments?: Segment[];
 
 }

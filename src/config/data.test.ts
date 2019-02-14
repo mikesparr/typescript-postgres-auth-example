@@ -5,9 +5,9 @@ import { Connection } from "typeorm";
 import { Permission } from "../services/user/permission.entity";
 import { Role } from "../services/user/role.entity";
 import { User } from "../services/user/user.entity";
+import { Flag, FlagType } from "../services/flag/flag.entity";
 import { Goal } from "../services/flag/goal.entity";
 import { Segment } from "../services/flag/segment.entity";
-import { Flag } from "../services/flag/flag.entity";
 import { hashPassword } from "../utils/authentication.helper";
 import logger from "./logger";
 import cache from "./cache";
@@ -34,6 +34,75 @@ const createTestData = async (connection: Connection) => {
   await resetUserPermissionCache();
   logger.info("Reset user permission cache");
 
+  /**
+   * FEATURE FLAGS
+   */
+  // goal
+  const usageGoal = connection.manager.create(Goal, {
+    key: "usage-goal",
+    name: "Application usage",
+  });
+  await connection.manager.save(usageGoal);
+  const greenButtonGoal = connection.manager.create(Goal, {
+    key: "button-goal-green",
+    name: "Green button views",
+  });
+  await connection.manager.save(greenButtonGoal);
+  const redButtonGoal = connection.manager.create(Goal, {
+    key: "button-goal-red",
+    name: "Red button views",
+  });
+  await connection.manager.save(redButtonGoal);
+
+  // segment
+  const rules: any = [
+    { type: "field", expression: "country == 'US' || country == 'CA'" },
+  ];
+  const northAmericaSegment = connection.manager.create(Segment, {
+    excluded: [ "guest@example.com", "sysadmin@example.com" ],
+    included: [ "user@example.com", "admin@example.com" ],
+    key: "north-america-beta-users",
+    name: "Users in US and Canada",
+    rules,
+  });
+  await connection.manager.save(northAmericaSegment);
+
+  // flag
+  const userLoginFlag = connection.manager.create(Flag, {
+    goals: [usageGoal],
+    key: "user.login",
+    name: "Login form for users",
+    segments: [ northAmericaSegment ],
+    type: FlagType.USER,
+    variants: {
+      ["user.login.green"]: {
+        goalIds: [ "button-goal-green" ],
+        key: "user.login.green",
+        name: "Green button",
+        weight: 50,
+      },
+      ["user.login.red"]: {
+        goalIds: [ "button-goal-red" ],
+        key: "user.login.red",
+        name: "Red button",
+        weight: 50,
+      },
+    },
+  });
+  await connection.manager.save(userLoginFlag);
+
+  const seasonGreetingFlag = connection.manager.create(Flag, {
+    goals: [usageGoal],
+    key: "greeting.season",
+    name: "Seasonal welcome greeting",
+    segments: [ northAmericaSegment ],
+    type: FlagType.USER,
+  });
+  await connection.manager.save(seasonGreetingFlag);
+
+  /**
+   * PERMISSIONS, ROLES, USERS
+   */
   // logout
   const logoutPermission = connection.manager.create(Permission, {
     action: "update:any",
@@ -422,67 +491,6 @@ const createTestData = async (connection: Connection) => {
   });
   await connection.manager.save(sysadminUser);
 
-  // goal
-  const usageGoal = connection.manager.create(Goal, {
-    key: "usage-goal",
-    name: "Application usage",
-  });
-  await connection.manager.save(usageGoal);
-  const greenButtonGoal = connection.manager.create(Goal, {
-    key: "button-goal-green",
-    name: "Green button views",
-  });
-  await connection.manager.save(greenButtonGoal);
-  const redButtonGoal = connection.manager.create(Goal, {
-    key: "button-goal-red",
-    name: "Red button views",
-  });
-  await connection.manager.save(redButtonGoal);
-
-  // segment
-  const rules: any = [
-    { type: "field", expression: "country == 'US' || country == 'CA'" },
-  ];
-  const northAmericaSegment = connection.manager.create(Segment, {
-    excluded: [ "guest@example.com", "sysadmin@example.com" ],
-    included: [ "user@example.com", "admin@example.com" ],
-    key: "north-america-beta-users",
-    name: "Users in US and Canada",
-    rules,
-  });
-  await connection.manager.save(northAmericaSegment);
-
-  // flag
-  const userLoginFlag = connection.manager.create(Flag, {
-    goals: [ usageGoal ],
-    key: "user.login",
-    name: "Login form for users",
-    segments: [ northAmericaSegment ],
-    type: "user",
-    variants: {
-      ["user.login.green"]: {
-        goalIds: [ "button-goal-green" ],
-        key: "user.login.green",
-        name: "Green button",
-        weight: 50,
-      },
-      ["user.login.red"]: {
-        goalIds: [ "button-goal-red" ],
-        key: "user.login.red",
-        name: "Red button",
-        weight: 50,
-      },
-    },
-  });
-  await connection.manager.save(userLoginFlag);
-  const seasonGreetingFlag = connection.manager.create(Flag, {
-    goals: [ usageGoal ],
-    key: "greeting.season",
-    name: "Seasonal welcome greeting",
-    segments: [ northAmericaSegment ],
-    type: "user",
-  });
-  await connection.manager.save(seasonGreetingFlag);
 };
 
 export default createTestData;

@@ -111,6 +111,7 @@ export const actionToRelationMap: {[key: string]: any} = {
 };
 
 export enum NodeType {
+  Activity          = "activity",
   Address           = "address",
   Application       = "application", // computer program
   Assembly          = "assembly",
@@ -133,6 +134,7 @@ export enum NodeType {
   Item              = "item", // aka LineItem, OrderItem, CartItem, ListItem
   Language          = "language",
   Level             = "level", // aka Floor (of building)
+  Link              = "link", // URL to something
   List              = "list", // aka TodoList, TaskList
   Locality          = "locality", // aka City, Jurisdiction
   Location          = "location",

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, Index } from "typeorm";
 import { Role } from "./role.entity";
 
 /**
@@ -17,6 +17,7 @@ export class User {
   public lastName: string;
 
   @Column()
+  @Index("idx_unique_user_email", { unique: true })
   public email: string;
 
   @Column({ nullable: true })
