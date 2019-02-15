@@ -38,7 +38,7 @@ export class Relation {
   @Column({nullable: true})
   public modified?: Date;
 
-  @Column({default: true})
-  public enabled?: boolean;
+  @Column({default: false})
+  public archived?: boolean;
 
 }

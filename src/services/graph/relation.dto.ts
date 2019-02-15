@@ -47,7 +47,7 @@ class CreateRelationDto {
 
   @IsBoolean()
   @IsOptional()
-  public enabled: boolean;
+  public archived: boolean;
 
 }
 
