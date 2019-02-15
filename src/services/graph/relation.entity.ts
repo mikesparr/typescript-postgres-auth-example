@@ -15,7 +15,7 @@ export class Relation {
   public relation: string;
 
   @Column({nullable: true})
-  public label?: string;
+  public name?: string;
 
   @Column()
   public sourceType: string;
@@ -30,7 +30,7 @@ export class Relation {
   public targetId: string;
 
   @Column({type: "jsonb", nullable: true})
-  public meta?: {[key: string]: any};
+  public properties?: {[key: string]: any};
 
   @Column()
   public created?: Date;

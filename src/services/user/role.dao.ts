@@ -263,7 +263,6 @@ class RoleDao implements Dao {
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
     const permissionRepository: Repository<Permission> = getConnection().getRepository(Permission);
-    const newRecord: Permission = data;
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.CREATE;
@@ -271,7 +270,7 @@ class RoleDao implements Dao {
 
     if (permission.granted) {
       try {
-        const permissionToAdd = await permissionRepository.save(newRecord);
+        const permissionToAdd: Permission = await permissionRepository.save(data);
         const lap: number = Date.now();
         event.emit(ActivityType.CREATE, {
           actor: {id: user.id, type: ActorType.Person},
@@ -290,7 +289,7 @@ class RoleDao implements Dao {
             .createQueryBuilder()
             .relation(Role, "permissions")
             .of({ id: recordToUpdate.id })
-            .add([{ id: permissionToAdd.id }]);
+            .add([permissionToAdd]);
 
             // add new permission into object before returning
             recordToUpdate.permissions.push(permissionToAdd);
@@ -311,7 +310,7 @@ class RoleDao implements Dao {
             type: ActivityType.ADD,
           });
 
-          logger.info(`Added ${this.rolePermissionResource} with ID ${newRecord.action} to role ${recordToUpdate.id}`);
+          logger.info(`Added ${this.rolePermissionResource} with ID ${permissionToAdd.id} to role ${id}`);
           return permission.filter(recordToUpdate);
         } else {
           throw new RecordNotFoundException(id);
@@ -343,7 +342,7 @@ class RoleDao implements Dao {
           .createQueryBuilder()
           .relation(Role, "permissions")
           .of(recordToUpdate)
-          .remove({ id: permissionId });
+          .remove([{ id: permissionId }]);
 
           // remove permission from return object
           recordToUpdate.permissions = recordToUpdate.permissions.filter((perm) => perm.id !== permissionId);

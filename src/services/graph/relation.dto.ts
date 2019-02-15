@@ -39,11 +39,11 @@ class CreateRelationDto {
 
   @IsString()
   @IsOptional()
-  public label: string;
+  public name: string;
 
   @IsJSON()
   @IsOptional()
-  public meta: any;
+  public properties: any;
 
   @IsBoolean()
   @IsOptional()
