@@ -12,7 +12,7 @@ let userToken: string;
 let adminId: string;
 let adminToken: string;
 let newRoleId: string;
-let newPermissionId: string;
+let newPermissionId: string = "9ffa27c1-cf34-444e-8e3a-f02c53d145b5";
 
 beforeAll(async () => {
   let connection: Connection;
@@ -111,6 +111,37 @@ describe("Role", () => {
       expect(result.status).toEqual(200);
     });
   }); // POST /roles
+
+  describe("POST /roles/:id/permissions", () => {
+    const testData = {
+      action: "read: any",
+      attributes: "*",
+      id: "9ffa27c1-cf34-444e-8e3a-f02c53d145b5",
+      resource: "user",
+      role: newRoleId,
+    };
+
+    it("throws if missing data", async () => {
+      const result = await request(app)
+        .post(`/roles/${newRoleId}/permissions`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+
+      expect(result.status).toEqual(400);
+    });
+
+    it("allows admin role to update role permissions", async () => {
+      const result = await request(app)
+        .post(`/roles/${newRoleId}/permissions`)
+        .send(testData)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Accept", "application/json");
+      newPermissionId = result.body.data.id ? result.body.data.id : "9ffa27c1-cf34-444e-8e3a-f02c53d145b5";
+
+      expect(result.status).toEqual(200);
+      // TODO: query to confirm role has expected permission
+    });
+  }); // POST /roles/:id/permissions
 
   describe("PUT /roles/:id", () => {
     const testData = {
@@ -211,36 +242,6 @@ describe("Role", () => {
       expect(result.status).toEqual(200);
     });
   }); // GET /users/:id/roles
-
-  describe("POST /roles/:id/permissions", () => {
-    const testData = {
-      action: "read: any",
-      attributes: "*",
-      resource: "user",
-      role: newRoleId,
-    };
-
-    it("throws if missing data", async () => {
-      const result = await request(app)
-        .post(`/roles/${newRoleId}/permissions`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-
-      expect(result.status).toEqual(400);
-    });
-
-    it("allows admin role to update role permissions", async () => {
-      const result = await request(app)
-        .post(`/roles/${newRoleId}/permissions`)
-        .send(testData)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .set("Accept", "application/json");
-      newPermissionId = result.body.data.id;
-
-      expect(result.status).toEqual(200);
-      // TODO: query to confirm role has expected permission
-    });
-  }); // POST /roles/:id/permissions
 
   describe("DELETE /roles/:id/permissions/:permissionId", () => {
     it("denies user role to delete a role permission", async () => {

@@ -195,7 +195,7 @@ class RoleDao implements Dao {
       try {
         recordToRemove = await roleRepository.findOneOrFail(id);
       } catch (lookupError) {
-        logger.error(`No ${this.resource} record found with ID ${id}`);
+        logger.error(` ^^^^^^^^^^^^^^^^^^^ No ${this.resource} record found with ID ${id}`);
       }
 
       if (!recordToRemove || (recordToRemove && !recordToRemove.id)) {
