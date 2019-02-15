@@ -1729,10 +1729,10 @@
         }
       }
     },
-    "/events": {
+    "/activities": {
       "get": {
-        "tags": ["events"],
-        "summary": "Event log viewing for monitoring and troubleshooting",
+        "tags": ["activities"],
+        "summary": "Activity stream log viewing for monitoring and troubleshooting",
         "security": [
           {"bearerAuth": []}
         ],
@@ -1794,11 +1794,11 @@
         ],
         "responses": {
           "200": {
-            "description": "A list of events logged by the application",
+            "description": "A list of activities logged by the application",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EventResponse"
+                  "$ref": "#/components/schemas/ActivityResponse"
                 }
               }
             }
@@ -2654,7 +2654,7 @@
           }
         }
       },
-      "Event": {
+      "Activity": {
         "type": "object",
         "properties": {
           "id": {
@@ -2663,7 +2663,7 @@
           "action": {
             "type": "string"
           },
-          "verb": {
+          "type": {
             "type": "string"
           },
           "resource": {
@@ -2678,6 +2678,12 @@
           "target": {
             "type": "object"
           },
+          "origin": {
+            "type": "object"
+          },
+          "result": {
+            "type": "object"
+          },
           "timestamp": {
             "type": "number"
           },
@@ -2689,7 +2695,7 @@
           }
         }
       },
-      "EventResponse": {
+      "ActivityResponse": {
         "type": "object",
         "required": [
           "data",
@@ -2697,7 +2703,7 @@
         ],
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/Event"
+            "$ref": "#/components/schemas/Activity"
           },
           "meta": {
             "type": "object",

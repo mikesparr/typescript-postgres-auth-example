@@ -27,8 +27,8 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "ACCEPTED_BY"},
   ],
   add: [
-    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
-    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
+    {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "CONTAINS"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "PART_OF"},
   ],
   announce: [],
   arrive: [],
@@ -93,8 +93,8 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "REJECTED_BY"},
   ],
   remove: [
-    {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "CREATED"},
-    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "CREATED_BY"},
+    {type: RelationAction.REMOVE, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "CONTAINS"},
+    {type: RelationAction.REMOVE, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "PART_OF"},
   ],
   tentativeAccept: [],
   tentativeReject: [],
@@ -109,68 +109,3 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "VIEWED_BY"},
   ],
 };
-
-export enum NodeType {
-  Activity          = "activity",
-  Address           = "address",
-  Application       = "application", // computer program
-  Assembly          = "assembly",
-  Building          = "building",
-  Cart              = "cart",
-  Category          = "category", // aka Topic, Subject, EventType
-  Comment           = "comment",
-  Country           = "country",
-  Deposit           = "deposit",
-  Dish              = "dish",  // aka FoodItem
-  District          = "district", // aka SchoolDistrict, HuntingDistrict
-  Equipment         = "equipment",
-  Event             = "event", // aka Concert, Game, Meal, Listing, Showing, Closing
-  Group             = "group", // aka UserGroup, ProductGroup, Department, Team, EventClass
-  Idea              = "idea",
-  Information       = "information", // (i.e. secret)
-  Ingredient        = "ingredient",
-  Instruction       = "instruction",
-  Inventory         = "inventory",
-  Item              = "item", // aka LineItem, OrderItem, CartItem, ListItem
-  Language          = "language",
-  Level             = "level", // aka Floor (of building)
-  Link              = "link", // URL to something
-  List              = "list", // aka TodoList, TaskList
-  Locality          = "locality", // aka City, Jurisdiction
-  Location          = "location",
-  MediaItem         = "mediaItem", // aka File, Photo, Video
-  Message           = "message",
-  Office            = "office",
-  Order             = "order",
-  Organization      = "organization",
-  Package           = "package",
-  Payment           = "payment",
-  Permission        = "permission",
-  Person            = "person",
-  Poll              = "poll",
-  Position          = "position", // aka Job, Role
-  Post              = "post", // aka Article
-  PostalCode        = "postalCode",
-  Product           = "product",
-  Property          = "property", // aka RealEstate, Land
-  Query             = "query", // aka Search, Request
-  Receipt           = "receipt",
-  Recipe            = "recipe",
-  Record            = "record", // aka PatientRecord, MedicalRecord, Document
-  Region            = "region", // aka State, Province, HuntingRegion
-  Role              = "role",
-  Room              = "room",
-  Shipment          = "shipment",
-  Skill             = "skill",
-  Step              = "step",
-  Subscription      = "subscription",
-  Task              = "task",
-  Ticket            = "ticket",
-  Unit              = "unit",
-  User              = "user",
-  Variant           = "variant",
-  Venue             = "venue",
-  Vote              = "vote",
-  Worker            = "worker",
-  Workspace         = "workspace", // aka Namespace, Project
-}

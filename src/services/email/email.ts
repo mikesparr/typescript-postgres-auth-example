@@ -1,16 +1,27 @@
 import { classToPlain } from "class-transformer";
 import uuid from "uuid/v1";
+import { getConnection, Repository } from "typeorm";
 import logger from "../../config/logger";
-import { ActivityType, event } from "../../utils/activity.helper";
 import email from "../../config/email";
-import { validateDto } from "../../utils/validation.helper";
-import {
-  Activity,
-  ActivityObject,
-  Actor,
-  ActorType } from "../../interfaces/activitystream.interface";
 
+import Dao from "../../interfaces/dao.interface";
+import { Activity, ActivityType, ActorType, ObjectType } from "../../interfaces/activitystream.interface";
+import SearchResult from "../../interfaces/searchresult.interface";
+import URLParams from "../../interfaces/urlparams.interface";
+import { ActivityRelation, RelationAction } from "../../interfaces/graph.interface";
+
+import DuplicateRecordException from "../../exceptions/DuplicateRecordException";
+import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
+import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
+import NotImplementedException from "../../exceptions/NotImplementedException";
+import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import EmailDeliveryException from "../../exceptions/EmailDeliveryException";
+
+import { event } from "../../utils/activity.helper";
+import { AuthPermission, getPermission } from "../../utils/authorization.helper";
+import { DataType, Formatter } from "../../utils/formatter";
+import { validateDto } from "../../utils/validation.helper";
+
 import EmailDto from "./email.dto";
 
 class Email {

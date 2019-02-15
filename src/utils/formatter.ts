@@ -4,7 +4,7 @@
 import moment from "moment";
 import { PhoneNumberUtil, PhoneNumber, PhoneNumberFormat } from "google-libphonenumber";
 import logger from "../config/logger";
-import { ApiResponse } from "../interfaces/response.interface";
+import ApiResponse from "../interfaces/response.interface";
 
 export enum DataType {
   CREDIT_CARD = "creditCard",

@@ -467,7 +467,7 @@ describe("User", () => {
   describe("DELETE /users/:id/roles/:roleId", () => {
     it("denies user role to delete another user role", async () => {
       const result = await request(app)
-        .delete(`/users/${adminId}/roles/1`)
+        .delete(`/users/${newUserId}/roles/test`)
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -476,7 +476,7 @@ describe("User", () => {
 
     it("allows admin to delete another user role", async () => {
       const result = await request(app)
-        .delete(`/users/${userId}/roles/1`)
+        .delete(`/users/${newUserId}/roles/test`)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

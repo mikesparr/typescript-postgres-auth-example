@@ -9,13 +9,13 @@ import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeo
 export class Relation {
 
   @PrimaryGeneratedColumn("uuid")
-  public id: string;
+  public id?: string;
 
   @Column()
   public relation: string;
 
   @Column({nullable: true})
-  public label: string;
+  public label?: string;
 
   @Column()
   public sourceType: string;
@@ -30,15 +30,15 @@ export class Relation {
   public targetId: string;
 
   @Column({type: "jsonb", nullable: true})
-  public meta: {[key: string]: any};
+  public meta?: {[key: string]: any};
 
   @Column()
-  public created: Date;
+  public created?: Date;
 
   @Column({nullable: true})
-  public modified: Date;
+  public modified?: Date;
 
   @Column({default: true})
-  public enabled: boolean;
+  public enabled?: boolean;
 
 }

@@ -1,7 +1,7 @@
 import os from "os";
 import { EventEmitter } from "events";
 import logger from "../config/logger";
-import { Activity } from "../interfaces/activitystream.interface";
+import { Activity, ActivityType } from "../interfaces/activitystream.interface";
 import { DataType, Formatter } from "./formatter";
 
 import { save } from "./document.helper";
@@ -14,40 +14,6 @@ import RelationDao from "../services/graph/relation.dao";
  * throughout app
  */
 export const event = new EventEmitter();
-
-/**
- * Event types based on Activity Streams spec
- */
-export enum ActivityType {
-  ACCEPT              = "accept",
-  ADD                 = "add",
-  ANNOUNCE            = "announce",
-  ARRIVE              = "arrive",
-  BLOCK               = "block",
-  CREATE              = "create",
-  DELETE              = "delete",
-  DISLIKE             = "dislike",
-  FLAG                = "flag",
-  FOLLOW              = "follow",
-  IGNORE              = "ignore",
-  INVITE              = "invite",
-  JOIN                = "join",
-  LEAVE               = "leave",
-  LIKE                = "like",
-  LISTEN              = "listen",
-  MOVE                = "move",
-  OFFER               = "offer",
-  QUESTION            = "question",
-  READ                = "read",
-  REJECT              = "reject",
-  REMOVE              = "remove",
-  TENTATIVE_ACCEPT    = "tentativeAccept",
-  TENTATIVE_REJECT    = "tentativeReject",
-  TRAVEL              = "travel",
-  UNDO                = "undo",
-  UPDATE              = "update",
-  VIEW                = "view",
-}
 
 const ACTIVITY_INDEX = "activities";
 
