@@ -436,7 +436,7 @@ class UserDao implements Dao {
           await userRepository
           .createQueryBuilder()
           .relation(User, "roles")
-          .of([{ id: recordToUpdate.id }])
+          .of({ id: recordToUpdate.id })
           .add([{ id: relationToAdd.id }]);
         } catch (relationError) {
           // catch duplicate key error just in case but confirm
@@ -483,7 +483,7 @@ class UserDao implements Dao {
           await userRepository
           .createQueryBuilder()
           .relation(User, "roles")
-          .of([recordToUpdate])
+          .of(recordToUpdate)
           .remove({ id: roleId });
 
           // remove role from return object

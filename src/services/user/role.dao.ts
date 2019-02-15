@@ -289,7 +289,7 @@ class RoleDao implements Dao {
             await roleRepository
             .createQueryBuilder()
             .relation(Role, "permissions")
-            .of([{ id: recordToUpdate.id }])
+            .of({ id: recordToUpdate.id })
             .add([{ id: permissionToAdd.id }]);
 
             // add new permission into object before returning
@@ -342,7 +342,7 @@ class RoleDao implements Dao {
           await roleRepository
           .createQueryBuilder()
           .relation(Role, "permissions")
-          .of([recordToUpdate])
+          .of(recordToUpdate)
           .remove({ id: permissionId });
 
           // remove permission from return object
