@@ -202,7 +202,8 @@ class RoleDao implements Dao {
         throw new RecordNotFoundException(id);
       } else {
         logger.info(`Removing ${this.resource} with ID ${id} from the database`);
-        await roleRepository.remove(recordToRemove);
+        recordToRemove.archived = true;
+        await roleRepository.update({ id }, recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();

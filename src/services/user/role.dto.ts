@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsDefined } from "class-validator";
+import {
+  IsBoolean,
+  IsString,
+  IsNumber,
+  IsDefined,
+  IsOptional,
+} from "class-validator";
 
 /**
  * Data transfer object (DTO) with expected fields for creating roles
@@ -11,6 +17,10 @@ class CreateRoleDto {
 
   @IsString()
   public description: string;
+
+  @IsBoolean()
+  @IsOptional()
+  public archived: boolean;
 
 }
 

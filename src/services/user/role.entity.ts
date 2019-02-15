@@ -14,6 +14,9 @@ export class Role {
   @Column()
   public description: string;
 
+  @Column({default: false})
+  public archived?: boolean;
+
   @OneToMany((type) => Permission, (permission) => permission.role, {
     cascade: true,
   })
