@@ -15,7 +15,17 @@ let newRoleId: string;
 let newPermissionId: string;
 
 beforeAll(async () => {
-  const connection: Connection = await getConnection();
+  let connection: Connection;
+  try {
+    connection = await getConnection();
+    if (!connection.isConnected) {
+      await connection.connect();
+    }
+  } catch (e) {
+    // no connection created yet, nothing to get
+    connection = await getConnection();
+  }
+
   app = new App(controllers.map((controller) => new controller())).app;
 
   // log in test users and store tokens for testing
@@ -45,7 +55,17 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // clean up test data
-  const connection: Connection = await getConnection();
+  let connection: Connection;
+  try {
+    connection = await getConnection();
+    if (!connection.isConnected) {
+      await connection.connect();
+    }
+  } catch (e) {
+    // no connection created yet, nothing to get
+    connection = await getConnection();
+  }
+
   const roleToRemove: Role = await connection.manager.findOne(Role, newRoleId);
 
   // only remove new roles if a test failed and they exist

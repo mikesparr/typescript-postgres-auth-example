@@ -201,7 +201,7 @@ class RoleDao implements Dao {
       if (!recordToRemove || (recordToRemove && !recordToRemove.id)) {
         throw new RecordNotFoundException(id);
       } else {
-        logger.info(`Removing ${this.resource} with ID ${id} from the database`);
+        logger.debug(`Removing ${this.resource} with ID ${id} from the database`);
         recordToRemove.archived = true;
         await roleRepository.update({ id }, recordToRemove);
 

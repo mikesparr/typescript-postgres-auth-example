@@ -14,7 +14,17 @@ let adminToken: string;
 let newUserId: string;
 
 beforeAll(async () => {
-  const connection: Connection = await getConnection();
+  let connection: Connection;
+  try {
+    connection = await getConnection();
+    if (!connection.isConnected) {
+      await connection.connect();
+    }
+  } catch (e) {
+    // no connection created yet, nothing to get
+    connection = await getConnection();
+  }
+
   app = new App(controllers.map((controller) => new controller())).app;
 
   // log in test users and store tokens for testing
@@ -44,7 +54,17 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // clean up test data
-  const connection: Connection = await getConnection();
+  let connection: Connection;
+  try {
+    connection = await getConnection();
+    if (!connection.isConnected) {
+      await connection.connect();
+    }
+  } catch (e) {
+    // no connection created yet, nothing to get
+    connection = await getConnection();
+  }
+
   const recordToRemove: User = await connection.manager.findOne(User, newUserId);
 
   // only remove new user if a test failed and they exist
