@@ -139,11 +139,11 @@ const loadData = async (connection: Connection) => {
     resource: "surrogate",
   });
 
-  // events
-  const adminEventViewPermission = connection.manager.create(Permission, {
+  // activities
+  const adminActivityViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*, !actor.password, !actor.surrogatePrincipal.password",
-    resource: "event",
+    resource: "activity",
   });
 
   // graph
@@ -403,7 +403,7 @@ const loadData = async (connection: Connection) => {
     id: "admin",
     permissions: [
       adminSurrogate,
-      adminEventViewPermission,
+      adminActivityViewPermission,
       adminUserViewPermission,
       adminUserViewTokens,
       adminUserUpdateTokens,

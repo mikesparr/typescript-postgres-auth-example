@@ -3,7 +3,7 @@
 source .env
 
 # add more index names as needed as database grows ({index}.mapping.json)
-declare -a array=("events")
+declare -a array=("activities")
 arraylength=${#array[@]}
 
 echo "Adding ${arraylength} index mapping templates"

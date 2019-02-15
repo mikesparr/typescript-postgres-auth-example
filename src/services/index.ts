@@ -1,8 +1,8 @@
 /**
  * Wraps Controllers for easy import from other modules
  */
+import ActivityController from "./activity/activity.controller";
 import AuthenticationController from "./authentication/authentication.controller";
-import EventController from "./event/event.controller";
 import GoalController from "./flag/goal.controller";
 import RelationController from "./graph/relation.controller";
 import RoleController from "./user/role.controller";
@@ -12,8 +12,8 @@ import FlagController from "./flag/flag.controller";
 import UserController from "./user/user.controller";
 
 export default [
+  ActivityController,
   AuthenticationController,
-  EventController,
   GoalController,
   RelationController,
   RoleController,

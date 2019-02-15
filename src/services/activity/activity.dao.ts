@@ -22,9 +22,9 @@ import { User } from "../user/user.entity";
  * Handles CRUD operations on Flag data in database
  * Factoring to this class allows other (i.e. GraphQL to reuse this code in resolvers)
  */
-class EventDao implements Dao {
-  private resource: string = "event"; // matches defined flag flag "resource"
-  private docIndex: string = "events";
+class ActivityDao implements Dao {
+  private resource: string = "activity"; // matches defined flag flag "resource"
+  private docIndex: string = "activities";
   private docType: string = "_doc";
 
   constructor() {
@@ -71,7 +71,7 @@ class EventDao implements Dao {
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
       } else {
-        // log event to central handler
+        // log activity to central handler
         user.password = undefined;
         const ended: number = Date.now();
 
@@ -116,4 +116,4 @@ class EventDao implements Dao {
 
 }
 
-export default EventDao;
+export default ActivityDao;

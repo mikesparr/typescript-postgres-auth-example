@@ -13,7 +13,7 @@ const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-describe("events", () => {
+describe("activities", () => {
   beforeAll(async () => {
     app = new App(controllers.map((controller) => new controller())).app;
 
@@ -42,14 +42,14 @@ describe("events", () => {
     adminId = adminLoginResult.body.data.user.id;
   });
 
-  describe("GET /events", () => {
+  describe("GET /activities", () => {
     it ("sleeps to let event data populate", async () => {
       return await sleep(2500); // time for some records to be stored in ES
     });
 
     it("denies user role to retrieve event records", async () => {
       const result = await request(app)
-        .get("/events")
+        .get("/activities")
         .set("Authorization", `Bearer ${userToken}`)
         .set("Accept", "application/json");
 
@@ -58,7 +58,7 @@ describe("events", () => {
 
     it("allows admin role to retrieve event records", async () => {
       const result = await request(app)
-        .get("/events")
+        .get("/activities")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
@@ -67,7 +67,7 @@ describe("events", () => {
 
     it("returns 2 records based on size param", async () => {
       const result = await request(app)
-        .get("/events?limit=2")
+        .get("/activities?limit=2")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
@@ -77,7 +77,7 @@ describe("events", () => {
 
     it("throws if no records found", async () => {
       const result = await request(app)
-        .get("/events?q=actor.email:ilovezebras@zoo.com&limit=1")
+        .get("/activities?q=actor.email:ilovezebras@zoo.com&limit=1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 
@@ -86,7 +86,7 @@ describe("events", () => {
 
     it("filters records based on q parameter", async () => {
       const result = await request(app)
-        .get("/events?q=actor.email:admin@example.com&limit=1")
+        .get("/activities?q=actor.email:admin@example.com&limit=1")
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
 

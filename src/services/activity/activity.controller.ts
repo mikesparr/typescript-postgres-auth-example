@@ -7,18 +7,18 @@ import validationMiddleware from "../../middleware/validation.middleware";
 import addSearchParams from "../../middleware/search.middleware";
 import { Formatter } from "../../utils/formatter";
 
-import EventDao from "./event.dao";
+import ActivityDao from "./activity.dao";
 import SearchResult from "../../interfaces/searchresult.interface";
 
 /**
- * Handles Event routes for RESTful interface
+ * Handles Activity routes for RESTful interface
  */
-class EventController implements Controller {
-  public path: string = "/events";
+class ActivityController implements Controller {
+  public path: string = "/activities";
   public router: Router = Router();
 
   private fmt: Formatter = new Formatter();
-  private eventDao: EventDao = new EventDao();
+  private activityDao: ActivityDao = new ActivityDao();
 
   constructor() {
     this.initializeRoutes();
@@ -30,7 +30,7 @@ class EventController implements Controller {
 
   private all = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const {data, total} = await this.eventDao.getAll(request.user, request.searchParams);
+      const {data, total} = await this.activityDao.getAll(request.user, request.searchParams);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", total));
     } catch (error) {
       next(error);
@@ -38,4 +38,4 @@ class EventController implements Controller {
   }
 }
 
-export default EventController;
+export default ActivityController;

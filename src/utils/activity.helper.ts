@@ -49,7 +49,7 @@ export enum ActivityType {
   VIEW                = "view",
 }
 
-const EVENT_INDEX = "events";
+const ACTIVITY_INDEX = "activities";
 
 /**
  * Formatter to standardize data before storing in DB
@@ -69,7 +69,7 @@ const handleEvent = async (data: Activity) => {
     data.host = os.hostname();
     data.count = 1;
 
-    await save(EVENT_INDEX, data);
+    await save(ACTIVITY_INDEX, data);
   } catch (error) {
     logger.error(error.message);
   }

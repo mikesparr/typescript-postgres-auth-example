@@ -1,5 +1,5 @@
 {
-	"index_patterns": "events*",
+	"index_patterns": "activities*",
 	"settings": {
 		"index": {
 			"number_of_shards": 5,
@@ -90,15 +90,6 @@
 		"_doc": {
 			"dynamic": false,
 			"properties": {
-				"action": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
 				"actor": {
 					"type": "object",
 					"dynamic": true
@@ -107,6 +98,10 @@
 					"type": "integer"
 				},
 				"object": {
+					"type": "object",
+					"dynamic": true
+				},
+				"origin": {
 					"type": "object",
 					"dynamic": true
 				},
@@ -123,6 +118,10 @@
 						}
 					}
 				},
+				"result": {
+					"type": "object",
+					"dynamic": true
+				},
 				"target": {
 					"type": "object",
 					"dynamic": true
@@ -134,7 +133,7 @@
 				"took": {
 					"type": "integer"
 				},
-				"verb": {
+				"type": {
 					"type": "text",
 					"fields": {
 						"keyword": {
