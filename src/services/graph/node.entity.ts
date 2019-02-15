@@ -11,30 +11,30 @@ export class Node {
   public id: string;
 
   @Column()
-  public objectType: string;
+  public type: string;
 
   @Column()
-  public ref: string; // external record ID
+  public ref?: string; // external record ID
 
   @Column({nullable: true})
-  public label: string;
+  public name?: string;
 
   @Column({type: "text", nullable: true})
-  public text: string;
+  public content?: string;
 
   @Column({type: "jsonb", nullable: true})
-  public meta: {[key: string]: any};
+  public properties?: {[key: string]: any};
 
   @Column()
   public created: Date;
 
   @Column({nullable: true})
-  public modified: Date;
+  public modified?: Date;
 
-  @Column({default: true})
-  public enabled: boolean;
+  @Column({default: false})
+  public archived?: boolean;
 
   @Column({default: 1})
-  public sort: number;
+  public sort?: number;
 
 }

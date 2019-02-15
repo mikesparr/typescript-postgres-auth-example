@@ -48,7 +48,7 @@ class Email {
         const ended: number = Date.now();
         event.emit(ActivityType.CREATE, {
           actor: {id: "System", type: ActorType.Application},
-          object: {id: uuid(), ...message, type: this.resource},
+          object: {id: uuid(), ...message, type: ObjectType.Message},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

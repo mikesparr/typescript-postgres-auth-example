@@ -88,7 +88,7 @@ class GoalDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: record.id, type: this.resource},
+          object: {id: record.id, type: ObjectType.Goal},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -114,21 +114,20 @@ class GoalDao implements Dao {
 
     if (permission.granted) {
       try {
-        const filteredData: Goal = permission.filter(newRecord);
-        const savedData: Goal = await goalRepository.save(filteredData);
+        const savedData: Goal = await goalRepository.save(permission.filter(newRecord));
 
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {...savedData, type: this.resource},
+          object: {...savedData, type: ObjectType.Goal},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
           type: action,
         });
 
-        logger.info(`Saved ${this.resource} with ID ${filteredData.id} in the database`);
+        logger.info(`Saved ${this.resource} with ID ${data.id} in the database`);
         return permission.filter(savedData);
       } catch (error) {
         logger.error(`$$$$$$$$$$$$$$ ${error} $$$$$$$$$$$$$`);
@@ -153,14 +152,14 @@ class GoalDao implements Dao {
 
       if (recordToUpdate) {
         try {
-          const savedData: Goal = goalRepository.merge(permission.filter(data), recordToUpdate);
+          const savedData: Goal = goalRepository.merge(new Goal(), recordToUpdate, permission.filter(data));
           const updateResult: any = await goalRepository.update({ id: data.id }, savedData);
 
           // log event to central handler
           const ended: number = Date.now();
           event.emit(action, {
             actor: {id: user.id, type: ActorType.Person},
-            object: {...savedData, type: this.resource},
+            object: {...savedData, type: ObjectType.Goal},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -199,7 +198,7 @@ class GoalDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: this.resource},
+          object: {id, type: ObjectType.Goal},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

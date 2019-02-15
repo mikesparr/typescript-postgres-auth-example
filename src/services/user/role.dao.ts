@@ -89,7 +89,7 @@ class RoleDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: record.id, type: this.resource},
+          object: {id: record.id, type: ObjectType.Role},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -122,7 +122,7 @@ class RoleDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {...savedData, type: this.resource},
+          object: {...savedData, type: ObjectType.Role},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -154,14 +154,14 @@ class RoleDao implements Dao {
 
       if (recordToUpdate) {
         try {
-          const savedData: Role = roleRepository.merge(permission.filter(data), recordToUpdate);
+          const savedData: Role = roleRepository.merge(new Role(), recordToUpdate, permission.filter(data));
           const updateResult: any = await roleRepository.update({ id: data.id }, savedData);
 
           // log event to central handler
           const ended: number = Date.now();
           event.emit(action, {
             actor: {id: user.id, type: ActorType.Person},
-            object: {...savedData, type: this.resource},
+            object: {...savedData, type: ObjectType.Role},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -186,21 +186,29 @@ class RoleDao implements Dao {
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
-    const recordToRemove = await roleRepository.findOne(id);
-
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      if (recordToRemove) {
+      let recordToRemove: Role;
+      try {
+        recordToRemove = await roleRepository.findOneOrFail(id);
+      } catch (lookupError) {
+        logger.error(`No ${this.resource} record found with ID ${id}`);
+      }
+
+      if (!recordToRemove || (recordToRemove && !recordToRemove.id)) {
+        throw new RecordNotFoundException(id);
+      } else {
+        logger.info(`Removing ${this.resource} with ID ${id} from the database`);
         await roleRepository.remove(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: "role"},
+          object: {id, type: ObjectType.Role},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -209,8 +217,6 @@ class RoleDao implements Dao {
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);
         return true;
-      } else {
-        throw new RecordNotFoundException(id);
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);
@@ -238,7 +244,7 @@ class RoleDao implements Dao {
           actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.rolePermissionResource,
-          target: {id, type: this.resource},
+          target: {id, type: ObjectType.Role},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -255,6 +261,7 @@ class RoleDao implements Dao {
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
+    const permissionRepository: Repository<Permission> = getConnection().getRepository(Permission);
     const newRecord: Permission = data;
 
     const isOwnerOrMember: boolean = false;
@@ -262,30 +269,55 @@ class RoleDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.rolePermissionResource);
 
     if (permission.granted) {
-      const recordToUpdate = await roleRepository.findOne(id, { relations: ["permissions"] });
-
-      if (recordToUpdate) {
-        recordToUpdate.permissions.push(newRecord);
-
-        const filteredData: Role = permission.filter(recordToUpdate);
-        await roleRepository.save(recordToUpdate);
-
-        // log event to central handler
-        const ended: number = Date.now();
-        event.emit(ActivityType.ADD, {
+      try {
+        const permissionToAdd = await permissionRepository.save(newRecord);
+        const lap: number = Date.now();
+        event.emit(ActivityType.CREATE, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: data.id, type: "permission"},
+          object: {...permissionToAdd, type: ObjectType.Permission},
           resource: this.rolePermissionResource,
-          target: {id, type: this.resource},
-          timestamp: ended,
-          took: ended - started,
-          type: ActivityType.ADD,
+          timestamp: lap,
+          took: lap - started,
+          type: ActivityType.CREATE,
         });
 
-        logger.info(`Added ${this.rolePermissionResource} with ID ${newRecord.action} to role ${recordToUpdate.id}`);
-        return filteredData;
-      } else {
-        throw new RecordNotFoundException(id);
+        const recordToUpdate = await roleRepository.findOne(id, { relations: ["permissions"] });
+
+        if (permissionToAdd && recordToUpdate) {
+          try {
+            await roleRepository
+            .createQueryBuilder()
+            .relation(Role, "permissions")
+            .of([{ id: recordToUpdate.id }])
+            .add([{ id: permissionToAdd.id }]);
+
+            // add new permission into object before returning
+            recordToUpdate.permissions.push(permissionToAdd);
+          } catch (relationError) {
+            // catch duplicate key error just in case but confirm
+            logger.error(relationError.message);
+          }
+
+          // log event to central handler
+          const ended: number = Date.now();
+          event.emit(ActivityType.ADD, {
+            actor: {id: user.id, type: ActorType.Person},
+            object: {id: permissionToAdd.id, type: ObjectType.Permission},
+            resource: this.rolePermissionResource,
+            target: {id, type: ObjectType.Role},
+            timestamp: ended,
+            took: ended - started,
+            type: ActivityType.ADD,
+          });
+
+          logger.info(`Added ${this.rolePermissionResource} with ID ${newRecord.action} to role ${recordToUpdate.id}`);
+          return permission.filter(recordToUpdate);
+        } else {
+          throw new RecordNotFoundException(id);
+        }
+      } catch (saveError) {
+        logger.error(`Error trying to add permission to role ${id}`);
+        throw saveError;
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.rolePermissionResource);
@@ -305,41 +337,34 @@ class RoleDao implements Dao {
       const recordToUpdate = await roleRepository.findOne(id, { relations: ["permissions"] });
 
       if (recordToUpdate) {
-        // check if relation already exists
-        let removedItem: Permission;
-        const updatedPermissions: Permission[] = [];
-        for (const relation of recordToUpdate.permissions) {
-          if (String(relation.id) === String(permissionId)) {
-            removedItem = relation;
-          } else {
-            updatedPermissions.push(relation);
-          }
-        }
+        try {
+          await roleRepository
+          .createQueryBuilder()
+          .relation(Role, "permissions")
+          .of([recordToUpdate])
+          .remove({ id: permissionId });
 
-        // if it doesn't exist, add it to record and save update to database
-        // TODO: revisit this logic and perhaps use QueryBuilder
-        if (removedItem) {
-          recordToUpdate.permissions = updatedPermissions;
-          await roleRepository.save(recordToUpdate);
+          // remove permission from return object
+          recordToUpdate.permissions = recordToUpdate.permissions.filter((perm) => perm.id !== permissionId);
+        } catch (relationError) {
+          logger.error(relationError.message);
         }
-
-        const filteredData: Role = permission.filter(recordToUpdate);
-        await roleRepository.save(recordToUpdate);
 
         // log event to central handler
+        // TODO: should we fire DELETE activity too?
         const ended: number = Date.now();
         event.emit(ActivityType.REMOVE, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: permissionId, type: "permission"},
+          object: {id: permissionId, type: ObjectType.Permission},
           resource: this.rolePermissionResource,
-          target: {id, type: this.resource},
+          target: {id, type: ObjectType.Role},
           timestamp: ended,
           took: ended - started,
           type: ActivityType.REMOVE,
         });
 
         logger.info(`Removed ${this.rolePermissionResource} with ID ${permissionId} from user ${id}`);
-        return filteredData;
+        return permission.filter(recordToUpdate);
       } else {
         throw new RecordNotFoundException(id);
       }

@@ -161,7 +161,7 @@ class AuthenticationDao implements Dao {
         const ended: number = Date.now();
         event.emit(ActivityType.CREATE, {
           actor: {id: "System", type: ActorType.Application},
-          object: {...newUser, type: ActorType.Person},
+          object: {...newUser, type: ObjectType.Person},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -214,7 +214,7 @@ class AuthenticationDao implements Dao {
           // TODO: use invite, accept, and create activites (probably 2 UPDATE user, ACCEPT invite)
           event.emit(ActivityType.ACCEPT, {
             actor: {id: foundUser.id, type: ActorType.Person},
-            object: {id: token, type: "token"},
+            object: {id: token, type: ObjectType.Token},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -256,7 +256,7 @@ class AuthenticationDao implements Dao {
       // TODO: figure out whether we create invite
       event.emit(ActivityType.INVITE, {
         actor: {id: foundUser.id, type: ActorType.Person},
-        object: {id: foundUser.id, type: ActorType.Person},
+        object: {id: foundUser.id, type: ObjectType.Person},
         resource: this.resource,
         timestamp: ended,
         took: ended - started,
@@ -291,7 +291,7 @@ class AuthenticationDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: "token"},
+          object: {id, type: ObjectType.Token},
           resource: this.tokenResource,
           timestamp: ended,
           took: ended - started,
@@ -384,7 +384,7 @@ class AuthenticationDao implements Dao {
         // TODO: figure out invite flow in auth
         event.emit(ActivityType.INVITE, {
           actor: {...foundUser, type: ActorType.Person},
-          object: {...foundUser, type: ActorType.Person},
+          object: {...foundUser, type: ObjectType.Person},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

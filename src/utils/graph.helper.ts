@@ -1,7 +1,10 @@
 /**
  * Utilities for bi-direction graph relations
  */
-import { ActivityField, RelationAction } from "../interfaces/graph.interface";
+import { ActivityField, ActivityRelation, RelationAction } from "../interfaces/graph.interface";
+import { Activity } from "../interfaces/activitystream.interface";
+
+import { Relation } from "../services/graph/relation.entity";
 
 /**
  * Dynamically maintain graph relations based on Activity Stream
@@ -27,8 +30,8 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "ACCEPTED_BY"},
   ],
   add: [
-    {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "CONTAINS"},
-    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "PART_OF"},
+    {type: RelationAction.ADD, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "ITEMS"},
+    {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "ITEM_OF"},
   ],
   announce: [],
   arrive: [],
@@ -93,8 +96,8 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "REJECTED_BY"},
   ],
   remove: [
-    {type: RelationAction.REMOVE, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "CONTAINS"},
-    {type: RelationAction.REMOVE, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "PART_OF"},
+    {type: RelationAction.REMOVE, from: ActivityField.TARGET, to: ActivityField.OBJECT, relation: "ITEMS"},
+    {type: RelationAction.REMOVE, from: ActivityField.OBJECT, to: ActivityField.TARGET, relation: "ITEM_OF"},
   ],
   tentativeAccept: [],
   tentativeReject: [],
@@ -108,4 +111,14 @@ export const actionToRelationMap: {[key: string]: any} = {
     {type: RelationAction.ADD, from: ActivityField.ACTOR, to: ActivityField.OBJECT, relation: "VIEWED"},
     {type: RelationAction.ADD, from: ActivityField.OBJECT, to: ActivityField.ACTOR, relation: "VIEWED_BY"},
   ],
+};
+
+export const getEventRelation = (template: ActivityRelation, data: Activity): Relation => {
+  return {
+    relation: template.relation,
+    sourceId: data[template.from].id,
+    sourceType: data[template.from].type,
+    targetId: data[template.to].id,
+    targetType: data[template.to].type,
+  };
 };

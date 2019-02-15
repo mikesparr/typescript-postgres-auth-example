@@ -99,8 +99,11 @@ export enum ObjectType {
   Deposit           = "Deposit",
   Dish              = "Dish",  // aka FoodItem
   District          = "District", // aka SchoolDistrict, HuntingDistrict
+  Document          = "Document", // PatientRecord, EmployeeRecord, Agreement
   Equipment         = "Equipment",
   Event             = "Event", // aka Concert, Game, Meal, Listing, Showing, Closing
+  Flag              = "Flag", // feature flag
+  Goal              = "Goal", // feature flag metric
   Group             = "Group", // aka UserGroup, ProductGroup, Department, Team, EventClass
   Idea              = "Idea",
   Information       = "Information", // (i.e. secret)
@@ -132,10 +135,10 @@ export enum ObjectType {
   Query             = "Query", // aka Search, Request
   Receipt           = "Receipt",
   Recipe            = "Recipe",
-  Record            = "Record", // aka PatientRecord, MedicalRecord, Document
   Region            = "Region", // aka State, Province, HuntingRegion
   Role              = "Role",
   Room              = "Room",
+  Segment           = "Segment", // feature flag user segmentation
   Shipment          = "Shipment",
   Skill             = "Skill",
   Step              = "Step",

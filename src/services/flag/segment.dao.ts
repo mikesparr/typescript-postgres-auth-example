@@ -89,7 +89,7 @@ class SegmentDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id: record.id, type: this.resource},
+          object: {id: record.id, type: ObjectType.Flag},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -122,7 +122,7 @@ class SegmentDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {...savedData, type: this.resource},
+          object: {...savedData, type: ObjectType.Flag},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -154,14 +154,14 @@ class SegmentDao implements Dao {
 
       if (recordToUpdate) {
         try {
-          const savedData: Segment = segmentRepository.merge(permission.filter(data), recordToUpdate);
+          const savedData: Segment = segmentRepository.merge(new Segment(), recordToUpdate, permission.filter(data));
           const updateResult: any = await segmentRepository.update({ id: data.id }, savedData);
 
           // log event to central handler
           const ended: number = Date.now();
           event.emit(action, {
             actor: {id: user.id, type: ActorType.Person},
-            object: {...savedData, type: this.resource},
+            object: {...savedData, type: ObjectType.Flag},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -185,14 +185,22 @@ class SegmentDao implements Dao {
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
     const started: number = Date.now();
     const segmentRepository: Repository<Segment> = getConnection().getRepository(Segment);
-    const recordToRemove = await segmentRepository.findOne(id);
 
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.DELETE;
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      if (recordToRemove) {
+      let recordToRemove: Segment;
+      try {
+        recordToRemove = await segmentRepository.findOneOrFail(id);
+      } catch (lookupError) {
+        logger.error(`No ${this.resource} record found with ID ${id}`);
+      }
+
+      if (!recordToRemove || (recordToRemove && !recordToRemove.id)) {
+        throw new RecordNotFoundException(id);
+      } else {
         recordToRemove.archived = true;
         await segmentRepository.update({ id }, recordToRemove);
 
@@ -200,7 +208,7 @@ class SegmentDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: this.resource},
+          object: {id, type: ObjectType.Segment},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -209,8 +217,6 @@ class SegmentDao implements Dao {
 
         logger.info(`Removed ${this.resource} with ID ${id} from the database`);
         return true;
-      } else {
-        throw new RecordNotFoundException(id);
       }
     } else {
       throw new UserNotAuthorizedException(user.id, action, this.resource);

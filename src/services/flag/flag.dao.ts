@@ -89,7 +89,7 @@ class FlagDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: this.resource},
+          object: {id, type: ObjectType.Flag},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -122,7 +122,7 @@ class FlagDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {...savedData, type: this.resource},
+          object: {...savedData, type: ObjectType.Flag},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,
@@ -154,14 +154,14 @@ class FlagDao implements Dao {
 
       if (recordToUpdate) {
         try {
-          const savedData: Flag = flagRepository.merge(permission.filter(data), recordToUpdate);
+          const savedData: Flag = flagRepository.merge(new Flag(), recordToUpdate, permission.filter(data));
           const updateResult: any = await flagRepository.update({ id: data.id }, savedData);
 
           // log event to central handler
           const ended: number = Date.now();
           event.emit(action, {
             actor: {id: user.id, type: ActorType.Person},
-            object: {...savedData, type: this.resource},
+            object: {...savedData, type: ObjectType.Flag},
             resource: this.resource,
             timestamp: ended,
             took: ended - started,
@@ -200,7 +200,7 @@ class FlagDao implements Dao {
         const ended: number = Date.now();
         event.emit(action, {
           actor: {id: user.id, type: ActorType.Person},
-          object: {id, type: this.resource},
+          object: {id, type: ObjectType.Flag},
           resource: this.resource,
           timestamp: ended,
           took: ended - started,

@@ -166,7 +166,7 @@ class UserDao implements Dao {
 
       if (recordToUpdate) {
         try {
-          const savedData: User = userRepository.merge(permission.filter(data), recordToUpdate);
+          const savedData: User = userRepository.merge(new User(), recordToUpdate, permission.filter(data));
           const updateResult: any = await userRepository.update({ id: data.id }, savedData);
 
           // log event to central handler
@@ -363,7 +363,7 @@ class UserDao implements Dao {
           actor: {id: user.id, type: ActorType.Person},
           object: null,
           resource: this.tokenResource,
-          target: {id, type: ActorType.Person},
+          target: {id, type: ObjectType.Person},
           timestamp: ended,
           took: ended - started,
           type: action,
@@ -479,14 +479,18 @@ class UserDao implements Dao {
       const recordToUpdate = await userRepository.findOne(id, { relations: ["roles"] });
 
       if (recordToUpdate) {
-        await userRepository
+        try {
+          await userRepository
           .createQueryBuilder()
           .relation(User, "roles")
           .of([recordToUpdate])
           .remove({ id: roleId });
 
-        const filteredData: User = permission.filter(recordToUpdate);
-        await userRepository.save(recordToUpdate);
+          // remove role from return object
+          recordToUpdate.roles = recordToUpdate.roles.filter((role) => role.id !== roleId);
+        } catch (relationError) {
+          logger.error(relationError.message);
+        }
 
         // log event to central handler
         const ended: number = Date.now();
@@ -502,7 +506,7 @@ class UserDao implements Dao {
         });
 
         logger.info(`Removed ${this.userRoleResource} with ID ${roleId} from user ${id}`);
-        return filteredData;
+        return permission.filter(recordToUpdate);
       } else {
         throw new RecordNotFoundException(id);
       }

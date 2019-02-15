@@ -16,7 +16,7 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import { event } from "../../utils/activity.helper";
 import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 import { DataType, Formatter } from "../../utils/formatter";
-import { actionToRelationMap } from "../../utils/graph.helper";
+import { actionToRelationMap, getEventRelation } from "../../utils/graph.helper";
 
 import CreateRelationDto from "./relation.dto";
 import { User } from "../user/user.entity";
@@ -44,7 +44,7 @@ class RelationDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const records: Relation[] = await relationRepository.find({ enabled: true });
+      const records: Relation[] = await relationRepository.find();
 
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
@@ -90,21 +90,34 @@ class RelationDao implements Dao {
                 data[template.from] !== null && data[template.to] !== null &&
                 data[template.from].type && data[template.to].type;
 
-        if (editRelation && template.type === RelationAction.ADD) {
-          const newRelation: Relation = this.getEventRelation(template, data);
-          logger.info(`****************** ADDING ${JSON.stringify(newRelation)} ***************`);
-          jobs.push( relationRepository.save(newRelation) );
-        } else if (editRelation && template.type === RelationAction.REMOVE) {
-          const relationToRemove: Relation = this.getEventRelation(template, data, true);
-          logger.info(`****************** REMOVING ${JSON.stringify(relationToRemove)} ***************`);
-          jobs.push( relationRepository.update(relationToRemove, { enabled: false }) );
+        if (editRelation) {
+          let relationToSave: Relation = getEventRelation(template, data);
+          if (template.type === RelationAction.REMOVE) {
+            try {
+              const foundRelation: Relation = await relationRepository.findOne(relationToSave);
+              if (foundRelation) {
+                relationToSave = relationRepository.merge(relationToSave, foundRelation);
+              }
+            } catch (error) {
+              logger.error(`@@@@@@ Error finding relation ${JSON.stringify(relationToSave)} @@@@@@`);
+            }
+
+            relationToSave.archived = true; // set true regardless
+          }
+
+          // add created if doesn't exist
+          relationToSave.created = relationToSave.created ?
+                relationToSave.created : this.fmt.format(Date.now(), DataType.DATE);
+
+          logger.info(`****** ADDING ${JSON.stringify(relationToSave)} ******`);
+          jobs.push( relationRepository.save(relationToSave) );
         }
       });
 
       Promise.all(jobs)
         .then((results) => {
           logger.info(`Edited ${results.length} relations`);
-          logger.info(`&&&&&&&&&&&& ${JSON.stringify(results)} &&&&&&&&&&&&&&&`);
+          logger.info(`&&&&& ${JSON.stringify(results)} &&&&&`);
         })
         .catch((error) => {
           logger.error(`------- ${error.message} --------`);
@@ -139,29 +152,6 @@ class RelationDao implements Dao {
   /**
    * END unused methods
    */
-
-  private getEventRelation = (template: ActivityRelation, data: Activity, toRemove: boolean = false): Relation => {
-    const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
-
-    if (toRemove) {
-      return {
-        relation: template.relation || "UNKNOWN",
-        sourceId: data[template.from].id,
-        sourceType: data[template.from].type || "unknown",
-        targetId: data[template.to].id,
-        targetType: data[template.to].type || "unknown",
-      };
-    } else {
-      return relationRepository.create({
-        created: this.fmt.format(Date.now(), DataType.DATE),
-        relation: template.relation || "UNKNOWN",
-        sourceId: data[template.from].id,
-        sourceType: data[template.from].type || "unknown",
-        targetId: data[template.to].id,
-        targetType: data[template.to].type || "unknown",
-      });
-    }
-  }
 
 }
 
