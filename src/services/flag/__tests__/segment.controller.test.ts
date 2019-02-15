@@ -137,7 +137,7 @@ describe("Segment", () => {
       expect(result.status).toEqual(403);
     });
 
-    it("allows admin segment access with toggles", async () => {
+    it("allows admin segment access", async () => {
       const result = await request(app)
         .get(`/segments/${newSegmentId}`)
         .set("Authorization", `Bearer ${adminToken}`)
