@@ -124,7 +124,7 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "authentication",
   });
-  await connection.manager.save(logoutPermission);
+  const logoutPermissionWithId: Permission = await connection.manager.save(logoutPermission);
 
   // search
   const searchPermission = connection.manager.create(Permission, {
@@ -132,7 +132,7 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "search",
   });
-  await connection.manager.save(searchPermission);
+  const searchPermissionWithId: Permission = await connection.manager.save(searchPermission);
 
   // surrogate "login as user"
   const adminSurrogate = connection.manager.create(Permission, {
@@ -140,7 +140,7 @@ const loadData = async (connection: Connection) => {
     attributes: "*, !password, !ip, !surrogatePrincipal.ip, !surrogatePrincipal.password",
     resource: "surrogate",
   });
-  await connection.manager.save(adminSurrogate);
+  const adminSurrogateWithId: Permission = await connection.manager.save(adminSurrogate);
 
   // activities
   const adminActivityViewPermission = connection.manager.create(Permission, {
@@ -148,7 +148,7 @@ const loadData = async (connection: Connection) => {
     attributes: "*, !actor.password, !actor.surrogatePrincipal.password",
     resource: "activity",
   });
-  await connection.manager.save(adminActivityViewPermission);
+  const adminActivityViewPermissionWithId: Permission = await connection.manager.save(adminActivityViewPermission);
 
   // graph
   const adminRelationViewPermission = connection.manager.create(Permission, {
@@ -156,21 +156,21 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "relation",
   });
-  await connection.manager.save(adminRelationViewPermission);
+  const adminRelationViewPermissionWithId: Permission = await connection.manager.save(adminRelationViewPermission);
 
   const adminRelationCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "relation",
   });
-  await connection.manager.save(adminRelationCreatePermission);
+  const adminRelationCreatePermissionWithId: Permission = await connection.manager.save(adminRelationCreatePermission);
 
   const adminRelationDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "relation",
   });
-  await connection.manager.save(adminRelationDeletePermission);
+  const adminRelationDeletePermissionWithId: Permission = await connection.manager.save(adminRelationDeletePermission);
 
   // user
   const userUserViewPermission = connection.manager.create(Permission, {
@@ -178,42 +178,42 @@ const loadData = async (connection: Connection) => {
     attributes: "*, !age, !password",
     resource: "user",
   });
-  await connection.manager.save(userUserViewPermission);
+  const userUserViewPermissionWithId: Permission = await connection.manager.save(userUserViewPermission);
 
   const userUserUpdatePermission = connection.manager.create(Permission, {
     action: "update:own",
     attributes: "*",
     resource: "user",
   });
-  await connection.manager.save(userUserUpdatePermission);
+  const userUserUpdatePermissionWithId: Permission = await connection.manager.save(userUserUpdatePermission);
 
   const adminUserViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*, !password",
     resource: "user",
   });
-  await connection.manager.save(adminUserViewPermission);
+  const adminUserViewPermissionWithId: Permission = await connection.manager.save(adminUserViewPermission);
 
   const adminUserCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "user",
   });
-  await connection.manager.save(adminUserCreatePermission);
+  const adminUserCreatePermissionWithId: Permission = await connection.manager.save(adminUserCreatePermission);
 
   const adminUserUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "user",
   });
-  await connection.manager.save(adminUserUpdatePermission);
+  const adminUserUpdatePermissionWithId: Permission = await connection.manager.save(adminUserUpdatePermission);
 
   const adminUserDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "user",
   });
-  await connection.manager.save(adminUserDeletePermission);
+  const adminUserDeletePermissionWithId: Permission = await connection.manager.save(adminUserDeletePermission);
 
   // user tokens
   const userUserViewTokens = connection.manager.create(Permission, {
@@ -221,35 +221,35 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "token",
   });
-  await connection.manager.save(userUserViewPermission);
+  const userUserViewTokensWithId: Permission = await connection.manager.save(userUserViewTokens);
 
   const userUserDeleteTokens = connection.manager.create(Permission, {
     action: "delete:own",
     attributes: "*",
     resource: "token",
   });
-  await connection.manager.save(userUserDeleteTokens);
+  const userUserDeleteTokensWithId: Permission = await connection.manager.save(userUserDeleteTokens);
 
   const adminUserViewTokens = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
     resource: "token",
   });
-  await connection.manager.save(adminUserViewTokens);
+  const adminUserViewTokensWithId: Permission = await connection.manager.save(adminUserViewTokens);
 
   const adminUserUpdateTokens = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "token",
   });
-  await connection.manager.save(adminUserUpdateTokens);
+  const adminUserUpdateTokensWithId: Permission = await connection.manager.save(adminUserUpdateTokens);
 
   const adminUserDeleteTokens = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "token",
   });
-  await connection.manager.save(adminUserDeleteTokens);
+  const adminUserDeleteTokensWithId: Permission = await connection.manager.save(adminUserDeleteTokens);
 
   // user roles
   const adminUserViewUserRoles = connection.manager.create(Permission, {
@@ -257,21 +257,21 @@ const loadData = async (connection: Connection) => {
     attributes: "*, !password",
     resource: "userrole",
   });
-  await connection.manager.save(adminUserViewUserRoles);
+  const adminUserViewUserRolesWithId: Permission = await connection.manager.save(adminUserViewUserRoles);
 
   const adminUserAddUserRole = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*, !password",
     resource: "userrole",
   });
-  await connection.manager.save(adminUserAddUserRole);
+  const adminUserAddUserRoleWithId: Permission = await connection.manager.save(adminUserAddUserRole);
 
   const adminUserDeleteUserRole = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*, !password",
     resource: "userrole",
   });
-  await connection.manager.save(adminUserDeleteUserRole);
+  const adminUserDeleteUserRoleWithId: Permission = await connection.manager.save(adminUserDeleteUserRole);
 
   // role
   const userRoleViewPermission = connection.manager.create(Permission, {
@@ -279,35 +279,35 @@ const loadData = async (connection: Connection) => {
     attributes: "*, !permissions",
     resource: "role",
   });
-  await connection.manager.save(userRoleViewPermission);
+  const userRoleViewPermissionWithId: Permission = await connection.manager.save(userRoleViewPermission);
 
   const adminRoleViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
     resource: "role",
   });
-  await connection.manager.save(adminRoleViewPermission);
+  const adminRoleViewPermissionWithId: Permission = await connection.manager.save(adminRoleViewPermission);
 
   const adminRoleCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "role",
   });
-  await connection.manager.save(adminRoleCreatePermission);
+  const adminRoleCreatePermissionWithId: Permission = await connection.manager.save(adminRoleCreatePermission);
 
   const adminRoleUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "role",
   });
-  await connection.manager.save(adminRoleUpdatePermission);
+  const adminRoleUpdatePermissionWithId: Permission = await connection.manager.save(adminRoleUpdatePermission);
 
   const adminRoleDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "role",
   });
-  await connection.manager.save(adminRoleDeletePermission);
+  const adminRoleDeletePermissionWithId: Permission = await connection.manager.save(adminRoleDeletePermission);
 
   // role permissions
   const adminRoleViewRolePermissions = connection.manager.create(Permission, {
@@ -315,21 +315,21 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "rolepermission",
   });
-  await connection.manager.save(adminRoleViewRolePermissions);
+  const adminRoleViewRolePermissionsWithId: Permission = await connection.manager.save(adminRoleViewRolePermissions);
 
   const adminRoleAddRolePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "rolepermission",
   });
-  await connection.manager.save(adminRoleAddRolePermission);
+  const adminRoleAddRolePermissionWithId: Permission = await connection.manager.save(adminRoleAddRolePermission);
 
   const adminRoleDeleteRolePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "rolepermission",
   });
-  await connection.manager.save(adminRoleDeleteRolePermission);
+  const adminRoleDeleteRolePermissionWithId: Permission = await connection.manager.save(adminRoleDeleteRolePermission);
 
   // permission
   const adminPermissionViewPermission = connection.manager.create(Permission, {
@@ -337,21 +337,23 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "permission",
   });
-  await connection.manager.save(adminPermissionViewPermission);
+  const adminPermissionViewPermissionWithId: Permission = await connection.manager.save(adminPermissionViewPermission);
 
   const adminPermissionCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "permission",
   });
-  await connection.manager.save(adminPermissionCreatePermission);
+  const adminPermissionCreatePermissionWithId: Permission =
+      await connection.manager.save(adminPermissionCreatePermission);
 
   const adminPermissionDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "permission",
   });
-  await connection.manager.save(adminPermissionDeletePermission);
+  const adminPermissionDeletePermissionWithId: Permission =
+      await connection.manager.save(adminPermissionDeletePermission);
 
   // goal
   const adminGoalViewPermission = connection.manager.create(Permission, {
@@ -359,28 +361,28 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "goal",
   });
-  await connection.manager.save(adminGoalViewPermission);
+  const adminGoalViewPermissionWithId: Permission = await connection.manager.save(adminGoalViewPermission);
 
   const adminGoalCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "goal",
   });
-  await connection.manager.save(adminGoalCreatePermission);
+  const adminGoalCreatePermissionWithId: Permission = await connection.manager.save(adminGoalCreatePermission);
 
   const adminGoalUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "goal",
   });
-  await connection.manager.save(adminGoalUpdatePermission);
+  const adminGoalUpdatePermissionWithId: Permission = await connection.manager.save(adminGoalUpdatePermission);
 
   const adminGoalDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "goal",
   });
-  await connection.manager.save(adminGoalDeletePermission);
+  const adminGoalDeletePermissionWithId: Permission = await connection.manager.save(adminGoalDeletePermission);
 
   // segment
   const adminSegmentViewPermission = connection.manager.create(Permission, {
@@ -388,28 +390,28 @@ const loadData = async (connection: Connection) => {
     attributes: "*",
     resource: "segment",
   });
-  await connection.manager.save(adminSegmentViewPermission);
+  const adminSegmentViewPermissionWithId: Permission = await connection.manager.save(adminSegmentViewPermission);
 
   const adminSegmentCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "segment",
   });
-  await connection.manager.save(adminSegmentCreatePermission);
+  const adminSegmentCreatePermissionWithId: Permission = await connection.manager.save(adminSegmentCreatePermission);
 
   const adminSegmentUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "segment",
   });
-  await connection.manager.save(adminSegmentUpdatePermission);
+  const adminSegmentUpdatePermissionWithId: Permission = await connection.manager.save(adminSegmentUpdatePermission);
 
   const adminSegmentDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "segment",
   });
-  await connection.manager.save(adminSegmentDeletePermission);
+  const adminSegmentDeletePermissionWithId: Permission = await connection.manager.save(adminSegmentDeletePermission);
 
   // flag
   const userFlagViewPermission = connection.manager.create(Permission, {
@@ -417,86 +419,86 @@ const loadData = async (connection: Connection) => {
     attributes: "key, name, description",
     resource: "flag",
   });
-  await connection.manager.save(userFlagViewPermission);
+  const userFlagViewPermissionWithId: Permission = await connection.manager.save(userFlagViewPermission);
 
   const adminFlagViewPermission = connection.manager.create(Permission, {
     action: "read:any",
     attributes: "*",
     resource: "flag",
   });
-  await connection.manager.save(adminFlagViewPermission);
+  const adminFlagViewPermissionWithId: Permission = await connection.manager.save(adminFlagViewPermission);
 
   const adminFlagCreatePermission = connection.manager.create(Permission, {
     action: "create:any",
     attributes: "*",
     resource: "flag",
   });
-  await connection.manager.save(adminFlagCreatePermission);
+  const adminFlagCreatePermissionWithId: Permission = await connection.manager.save(adminFlagCreatePermission);
 
   const adminFlagUpdatePermission = connection.manager.create(Permission, {
     action: "update:any",
     attributes: "*",
     resource: "flag",
   });
-  await connection.manager.save(adminFlagUpdatePermission);
+  const adminFlagUpdatePermissionWithId: Permission = await connection.manager.save(adminFlagUpdatePermission);
 
   const adminFlagDeletePermission = connection.manager.create(Permission, {
     action: "delete:any",
     attributes: "*",
     resource: "flag",
   });
-  await connection.manager.save(adminFlagDeletePermission);
+  const adminFlagDeletePermissionWithId: Permission = await connection.manager.save(adminFlagDeletePermission);
 
   /**
    * As you add permissions, also add them to this list in case you
    * want a super-user role and grant all permissions (or just inherit)
    */
   const allPermissionList: Permission[] = [
-    adminActivityViewPermission,
-    adminFlagCreatePermission,
-    adminFlagDeletePermission,
-    adminFlagUpdatePermission,
-    adminFlagViewPermission,
-    adminGoalCreatePermission,
-    adminGoalDeletePermission,
-    adminGoalUpdatePermission,
-    adminGoalViewPermission,
-    adminPermissionCreatePermission,
-    adminPermissionDeletePermission,
-    adminPermissionViewPermission,
-    adminRelationCreatePermission,
-    adminRelationDeletePermission,
-    adminRelationViewPermission,
-    adminRoleAddRolePermission,
-    adminRoleCreatePermission,
-    adminRoleDeletePermission,
+    adminActivityViewPermissionWithId,
+    adminFlagCreatePermissionWithId,
+    adminFlagDeletePermissionWithId,
+    adminFlagUpdatePermissionWithId,
+    adminFlagViewPermissionWithId,
+    adminGoalCreatePermissionWithId,
+    adminGoalDeletePermissionWithId,
+    adminGoalUpdatePermissionWithId,
+    adminGoalViewPermissionWithId,
+    adminPermissionCreatePermissionWithId,
+    adminPermissionDeletePermissionWithId,
+    adminPermissionViewPermissionWithId,
+    adminRelationCreatePermissionWithId,
+    adminRelationDeletePermissionWithId,
+    adminRelationViewPermissionWithId,
+    adminRoleAddRolePermissionWithId,
+    adminRoleCreatePermissionWithId,
+    adminRoleDeletePermissionWithId,
     adminRoleDeleteRolePermission,
-    adminRoleUpdatePermission,
-    adminRoleViewPermission,
-    adminRoleViewRolePermissions,
-    adminSegmentCreatePermission,
-    adminSegmentDeletePermission,
-    adminSegmentUpdatePermission,
-    adminSegmentViewPermission,
-    adminSurrogate,
-    adminUserAddUserRole,
-    adminUserCreatePermission,
-    adminUserDeletePermission,
-    adminUserDeleteTokens,
-    adminUserDeleteUserRole,
-    adminUserUpdatePermission,
-    adminUserUpdateTokens,
-    adminUserViewPermission,
-    adminUserViewTokens,
-    adminUserViewUserRoles,
-    logoutPermission,
-    searchPermission,
-    userFlagViewPermission,
-    userRoleViewPermission,
-    userUserDeleteTokens,
-    userUserUpdatePermission,
-    userUserViewPermission,
-    userUserViewTokens,
+    adminRoleUpdatePermissionWithId,
+    adminRoleViewPermissionWithId,
+    adminRoleViewRolePermissionsWithId,
+    adminSegmentCreatePermissionWithId,
+    adminSegmentDeletePermissionWithId,
+    adminSegmentUpdatePermissionWithId,
+    adminSegmentViewPermissionWithId,
+    adminSurrogateWithId,
+    adminUserAddUserRoleWithId,
+    adminUserCreatePermissionWithId,
+    adminUserDeletePermissionWithId,
+    adminUserDeleteTokensWithId,
+    adminUserDeleteUserRoleWithId,
+    adminUserUpdatePermissionWithId,
+    adminUserUpdateTokensWithId,
+    adminUserViewPermissionWithId,
+    adminUserViewTokensWithId,
+    adminUserViewUserRolesWithId,
+    logoutPermissionWithId,
+    searchPermissionWithId,
+    userFlagViewPermissionWithId,
+    userRoleViewPermissionWithId,
+    userUserDeleteTokensWithId,
+    userUserUpdatePermissionWithId,
+    userUserViewPermissionWithId,
+    userUserViewTokensWithId,
   ];
 
   /**
@@ -514,69 +516,69 @@ const loadData = async (connection: Connection) => {
     description: "Authenticated user with basic privileges",
     id: "user",
     permissions: [
-      logoutPermission,
-      searchPermission,
-      userFlagViewPermission,
-      userRoleViewPermission,
-      userUserDeleteTokens,
-      userUserUpdatePermission,
-      userUserViewPermission,
-      userUserViewTokens,
+      logoutPermissionWithId,
+      searchPermissionWithId,
+      userFlagViewPermissionWithId,
+      userRoleViewPermissionWithId,
+      userUserDeleteTokensWithId,
+      userUserUpdatePermissionWithId,
+      userUserViewPermissionWithId,
+      userUserViewTokensWithId,
     ],
   });
   const adminRole = connection.manager.create(Role, {
     description: "Administrative user with all privileges",
     id: "admin",
     permissions: [
-      adminActivityViewPermission,
-      adminFlagCreatePermission,
-      adminFlagDeletePermission,
-      adminFlagUpdatePermission,
-      adminFlagViewPermission,
-      adminGoalCreatePermission,
-      adminGoalDeletePermission,
-      adminGoalUpdatePermission,
-      adminGoalViewPermission,
-      adminPermissionCreatePermission,
-      adminPermissionDeletePermission,
-      adminPermissionViewPermission,
-      adminRelationCreatePermission,
+      adminActivityViewPermissionWithId,
+      adminFlagCreatePermissionWithId,
+      adminFlagDeletePermissionWithId,
+      adminFlagUpdatePermissionWithId,
+      adminFlagViewPermissionWithId,
+      adminGoalCreatePermissionWithId,
+      adminGoalDeletePermissionWithId,
+      adminGoalUpdatePermissionWithId,
+      adminGoalViewPermissionWithId,
+      adminPermissionCreatePermissionWithId,
+      adminPermissionDeletePermissionWithId,
+      adminPermissionViewPermissionWithId,
+      adminRelationCreatePermissionWithId,
       adminRelationDeletePermission,
-      adminRelationViewPermission,
-      adminRoleAddRolePermission,
-      adminRoleCreatePermission,
-      adminRoleDeletePermission,
+      adminRelationViewPermissionWithId,
+      adminRoleAddRolePermissionWithId,
+      adminRoleCreatePermissionWithId,
+      adminRoleDeletePermissionWithId,
       adminRoleDeleteRolePermission,
-      adminRoleUpdatePermission,
-      adminRoleViewPermission,
-      adminRoleViewRolePermissions,
-      adminSegmentCreatePermission,
-      adminSegmentDeletePermission,
+      adminRoleUpdatePermissionWithId,
+      adminRoleViewPermissionWithId,
+      adminRoleViewRolePermissionsWithId,
+      adminSegmentCreatePermissionWithId,
+      adminSegmentDeletePermissionWithId,
       adminSegmentUpdatePermission,
-      adminSegmentViewPermission,
-      adminSurrogate,
-      adminUserAddUserRole,
-      adminUserCreatePermission,
-      adminUserDeletePermission,
-      adminUserDeleteTokens,
-      adminUserDeleteUserRole,
-      adminUserUpdatePermission,
-      adminUserUpdateTokens,
-      adminUserViewPermission,
-      adminUserViewTokens,
-      adminUserViewUserRoles,
+      adminSegmentViewPermissionWithId,
+      adminSurrogateWithId,
+      adminUserAddUserRoleWithId,
+      adminUserCreatePermissionWithId,
+      adminUserDeletePermissionWithId,
+      adminUserDeleteTokensWithId,
+      adminUserDeleteUserRoleWithId,
+      adminUserUpdatePermissionWithId,
+      adminUserUpdateTokensWithId,
+      adminUserViewPermissionWithId,
+      adminUserViewTokensWithId,
+      adminUserViewUserRolesWithId,
     ],
   });
   const sysadminRole = connection.manager.create(Role, {
     description: "Authenticated user with sysadmin privileges",
     id: "sysadmin",
     permissions: [
-      logoutPermission,
-      adminUserViewPermission,
-      adminUserUpdatePermission,
-      adminUserViewTokens,
-      adminUserUpdateTokens,
-      adminUserDeleteTokens,
+      logoutPermissionWithId,
+      adminUserViewPermissionWithId,
+      adminUserUpdatePermissionWithId,
+      adminUserViewTokensWithId,
+      adminUserUpdateTokensWithId,
+      adminUserDeleteTokensWithId,
     ],
   });
 
