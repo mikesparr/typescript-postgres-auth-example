@@ -1,6 +1,6 @@
 /**
  * Edges in graph (aka relation) that contain bi-directional
- * relations and metadata as needed
+ * relations and metadata (aka properties) as needed
  */
 import { Column, Entity, Index, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 

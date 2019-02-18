@@ -12,7 +12,7 @@ let userToken: string;
 let adminId: string;
 let adminToken: string;
 let newRoleId: string;
-let newPermissionId: string = "9ffa27c1-cf34-444e-8e3a-f02c53d145b5";
+let newPermissionId: string;
 
 beforeAll(async () => {
   let connection: Connection;
@@ -112,7 +112,7 @@ describe("Role", () => {
     });
   }); // POST /roles
 
-  xdescribe("POST /roles/:id/permissions", () => {
+  describe("POST /roles/:id/permissions", () => {
     const testData = {
       action: "read: any",
       attributes: "*",
@@ -136,7 +136,7 @@ describe("Role", () => {
         .send(testData)
         .set("Authorization", `Bearer ${adminToken}`)
         .set("Accept", "application/json");
-      newPermissionId = result.body.data.id ? result.body.data.id : "9ffa27c1-cf34-444e-8e3a-f02c53d145b5";
+      newPermissionId = result.body.data.id;
 
       expect(result.status).toEqual(200);
       // TODO: query to confirm role has expected permission
@@ -283,7 +283,7 @@ describe("Role", () => {
       expect(result.status).toEqual(404); // no record found
     });
 
-    xit("allows admin role to delete existing roles", async () => {
+    it("allows admin role to delete existing roles", async () => {
       const result = await request(app)
         .delete(`/roles/${newRoleId}`)
         .set("Authorization", `Bearer ${adminToken}`)

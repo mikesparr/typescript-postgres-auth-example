@@ -20,7 +20,9 @@ export class Permission {
   @Column()
   public attributes: string;
 
-  @ManyToOne((type) => Role, (role) => role.permissions)
+  @ManyToOne((type) => Role, (role) => role.permissions, {
+    onDelete: "CASCADE",
+  })
   public role: Role;
 
 }

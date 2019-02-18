@@ -24,5 +24,5 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await getConnection().close();
+  // await getConnection().close();
 });

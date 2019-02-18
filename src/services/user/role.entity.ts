@@ -17,7 +17,10 @@ export class Role {
   @Column({default: false})
   public archived?: boolean;
 
-  @OneToMany((type) => Permission, (permission) => permission.role)
+  @OneToMany((type) => Permission, (permission) => permission.role, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   public permissions: Permission[];
 
   @ManyToMany((type) => User, (user) => user.roles)

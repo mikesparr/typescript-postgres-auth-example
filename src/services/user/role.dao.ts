@@ -203,7 +203,7 @@ class RoleDao implements Dao {
       } else {
         logger.debug(`Removing ${this.resource} with ID ${id} from the database`);
         recordToRemove.archived = true;
-        await roleRepository.update({ id }, recordToRemove);
+        await roleRepository.remove(recordToRemove);
 
         // log event to central handler
         const ended: number = Date.now();
