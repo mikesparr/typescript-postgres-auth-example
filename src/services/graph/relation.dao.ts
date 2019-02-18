@@ -11,6 +11,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
 import { event } from "../../utils/activity.helper";
@@ -36,6 +37,11 @@ class RelationDao implements Dao {
 
   public getAll = async (user: User, params?: URLParams):
             Promise<SearchResult> => {
+    if (!user) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
 
@@ -73,6 +79,11 @@ class RelationDao implements Dao {
   }
 
   public updateGraphFromEvent = async (data: any): Promise<void> => {
+    if (!data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
 
     try {

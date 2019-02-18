@@ -10,6 +10,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
 import { event } from "../../utils/activity.helper";
@@ -31,6 +32,11 @@ class SearchDao implements Dao {
 
   public getPlacesByName = async (user: User, query: string):
           Promise<SearchResult> => {
+    if (!user || !query) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
 
     const isOwnerOrMember: boolean = false;

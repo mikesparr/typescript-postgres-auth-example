@@ -11,6 +11,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 import UserExistsException from "../../exceptions/UserExistsException";
 import AuthenticationTokenExpiredException from "../../exceptions/AuthenticationTokenExpiredException";
@@ -64,6 +65,11 @@ class AuthenticationDao implements Dao {
   }
 
   public login = async (loginData: UserLoginDto, userAgent: object): Promise<object | Error> => {
+    if (!loginData || !userAgent) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -85,6 +91,11 @@ class AuthenticationDao implements Dao {
           user: User,
           surrogateUserId: string,
           userAgent: object): Promise<object | Error> => {
+    if (!user || !surrogateUserId || !userAgent) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -109,6 +120,11 @@ class AuthenticationDao implements Dao {
   }
 
   public logout = async (user: User, token: string): Promise<object | Error> => {
+    if (!user || !token) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const isOwnerOrMember: boolean = false;
     const action: string = ActivityType.UPDATE;
@@ -137,6 +153,11 @@ class AuthenticationDao implements Dao {
   }
 
   public register = async (userData: CreateUserDto, userAgent: object): Promise<User | Error> => {
+    if (!userData || !userAgent) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
@@ -182,6 +203,11 @@ class AuthenticationDao implements Dao {
   }
 
   public verifyToken = async (token: string, userAgent: object): Promise<object | Error> => {
+    if (!token || !userAgent) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
@@ -245,6 +271,11 @@ class AuthenticationDao implements Dao {
   }
 
   public lostPassword = async (userData: UserEmailDto, userAgent: object): Promise<object | Error> => {
+    if (!userData || !userAgent) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -276,6 +307,11 @@ class AuthenticationDao implements Dao {
 
   public removeToken = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const recordToRemove = await decodeToken(id);
 

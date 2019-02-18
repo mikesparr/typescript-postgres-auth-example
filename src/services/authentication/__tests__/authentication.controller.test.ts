@@ -67,7 +67,9 @@ afterAll(async () => {
   }
 
   const userToRemove: User = await connection.manager.findOne(User, { email: "sally@example.com" });
-  await connection.manager.delete(User, userToRemove);
+  if (userToRemove) {
+    await connection.manager.delete(User, userToRemove);
+  }
 });
 
 describe("Authentication", () => {

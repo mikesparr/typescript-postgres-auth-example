@@ -11,6 +11,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
 import { event } from "../../utils/activity.helper";
@@ -34,6 +35,11 @@ class GoalDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
+    if (!user) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
     const records = await goalRepository.find({ relations: ["flags"] });
@@ -70,6 +76,11 @@ class GoalDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
 
@@ -104,6 +115,11 @@ class GoalDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
     const newRecord: CreateGoalDto = data;
@@ -140,6 +156,11 @@ class GoalDao implements Dao {
 
   public update = async (user: User, data: any):
             Promise<Goal | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
 
@@ -181,6 +202,11 @@ class GoalDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const goalRepository: Repository<Goal> = getConnection().getRepository(Goal);
     const recordToRemove = await goalRepository.findOne(id);

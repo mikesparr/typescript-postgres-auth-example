@@ -10,6 +10,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
 import { event } from "../../utils/activity.helper";
@@ -45,6 +46,11 @@ class UserDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
+    if (!user) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -83,6 +89,11 @@ class UserDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -116,6 +127,11 @@ class UserDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -154,6 +170,11 @@ class UserDao implements Dao {
 
   public update = async (user: User, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -195,6 +216,11 @@ class UserDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -232,6 +258,11 @@ class UserDao implements Dao {
   }
 
   public getTokens = async (user: User, tokenUserId: string): Promise<object | Error> => {
+    if (!user || !tokenUserId) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -270,6 +301,11 @@ class UserDao implements Dao {
 
   public getFlags = async (
           user: User, flagUserId: string): Promise<Array<{[key: string]: any}> | Error> => {
+    if (!user || !flagUserId) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -308,6 +344,11 @@ class UserDao implements Dao {
 
   public removeToken = async (user: User, id: string, tokenId: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id || !tokenId) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const recordToRemove = await decodeToken(tokenId);
 
@@ -343,6 +384,11 @@ class UserDao implements Dao {
 
   public removeAllTokens = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -381,6 +427,11 @@ class UserDao implements Dao {
 
   public getRoles = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 
@@ -415,6 +466,11 @@ class UserDao implements Dao {
 
   public addRole = async (user: User, id: number, data: any):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
@@ -468,6 +524,11 @@ class UserDao implements Dao {
 
   public removeRole = async (user: User, id: string, roleId: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id || !roleId) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const userRepository: Repository<User> = getConnection().getRepository(User);
 

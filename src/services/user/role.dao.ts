@@ -10,6 +10,7 @@ import DuplicateRecordException from "../../exceptions/DuplicateRecordException"
 import RecordNotFoundException from "../../exceptions/RecordNotFoundException";
 import RecordsNotFoundException from "../../exceptions/RecordsNotFoundException";
 import NotImplementedException from "../../exceptions/NotImplementedException";
+import MissingParametersException from "../../exceptions/MissingParametersException";
 import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedException";
 
 import { event } from "../../utils/activity.helper";
@@ -35,6 +36,11 @@ class RoleDao implements Dao {
 
   public getAll = async (user: User, params?: {[key: string]: any}):
             Promise<SearchResult> => {
+    if (!user) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
@@ -72,6 +78,11 @@ class RoleDao implements Dao {
 
   public getOne = async (user: User, id: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
@@ -105,6 +116,11 @@ class RoleDao implements Dao {
 
   public save = async (user: User, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
     const newRecord: CreateRoleDto = data;
@@ -142,6 +158,11 @@ class RoleDao implements Dao {
 
   public update = async (user: User, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
@@ -183,6 +204,11 @@ class RoleDao implements Dao {
 
   public remove = async (user: User, id: string):
             Promise<boolean | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
@@ -195,7 +221,7 @@ class RoleDao implements Dao {
       try {
         recordToRemove = await roleRepository.findOneOrFail(id);
       } catch (lookupError) {
-        logger.error(` ^^^^^^^^^^^^^^^^^^^ No ${this.resource} record found with ID ${id}`);
+        logger.error(`No ${this.resource} record found with ID ${id}`);
       }
 
       if (!recordToRemove || (recordToRemove && !recordToRemove.id)) {
@@ -226,6 +252,11 @@ class RoleDao implements Dao {
 
   public getPermissions = async (user: User, id: string):
             Promise<User | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
@@ -260,6 +291,11 @@ class RoleDao implements Dao {
 
   public addPermission = async (user: User, id: string, data: any):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id || !data) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
     const permissionRepository: Repository<Permission> = getConnection().getRepository(Permission);
@@ -326,6 +362,11 @@ class RoleDao implements Dao {
 
   public removePermission = async (user: User, id: string, permissionId: string):
             Promise<Role | RecordNotFoundException | UserNotAuthorizedException> => {
+    if (!user || !id || !permissionId) {
+      const message: string = "Required parameters missing";
+      throw new MissingParametersException(message);
+    }
+
     const started: number = Date.now();
     const roleRepository: Repository<Role> = getConnection().getRepository(Role);
 
