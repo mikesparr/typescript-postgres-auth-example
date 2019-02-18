@@ -34,7 +34,7 @@ class AuthenticationController implements Controller {
     this.router.post(`${this.path}/impersonate/:id`, authenticationMiddleware, addUserAgent, this.impersonate);
     this.router.post(`${this.path}/logout`, authenticationMiddleware, this.logout);
     this.router.post(`${this.path}/register`, validationMiddleware(CreateUserDto), addUserAgent, this.register);
-    this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), this.lostPassword);
+    this.router.post(`${this.path}/lost-password`, validationMiddleware(UserEmailDto), addUserAgent, this.lostPassword);
     this.router.delete(`${this.path}/tokens/:id`, authenticationMiddleware, this.removeToken);
   }
 

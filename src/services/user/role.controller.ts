@@ -103,10 +103,10 @@ class RoleController implements Controller {
   }
 
   private removePermission = async (request: RequestWithUser, response: Response, next: NextFunction) => {
-    const { id, roleId } = request.params;
+    const { id, permissionId } = request.params;
 
     try {
-      const data: any = await this.roleDao.removePermission(request.user, id, roleId);
+      const data: any = await this.roleDao.removePermission(request.user, id, permissionId);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK"));
     } catch (error) {
       next(error);
