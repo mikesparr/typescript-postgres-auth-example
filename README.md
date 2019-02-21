@@ -11,6 +11,7 @@ start off on the right foot with key functionality needed for future scaling and
  * Authorization (role-based access control with attribute filtering)
  * Features flags (flags, multi-variant flags, user segments, environments, goal tracking)
  * Event logging (logs activity stream of user events, search and filter log records)
+ * Graph relations (automatically builds graph from activity stream events)
  * Performance monitoring (logging process time per request to identify bottlenecks)
  * Security (token deny list, helmet, more to come...)
  * Email using Sendgrid transactional email
@@ -22,13 +23,14 @@ start off on the right foot with key functionality needed for future scaling and
  * Strongly-typed codebase (written in Typescript)
  * Interactive API documentation using Swagger UI (Open API spec)
  * Automated testing (including integration tests for API routes)
+   * Jest unit and integration tests (`npm test`)
+   * Locust load testing (see `locustfile.py`)
 
 ## Planned features
  * User groups support (authorization based on membership roles)
  * User invite support
  * Internationalization
  * Additional view layers (i.e. GraphQL)
- * Graph relations
  * Workspaces
 
 # Usage (quick start)
@@ -66,7 +68,7 @@ This app includes automated tests using **Supertest** and **Jest** to test route
 
 # Extending
 Every DAO method should `emit` an event in an activity stream format as shown. For max flexibility,
-like to disable writes and make the architecture CQRS, you can create a new handler in `src/config/events.ts`.
+like to disable writes and make the architecture CQRS, you can create a new handler in `utils/activity.helper.ts`.
 
 ## Adding new services
 You can follow along the commit history relating to the issues (closed) and see how, but a general idea is:
@@ -98,6 +100,7 @@ as much as possible so we could change out solutions in future without modifying
  * As a `user`, I want to be able to `logout`, so that my authentication session cannot be used by others
  * As a `user`, I want to be informed if attempts to gain access to my account occur, so I can help prevent unauthorized access
  * As a `user`, I want to be able to disable one or more devices (tokens), so I can prevent unauthorized access
+ * As a `user`, I want the app to respond quickly, so I don't have to wait for information
 
 ### Admin (User + Admin)
  * As an `admin`, I want to be able to `search` by city name, so I can view geo data about the city
