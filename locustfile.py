@@ -58,7 +58,8 @@ class UserBehavior(TaskSet):
         """
         self.client.get("/users", headers={"Authorization": "Bearer {}".format(auth_token)})
 
-class WebsiteUser(HttpLocust):
+class ApiUser(HttpLocust):
     task_set = UserBehavior
-    min_wait = 5000
-    max_wait = 9000
+    # wait times simulating how long a user might wait between tasks (impatient)
+    min_wait = 1000
+    max_wait = 5000
