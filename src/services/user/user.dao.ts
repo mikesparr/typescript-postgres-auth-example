@@ -16,7 +16,7 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import { event } from "../../utils/activity.helper";
 import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 import { DataType, Formatter } from "../../utils/formatter";
-import { getFlagsForUser } from "../../utils/flag.helper";
+import { getFlagsForUser, refreshUserFlags } from "../../utils/flag.helper";
 import {
   addAllUserTokensToDenyList,
   getTokensFromUserTokensList,
@@ -322,6 +322,8 @@ class UserDao implements Dao {
         throw new RecordNotFoundException(flagUserId);
       } else {
         const userFlags: Array<{[key: string]: any}> = await getFlagsForUser(record);
+
+        // TODO: add TTL check for cached flag and trigger refresh
 
         // log event to central handler
         const ended: number = Date.now();

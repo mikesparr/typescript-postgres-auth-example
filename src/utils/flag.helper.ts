@@ -134,18 +134,44 @@ const getMergedGoalIds = (flagGoals: Goal[], variantGoalIds: any[]): string[] =>
   return Object.keys(mergedIds);
 };
 
+const getFlagsFromDatabase = async (): Promise<Flag[]> => {
+  const flagRepository: Repository<Flag> = getRepository(Flag);
+  return flagRepository.find({ relations: ["goals", "segments"] });
+};
+
 /**
  * Returns list of feature flags that apply to given user
  *
  * @param user
+ * @param flags (optional if fetched from db or cache already)
  */
 const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key: string]: any}>> => {
   const userFlags: Array<{[key: string]: any}> = [];
 
-  // get flags from database if not provided
+  // check if in cache first and return
+  const userFlagsFromCache: Array<{[key: string]: any}> = await getUserFlagsFromCache(user);
+  if (userFlagsFromCache) {
+    // TODO: emit cache hit (user flag key)
+
+    return userFlagsFromCache;
+  }
+
+  // get flags from database or cache if not provided
   if (!flags) {
-    const flagRepository: Repository<Flag> = getRepository(Flag);
-    flags = await flagRepository.find({ relations: ["goals", "segments"] });
+    const flagsFromCache: Flag[] = await getFlagsFromCache();
+    if (flagsFromCache) {
+      // TODO: emit cache hit (flags key)
+
+      flags = flagsFromCache;
+    }
+    // check if flags in cache first
+
+    flags = await getFlagsFromDatabase();
+
+    // TODO: emit cache miss (flags key)
+
+    // save in cache
+    await saveFlagsToCache(flags);
   }
 
   if (flags) {
@@ -199,8 +225,86 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
     }
   }
 
+  // TODO: emit cache miss
+
+  // add user flags to cache
+  await saveUserFlagsToCache(user.id, userFlags);
+
   return userFlags;
 };
+
+/**
+ * CACHE OPERATIONS
+ */
+/**
+ * Saves flags list object to cache
+ * @param flagList
+ */
+const saveFlagsToCache = async (flagList: {[key: string]: any}): Promise<boolean> => {
+  logger.info(`Saving grant list to cache with key ${FEATURE_FLAGS_KEY}`);
+  return await cache.set(FEATURE_FLAGS_KEY, JSON.stringify(flagList)) !== null;
+};
+
+/**
+ * Returns global flags list object if found
+ */
+const getFlagsFromCache = async (): Promise<Flag[]> => {
+  const flagString = await cache.get(FEATURE_FLAGS_KEY);
+  return JSON.parse(flagString);
+};
+
+/**
+ * Deletes global flags from cache
+ */
+const removeFlagsFromCache = async (): Promise<boolean> => {
+  logger.info(`Removing grant list from cache with key ${FEATURE_FLAGS_KEY}`);
+  return await cache.del(FEATURE_FLAGS_KEY) === 1;
+};
+
+/**
+ * Fetches latest flags from database and updates cache
+ */
+const refreshFlags = async (): Promise<boolean> => {
+  const newFlagsList: Flag[] = await getFlagsFromDatabase();
+  return saveFlagsToCache(newFlagsList);
+};
+
+/**
+ * Saves user flags object to cache
+ * @param id - user ID
+ * @param userFlags
+ */
+const saveUserFlagsToCache = async (id: string, userFlags: {[key: string]: any}): Promise<boolean> => {
+  logger.info(`Saving grant list to cache with key ${FEATURE_FLAGS_KEY}`);
+  return await cache.set(USER_FLAGS_KEY(id), JSON.stringify(userFlags)) !== null;
+};
+
+/**
+ * Returns user flags list object if found
+ * @param id
+ */
+const getUserFlagsFromCache = async (user: User): Promise<Array<{[key: string]: any}>> => {
+  const userFlagString = await cache.get(USER_FLAGS_KEY(user.id));
+  return JSON.parse(userFlagString);
+};
+
+/**
+ * Deletes global flags from cache
+ */
+const removeUserFlagsFromCache = async (user: User): Promise<boolean> => {
+  logger.info(`Removing user flags from cache with key ${USER_FLAGS_KEY(user.id)}`);
+  return await cache.del(USER_FLAGS_KEY(user.id)) === 1;
+};
+
+/**
+ * Fetches latest flags from database and updates cache
+ */
+const refreshUserFlags = async (user: User): Promise<boolean> => {
+  const userFlagsList: Array<{[key: string]: any}> = await getFlagsForUser(user);
+  return saveFlagsToCache(userFlagsList);
+};
+
+// TODO: add refreshAllUserFlags and globally force refresh
 
 export {
   inArray,
@@ -209,4 +313,8 @@ export {
   getVariantKeyAndGoalIds,
   getMergedGoalIds,
   getFlagsForUser,
+  removeFlagsFromCache,
+  refreshFlags,
+  removeUserFlagsFromCache,
+  refreshUserFlags,
 };

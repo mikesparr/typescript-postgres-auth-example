@@ -17,6 +17,7 @@ import UserNotAuthorizedException from "../../exceptions/UserNotAuthorizedExcept
 import { event } from "../../utils/activity.helper";
 import { AuthPermission, getPermission } from "../../utils/authorization.helper";
 import { DataType, Formatter } from "../../utils/formatter";
+import { refreshFlags } from "../../utils/flag.helper";
 
 import { User } from "../user/user.entity";
 import { Flag } from "./flag.entity";
@@ -134,6 +135,9 @@ class FlagDao implements Dao {
         const filteredData: Flag = permission.filter(newRecord);
         const savedData: Flag = await flagRepository.save(filteredData);
 
+        // update cache
+        await refreshFlags();
+
         // log event to central handler
         const ended: number = Date.now();
         event.emit(action, {
@@ -178,6 +182,9 @@ class FlagDao implements Dao {
           const savedData: Flag = flagRepository.merge(new Flag(), recordToUpdate, permission.filter(data));
           const updateResult: any = await flagRepository.update({ id: data.id }, savedData);
 
+          // update cache
+          await refreshFlags();
+
           // log event to central handler
           const ended: number = Date.now();
           event.emit(action, {
@@ -221,6 +228,9 @@ class FlagDao implements Dao {
       if (recordToRemove) {
         recordToRemove.archived = true;
         await flagRepository.update({ id }, recordToRemove);
+
+        // update cache
+        await refreshFlags();
 
         // log event to central handler
         const ended: number = Date.now();

@@ -50,7 +50,7 @@ class RelationDao implements Dao {
     const permission: AuthPermission = await getPermission(user, isOwnerOrMember, action, this.resource);
 
     if (permission.granted) {
-      const records: Relation[] = await relationRepository.find();
+      const records: Relation[] = await relationRepository.find({archived: false});
 
       if (!records) {
         throw new RecordsNotFoundException(this.resource);
