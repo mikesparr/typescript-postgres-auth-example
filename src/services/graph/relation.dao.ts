@@ -87,11 +87,6 @@ class RelationDao implements Dao {
     const relationRepository: Repository<Relation> = getConnection().getRepository(Relation);
 
     try {
-      // initiate transaction so all relations save or none for integrity
-      /*
-      await getManager().transaction(async (manager) => {
-      }); */
-
       const jobs: Array<Promise<any>> = [];
 
       // get relations for event, then loop through them and build object
@@ -110,7 +105,7 @@ class RelationDao implements Dao {
                 relationToSave = relationRepository.merge(relationToSave, foundRelation);
               }
             } catch (error) {
-              logger.error(`@@@@@@ Error finding relation ${JSON.stringify(relationToSave)} @@@@@@`);
+              logger.error(`Error finding relation ${JSON.stringify(relationToSave)}`);
             }
 
             relationToSave.archived = true; // set true regardless
@@ -120,15 +115,13 @@ class RelationDao implements Dao {
           relationToSave.created = relationToSave.created ?
                 relationToSave.created : this.fmt.format(Date.now(), DataType.DATE);
 
-          logger.info(`****** ADDING ${JSON.stringify(relationToSave)} ******`);
           jobs.push( relationRepository.save(relationToSave) );
         }
       });
 
       Promise.all(jobs)
         .then((results) => {
-          logger.info(`Edited ${results.length} relations`);
-          logger.info(`&&&&& ${JSON.stringify(results)} &&&&&`);
+          logger.debug(`Edited ${results.length} relations`);
         })
         .catch((error) => {
           logger.error(`------- ${error.message} --------`);

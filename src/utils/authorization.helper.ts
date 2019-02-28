@@ -5,6 +5,9 @@
 import { AccessControl as Authorizer, Permission as AuthPermission, Query as AuthQuery } from "accesscontrol";
 import cache from "../config/cache"; // Redis commands
 import logger from "../config/logger";
+
+import { event, EventType } from "./activity.helper";
+
 import { getRepository, Repository } from "typeorm";
 import { User } from "../services/user/user.entity";
 import { Role } from "../services/user/role.entity";
@@ -13,6 +16,7 @@ import { Permission } from "../services/user/permission.entity";
 /**
  * Keys for cache
  */
+const RESOURCE: string = "permission";
 const AUTHORIZATION_GRANTS_KEY = "authorization:grants";
 const USER_ROLES_KEY = (userId: string) => `user:${userId}:roles`;
 
@@ -131,12 +135,16 @@ const removeUserRolesFromCache = async (user: User): Promise<boolean> => {
  * @param user
  */
 const getUserRoles = async (user: User): Promise<string[]> => {
+  const started: number = Date.now();
   const rolesInCache: string[] = await getUserRolesFromCache(user);
+
   if (rolesInCache && rolesInCache.length > 0) {
+    log(EventType.CACHE_HIT, USER_ROLES_KEY(user.id), started);
     return rolesInCache;
   } else {
     const rolesFromDatabase: string[] = await getUserRolesFromDatabase(user);
     addUserRolesToCache(user, rolesFromDatabase);
+    log(EventType.CACHE_MISS, USER_ROLES_KEY(user.id), started);
     return rolesFromDatabase;
   }
 };
@@ -154,10 +162,15 @@ const refreshUserRoles = async (user: User): Promise<boolean> => {
  * Checks whether user is authorized
  */
 const getAuthorizer = async (): Promise<Authorizer> => {
+  const started: number = Date.now();
   let grantList: Array<{[key: string]: any}> = await getGrantListFromCache();
+
   if (!grantList) {
     await refreshGrants();
     grantList = await createGrantListFromDatabase();
+    log(EventType.CACHE_MISS, AUTHORIZATION_GRANTS_KEY, started);
+  } else {
+    log(EventType.CACHE_HIT, AUTHORIZATION_GRANTS_KEY, started);
   }
 
   return new Authorizer(grantList);
@@ -210,6 +223,21 @@ const getPermission = async (
         return null; // throw Exception?
     }
   }
+};
+
+/**
+ * Emits event for cache hit/miss tracking
+ */
+const log = (type: EventType, key: string, started: number) => {
+  const ended: number = Date.now();
+
+  event.emit(type, {
+    key,
+    resource: RESOURCE,
+    timestamp: ended,
+    took: ended - started,
+    type,
+  });
 };
 
 export {

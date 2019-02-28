@@ -7,6 +7,13 @@ import { DataType, Formatter } from "./formatter";
 import { save } from "./document.helper";
 import RelationDao from "../services/graph/relation.dao";
 
+const ACTIVITY_INDEX = "activities";
+
+export enum EventType {
+  CACHE_HIT = "hit",
+  CACHE_MISS = "miss",
+}
+
 /**
  * Event emitter that can allow handling of application events
  * (i.e. - audit logging, CQRS-ES architecture, etc)
@@ -14,8 +21,6 @@ import RelationDao from "../services/graph/relation.dao";
  * throughout app
  */
 export const event = new EventEmitter();
-
-const ACTIVITY_INDEX = "activities";
 
 /**
  * Formatter to standardize data before storing in DB
@@ -49,6 +54,10 @@ const handleEvent = async (data: Activity) => {
   }
 };
 
+const logHitOrMiss = async (data: Activity) => {
+  logger.info(JSON.stringify(data));
+};
+
 /**
  * Listen for events emitted from DAO methods and pass in handler
  */
@@ -66,3 +75,6 @@ event.on(ActivityType.READ, handleEvent);
 event.on(ActivityType.UPDATE, handleEvent);
 event.on(ActivityType.DELETE, handleEvent);
 event.on(ActivityType.VIEW, handleEvent);
+// analytics
+event.on(EventType.CACHE_HIT, logHitOrMiss);
+event.on(EventType.CACHE_MISS, logHitOrMiss);

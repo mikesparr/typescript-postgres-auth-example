@@ -6,12 +6,17 @@ import bcrypt from "bcrypt";
 import cache from "../config/cache"; // Redis commands
 import jwt from "jsonwebtoken";
 import logger from "../config/logger";
+
 import RequestWithUser from "../interfaces/request.interface";
+
+import { event, EventType } from "./activity.helper";
+
 import { User } from "../services/user/user.entity";
 
 /**
  * Keys for cache
  */
+const RESOURCE: string = "authentication";
 const DENYLIST_KEY: string = "token:denylist";
 const USER_TOKENS_KEY = (userId: string): string => `user:${userId}:tokens`;
 
@@ -257,6 +262,21 @@ const removeTokenFromDenyList = async (token: string): Promise<boolean> => {
  */
 const resetDenyList = async (): Promise<boolean> => {
   return await cache.del(DENYLIST_KEY) === 1;
+};
+
+/**
+ * Emits event for cache hit/miss tracking
+ */
+const log = (type: EventType, key: string, started: number) => {
+  const ended: number = Date.now();
+
+  event.emit(type, {
+    key,
+    resource: RESOURCE,
+    timestamp: ended,
+    took: ended - started,
+    type,
+  });
 };
 
 // TODO: consider device-level grants (store user agent instead of payload)

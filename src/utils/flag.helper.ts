@@ -5,16 +5,21 @@
 import jexl from "jexl";
 import cache from "../config/cache";
 import logger from "../config/logger";
+
+import { Environment } from "../interfaces/environment.interface";
+
+import { event, EventType } from "./activity.helper";
+
 import { getRepository, Repository } from "typeorm";
 import { User } from "../services/user/user.entity";
 import { Flag } from "../services/flag/flag.entity";
 import { Goal } from "../services/flag/goal.entity";
 import { Segment } from "../services/flag/segment.entity";
-import { Environment } from "../interfaces/environment.interface";
 
 /**
  * Keys for cache
  */
+const RESOURCE = "flag";
 const FEATURE_FLAGS_KEY = "feature:flags";
 const USER_FLAGS_KEY = (userId: string) => `user:${userId}:flags`;
 
@@ -146,13 +151,13 @@ const getFlagsFromDatabase = async (): Promise<Flag[]> => {
  * @param flags (optional if fetched from db or cache already)
  */
 const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key: string]: any}>> => {
+  const started: number = Date.now();
   const userFlags: Array<{[key: string]: any}> = [];
 
   // check if in cache first and return
   const userFlagsFromCache: Array<{[key: string]: any}> = await getUserFlagsFromCache(user);
   if (userFlagsFromCache) {
-    // TODO: emit cache hit (user flag key)
-
+    log(EventType.CACHE_HIT, USER_FLAGS_KEY(user.id), started);
     return userFlagsFromCache;
   }
 
@@ -160,18 +165,15 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
   if (!flags) {
     const flagsFromCache: Flag[] = await getFlagsFromCache();
     if (flagsFromCache) {
-      // TODO: emit cache hit (flags key)
-
       flags = flagsFromCache;
+      log(EventType.CACHE_HIT, FEATURE_FLAGS_KEY, started);
     }
     // check if flags in cache first
-
     flags = await getFlagsFromDatabase();
-
-    // TODO: emit cache miss (flags key)
 
     // save in cache
     await saveFlagsToCache(flags);
+    log(EventType.CACHE_MISS, FEATURE_FLAGS_KEY, started);
   }
 
   if (flags) {
@@ -225,10 +227,9 @@ const getFlagsForUser = async (user: User, flags?: Flag[]): Promise<Array<{[key:
     }
   }
 
-  // TODO: emit cache miss
-
   // add user flags to cache
   await saveUserFlagsToCache(user.id, userFlags);
+  log(EventType.CACHE_MISS, USER_FLAGS_KEY(user.id), started);
 
   return userFlags;
 };
@@ -302,6 +303,21 @@ const removeUserFlagsFromCache = async (user: User): Promise<boolean> => {
 const refreshUserFlags = async (user: User): Promise<boolean> => {
   const userFlagsList: Array<{[key: string]: any}> = await getFlagsForUser(user);
   return saveFlagsToCache(userFlagsList);
+};
+
+/**
+ * Emits event for cache hit/miss tracking
+ */
+const log = (type: EventType, key: string, started: number) => {
+  const ended: number = Date.now();
+
+  event.emit(type, {
+    key,
+    resource: RESOURCE,
+    timestamp: ended,
+    took: ended - started,
+    type,
+  });
 };
 
 // TODO: add refreshAllUserFlags and globally force refresh
